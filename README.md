@@ -34,6 +34,11 @@ All tabs normally share one identity (a second tab takes over the first). To pla
 | `npm start` | Run the production build: one server on `PORT` serving the client, API and Socket.IO |
 | `npm run check` | typecheck + lint + test + build |
 
+The poker engine's property test plays 1,500 random hands on every run. For a longer soak:
+```bash
+npx cross-env ENGINE_PROPERTY_RUNS=50000 npm test -w @poker/server
+```
+
 ## Layout
 ```
 shared/   types, constants, zod schemas, Socket.IO event contract (TypeScript source, no build step)

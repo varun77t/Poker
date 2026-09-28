@@ -30,7 +30,8 @@ poker/
 ├── shared/                      imported by both server and client
 │   └── src/
 │       ├── cards.ts             Card, Rank, Suit types
-│       ├── views.ts             RoomView, GameView, SeatView, LegalActions, HandResultView
+│       ├── views.ts             TableSnapshot, RoomView, SeatView
+│       ├── game.ts              GameView, LegalActions, ActionIntent, HandResult (hand in progress, per player)
 │       ├── events.ts            ClientToServerEvents, ServerToClientEvents, Ack, ErrorCode
 │       ├── schemas.ts           zod schemas for every client→server payload + RoomSettings
 │       └── constants.ts         MAX_SEATS=5, ROOM_CODE_ALPHABET, defaults and bounds
@@ -55,11 +56,13 @@ poker/
 │       ├── table/
 │       │   └── tableController.ts  (Phase 4) one per playing room: runs hands, timers, pacing, rebuys, game end
 │       ├── engine/              PURE — must not import anything outside engine/ and shared/
-│       │   ├── deck.ts          createDeck, shuffle(rng)
-│       │   ├── evaluator.ts     evaluate7(cards) → { category, rankValue, best5, label }
-│       │   ├── betting.ts       legal actions, raise rules, round completion
-│       │   ├── pots.ts          layering, side pots, uncalled returns, payouts, odd chips
-│       │   ├── engine.ts        createHand, applyAction, advance, forceFold
+│       │   ├── index.ts         the public API (import the engine from here)
+│       │   ├── deck.ts          FULL_DECK, shuffle / shuffledDeck(randomInt) — Fisher–Yates, RNG injected
+│       │   ├── evaluator.ts     evaluateHand(5–7 cards) → { category, rankValue, best5, label }
+│       │   ├── seats.ts         clockwise order, firstButtonSeat, nextButtonSeat
+│       │   ├── betting.ts       legal actions, intent validation, raise rules, round completion
+│       │   ├── pots.ts          layering, side pots, uncalled chips, odd-chip splits
+│       │   ├── engine.ts        createHand, applyAction, advance, forceFold, showdown
 │       │   ├── types.ts         HandState, HandPlayer, EngineEvent, EngineError
 │       │   └── view.ts          toGameView(state, viewerId): the only hidden-info projection
 │       ├── bots/                (Phase 7) PURE like engine/: strategy.ts decide(view, legal, rng), bot names
@@ -190,8 +193,8 @@ server  guard → ActionSchema (integers, amount ≥ 0)
         controller = room.table   (INVALID_STATE if none)
         handId/seq ≠ current → STALE_ACTION   (double-click, delayed packet, replay)
         engine.applyAction(hand, playerId, intent)
-            → error (NOT_YOUR_TURN | ILLEGAL_ACTION | INVALID_AMOUNT) → ack error, nothing changes
-            → ok: controller stores new hand state, seq++, cancels turn timer
+            → error (NOT_YOUR_TURN | ILLEGAL_ACTION | INVALID_AMOUNT | INVALID_STATE) → ack error, nothing changes
+            → ok: controller stores the new hand state (the engine already bumped seq), cancels turn timer
         controller.schedule():
             hand.awaiting == 'action' → start turn timer for next actor
             hand.awaiting == 'deal'   → after STREET_DELAY: engine.advance(hand)  (repeat for run-outs)
@@ -290,6 +293,8 @@ interface Seat {
 // engine/types.ts
 interface HandState {
   handId: number;                   // increments per hand within the room
+  seq: number;                      // bumped by the engine on every change; actions must echo it
+  totalChips: number;               // Σ starting stacks, for the conservation check (R-7.6)
   smallBlind: number; bigBlind: number;
   buttonSeat: number; sbSeat: number; bbSeat: number;
   street: 'preflop' | 'flop' | 'turn' | 'river' | 'showdown';
@@ -313,21 +318,29 @@ interface HandPlayer {
   contributed: number;              // whole hand
   hasActed: boolean;                // since action last reopened
   betLevelWhenLastActed: number;    // for R-4.5
+  lastAction: LastAction | null;    // this street; shown next to the seat
 }
 ```
 
-### 8.2 Engine API
+### 8.2 Engine API (`server/src/engine/index.ts`)
 ```ts
-createHand(input: { handId, players: {playerId, seat, stack}[], buttonSeat, smallBlind, bigBlind, deck: Card[] }): HandState
+createHand(input: { handId, players: {playerId, seat, stack}[], buttonSeat, smallBlind, bigBlind, deck: Card[] }): { state; events }
 getLegalActions(state, playerId): LegalActions | null
 applyAction(state, playerId, intent): { ok: true; state; events } | { ok: false; error: EngineError }
 advance(state): { state; events }            // valid only when awaiting == 'deal'
 forceFold(state, playerId): { state; events }
-toGameView(state, viewerId): GameView        // in view.ts
+toGameView(state, viewerId, { turnDeadline? }): GameView
+shuffledDeck(randomInt): Card[]              // the controller passes secureRandomInt (crypto.randomInt)
+firstButtonSeat(eligibleSeats, randomInt) / nextButtonSeat(previousButton, eligibleSeats)
+evaluateHand(cards): HandValue               // 5–7 cards
 ```
-All functions return **new** state objects and never mutate their input. That makes them easy to test and lets the controller keep the previous state if needed.
+- All functions return **new** state objects and never mutate their input. That makes them easy to test and lets the controller keep the previous state if needed.
+- `createHand` throws on invalid input (a controller bug): fewer than 2 players, a zero stack, a bad deck, or a button on a non-eligible seat.
+- `EngineError.code` is one of `NOT_YOUR_TURN`, `ILLEGAL_ACTION`, `INVALID_AMOUNT`, `INVALID_STATE`, which are all shared `ErrorCode`s, so the controller passes them straight to the ack.
+- `events` describe what happened (blinds, actions, uncalled chips returned, streets dealt, hands revealed, pots awarded). The controller uses them for pacing. They never contain hole cards.
 
-### 8.3 Views sent to clients (`shared/src/views.ts`)
+### 8.3 Views sent to clients (`shared/src/views.ts`, `shared/src/game.ts`)
+The exact `GameView`, `LegalActions` and `HandResult` types are in [`shared/src/game.ts`](../shared/src/game.ts). The outline below is the shape.
 ```ts
 interface TableSnapshot {
   version: number;
@@ -352,11 +365,11 @@ interface GameView {
   players: {
     seat: number; playerId: PlayerId; stack: number; committed: number;
     status: 'active' | 'folded' | 'allIn';
-    lastAction: { type: string; amount?: number } | null;
+    lastAction: { type: 'fold'|'check'|'call'|'bet'|'raise'; amount?: number; allIn: boolean } | null;
     holeCards: [Card, Card] | null;   // own always; others only if revealed (R-7.3, R-5.8)
   }[];
   legalActions: LegalActions | null;  // only for the viewer, only on their turn
-  result: HandResultView | null;      // pots, winners, amounts, labels
+  result: HandResult | null;          // { wonByFold, pots with winners and amounts, shown hands with labels }
 }
 ```
 

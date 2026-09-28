@@ -210,7 +210,7 @@ Read /CLAUDE.md and /docs. Implement PHASE 4. Do not rewrite the engine unless a
 (if so, add a failing test first).
 
 server/src/table/tableController.ts, one per playing room:
-- Starts hands, holds the authoritative HandState, increments the hand `seq` per applied action and the room `version` on every change.
+- Starts hands, holds the authoritative HandState (the engine bumps the hand `seq` on every change), and increments the room `version` on every change.
 - Receives actions: { handId, seq, type: fold|check|call|bet|raise|allIn, amount? }.
   Rejects if handId/seq != current (STALE_ACTION), then calls engine.applyAction.
 - After every change, emits toGameView(state, playerId) in a versioned snapshot to EACH player individually

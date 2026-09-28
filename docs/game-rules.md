@@ -75,6 +75,8 @@ Let `toCall = min(betLevel − committed, stack)`, and `maxTo = committed + stac
   Otherwise they may only `call` or `fold`.
 - **R-4.6** A player whose `stack` hits 0 becomes `allIn` and is skipped for the rest of the hand.
 - **R-4.7** Actions are accepted only from the player whose turn it is. The exception is `forceFold` (§9), which is controller-only and not a client action.
+- **R-4.8** **Someone must be able to respond.** A player may bet or raise only if at least one *other* player is still `active`. When everyone else is all-in or folded, the player may only check, call or fold (an extra raise could never be called). `allIn` then counts only as a call.
+- **R-4.9** `amount` is required for `bet` and `raise` and must be absent for every other action. A missing, negative, non-integer or out-of-range amount is rejected as `INVALID_AMOUNT`, never adjusted.
 
 `getLegalActions(state, playerId)` returns `null` when it's not that player's turn. Otherwise it returns:
 ```
@@ -111,8 +113,10 @@ Pots are built from each player's `contributed` for the whole hand, including fo
     - The layer amount = `(Li − Li-1) × |contributors|`, with L0 = 0.
     - `eligible` = contributors whose status is not `folded`.
 - **R-6.2** **Uncalled chips.** A layer with exactly **one** contributor is returned to that contributor. This happens even if they folded, because nobody matched those chips. This one rule covers both uncalled bets and the extra above a short all-in.
+  - The chips go back as soon as a betting round ends (or the hand ends by folds), so stacks and pots are right during the pause before the next street.
+  - A player who was all-in and gets chips back this way is no longer all-in. Nobody is left to bet against, so the hand still runs out (R-5.8).
 - **R-6.3** Adjacent layers with the same `eligible` set are merged into a single pot. The result is a main pot plus zero or more side pots.
-- **R-6.4** A layer with ≥ 2 contributors but **no** eligible players should be impossible. If it happens, merge it into the next lower layer that has eligible players, so the chips go to that layer's winners. Log an error; the property test must never trigger it.
+- **R-6.4** A layer with ≥ 2 contributors but **no** eligible players is impossible in normal play. It can only follow a `forceFold` (R-9.1): for example, two players who had both put in more than an all-in player both leave the table. The layer is merged into the next lower layer that has eligible players, so the chips go to that layer's winners, and the engine emits a `deadChipsMerged` event. The property test checks that it never happens without a forced fold.
 - **R-6.5** **Display:** during a hand, clients get the pots computed by R-6.1–R-6.3 from chips committed on *previous* streets, plus each player's current-street `committed` shown separately.
 
 ---
@@ -196,4 +200,5 @@ Pots are built from each player's `contributed` for the whole hand, including fo
 | Split pot with an odd chip | R-7.2 |
 | `forceFold` on and off turn; forceFold on an all-in player | R-9.1 |
 | Illegal actions: wrong turn, check facing a bet, raise below min, raise when closed, amount > stack, negative/non-integer amount | R-4.x |
+| Facing an all-in with nobody else left: call or fold only | R-4.8 |
 | **Property:** random stacks (2–5 players) and random legal actions → chips conserved, no negative stack, hand always terminates, R-6.4 never triggers | R-7.6 |

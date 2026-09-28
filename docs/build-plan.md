@@ -106,7 +106,7 @@ Read /CLAUDE.md and all files in /docs. Implement PHASE 1 only.
    Vite dev server proxies /socket.io and /health to the backend (so no CORS setup needed in dev).
 6. Vitest configured for shared and server. One trivial passing test in each.
 7. Root scripts: dev (runs server + client concurrently), build, test, typecheck, lint.
-8. .env.example with PORT and NODE_ENV.
+8. .env.example with PORT, API_PORT and NODE_ENV.
 
 Do NOT implement poker logic, rooms, auth, or a database.
 

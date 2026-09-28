@@ -1,0 +1,26 @@
+{
+  "name": "@poker/server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --clear-screen=false src/index.ts",
+    "build": "tsup",
+    "start": "cross-env NODE_ENV=production node --enable-source-maps dist/index.js",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@poker/shared": "*",
+    "express": "^5.2.1",
+    "socket.io": "^4.8.4",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "cross-env": "^10.1.0",
+    "socket.io-client": "^4.8.4",
+    "tsup": "^8.5.1",
+    "tsx": "^4.23.15"
+  }
+}

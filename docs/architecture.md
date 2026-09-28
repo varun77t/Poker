@@ -423,12 +423,14 @@ Only results are written, and only at key moments: room created, hand finished, 
 
 ## 13. Deployment
 - **One service** (Render or Railway):
-  - `npm run build` builds shared, then server, then client.
+  - `npm run build` bundles the server with tsup (inlining `@poker/shared`, which is TypeScript source with no build step of its own), then builds the client with Vite.
   - `npm start` runs the server, which serves `client/dist` plus the API and Socket.IO on one port.
 - **Exactly one instance:** no autoscaling, no multiple replicas, because game state is in memory.
 - A deploy or restart ends live games. Clients get `room:closed` on graceful shutdown (SIGTERM), or a "room not found" message on reconnect.
-- **Env vars:** `PORT`, `NODE_ENV`, `LOG_LEVEL`. Phase 10 adds `DATABASE_URL`; Phase 11 adds the Google OAuth vars.
-- **Dev:** Vite dev server on :5173 proxies `/api` and `/socket.io` (with `ws: true`) to the server on :3000, so the browser only ever sees one origin.
+- **Env vars:** `PORT`, `API_PORT` (dev only), `NODE_ENV`, `LOG_LEVEL`. Phase 10 adds `DATABASE_URL`; Phase 11 adds the Google OAuth vars.
+  - `PORT` always means "the port users open". In production the Node server listens on it. In development Vite does.
+  - In development the Node server listens on `API_PORT`. This stops an inherited `PORT` from making both processes compete for the same port.
+- **Dev:** Vite dev server on `PORT` (5173) proxies `/api`, `/health` and `/socket.io` (with `ws: true`) to the server on `API_PORT` (3000), so the browser only ever sees one origin.
 - **Hosting caveat:** free tiers that sleep will drop live games and cold-start slowly.
 
 ---

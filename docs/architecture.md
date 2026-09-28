@@ -62,6 +62,7 @@ poker/
 │       │   ├── engine.ts        createHand, applyAction, advance, forceFold
 │       │   ├── types.ts         HandState, HandPlayer, EngineEvent, EngineError
 │       │   └── view.ts          toGameView(state, viewerId): the only hidden-info projection
+│       ├── bots/                (Phase 7) PURE like engine/: strategy.ts decide(view, legal, rng), bot names
 │       ├── socket/
 │       │   ├── index.ts         connection lifecycle: single socket per player, reconnect, disconnect
 │       │   ├── middleware.ts    handshake auth (token → socket.data.playerId)
@@ -69,7 +70,7 @@ poker/
 │       │   ├── guard.ts         wraps handlers: rate limit → ack required → zod parse → try/catch → ack
 │       │   ├── handlers.ts      sys:*, sync:*, room:*, game:* event handlers (thin)
 │       │   └── broadcaster.ts   emits per-player snapshots for a room
-│       └── db/                  Phase 10 only (Drizzle schema + migrations)
+│       └── db/                  Phase 11 only (Drizzle schema + migrations)
 │   └── test/                    integration tests (in-process server + socket.io-client)
 ├── client/
 │   └── src/
@@ -80,7 +81,7 @@ poker/
 │       ├── components/          PokerTable, PlayerSeat, PlayingCard, CommunityCards, Pot,
 │       │                        ActionPanel, DealerButton, BlindMarker, GameStatus, ...
 │       └── styles/              tokens.css + *.module.css
-└── e2e/                         Playwright tests (Phase 8)
+└── e2e/                         Playwright tests (Phase 9)
 ```
 
 **Dependency rule:**
@@ -88,8 +89,11 @@ poker/
 client → shared
 server → shared
 engine → shared (types only)
+bots   → engine (evaluator, view and legal-action types), shared
 ```
 The engine never imports `socket/`, `rooms/`, `table/`, or anything from Node except types. `crypto` is injected through the RNG parameter.
+
+Bots get the same treatment. The table controller calls `decide(toGameView(state, botId), getLegalActions(state, botId), rng)`, so a bot only ever sees what a player in its seat would see. Its action then goes through the same `handId` + `seq` + engine validation path as a human's.
 
 ---
 
@@ -119,7 +123,7 @@ The engine never imports `socket/`, `rooms/`, `table/`, or anything from Node ex
 │                                   ▼                                         │
 │                          socket.emit('state', snapshot)  (per socket)       │
 │                                                                             │
-│  (Phase 10) persistence hook: onHandComplete / onGameEnd → Postgres         │
+│  (Phase 11) persistence hook: onHandComplete / onGameEnd → Postgres         │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -251,7 +255,7 @@ type ErrorCode =
 |---|---|---|
 | `state` | `TableSnapshot` (§8.3) | after every change, per player |
 | `session:replaced` | `{}` | this socket was superseded by a newer tab/connection |
-| `room:closed` | `{ reason: 'server_restart' }` | *(Phase 9, graceful shutdown)* the room was removed |
+| `room:closed` | `{ reason: 'server_restart' }` | *(Phase 10, graceful shutdown)* the room was removed |
 
 The live, authoritative list is [socket-events.md](socket-events.md).
 
@@ -417,7 +421,7 @@ Everything else runs over Socket.IO.
 
 ---
 
-## 12. Database entities (Phase 10, optional)
+## 12. Database entities (Phase 11, optional)
 Only results are written, and only at key moments: room created, hand finished, game finished. A DB failure is logged and never interrupts play.
 
 | Table | Columns |
@@ -436,7 +440,7 @@ Only results are written, and only at key moments: room created, hand finished, 
   - `npm start` runs the server, which serves `client/dist` plus the API and Socket.IO on one port.
 - **Exactly one instance:** no autoscaling, no multiple replicas, because game state is in memory.
 - A deploy or restart ends live games. Clients get `room:closed` on graceful shutdown (SIGTERM), or a "room not found" message on reconnect.
-- **Env vars:** `PORT`, `API_PORT` (dev only), `NODE_ENV`, `LOG_LEVEL`. Phase 10 adds `DATABASE_URL`; Phase 11 adds the Google OAuth vars.
+- **Env vars:** `PORT`, `API_PORT` (dev only), `NODE_ENV`, `LOG_LEVEL`. Phase 11 adds `DATABASE_URL`; Phase 12 adds the Google OAuth vars.
   - `PORT` always means "the port users open". In production the Node server listens on it. In development Vite does.
   - In development the Node server listens on `API_PORT`. This stops an inherited `PORT` from making both processes compete for the same port.
 - **Dev:** Vite dev server on `PORT` (5173) proxies `/api`, `/health` and `/socket.io` (with `ws: true`) to the server on `API_PORT` (3000), so the browser only ever sees one origin.

@@ -10,6 +10,7 @@ Revision of the original `poker_webapp_phase_prompts.md`. Key changes:
 - Database and Google auth moved to optional final phases.
 - Styling: CSS Modules (shadcn/ui removed — it requires Tailwind).
 - "Ready" state removed — host starts the game.
+- Bots (Phase 7): the host can fill open seats with computer players, so one person can play alone.
 
 Non-negotiable rules live in `/CLAUDE.md` and apply to every phase automatically.
 
@@ -276,10 +277,65 @@ everyone all-in, split pot, last player standing, join mid-game, rebuy, restart.
 
 ---
 
-# PHASE 7 — UI Polish
+# PHASE 7 — Bots
 
 ```text
-Read /CLAUDE.md. Implement PHASE 7: polish only — do not change game logic or events.
+Read /CLAUDE.md and /docs (product-spec.md §3.7 defines bot behavior). Implement PHASE 7:
+computer-controlled players, so one person can play alone and friends can fill empty seats.
+Do not change engine rules. A bot is just another source of actions for a seat.
+
+Room rules (product-spec.md §3.7):
+- The host adds a bot to an open seat (level Easy or Normal) and can remove it. Bots can be added whenever
+  a seat is open; a bot added mid-game is dealt in next hand, like a late joiner.
+- Bots count toward the 2-player minimum (1 human + 1 bot can start). Bots are never host: host
+  migration skips them. When the last human leaves, all bots are removed and the empty-room TTL applies.
+- Bots are always connected and never time out. Between hands they rebuy automatically when rebuys are on;
+  with rebuys off a busted bot leaves the table.
+- Bots never play alone: a new hand starts only if at least one human is connected and has chips,
+  otherwise the table pauses. With rebuys off, the game ends when no human has chips.
+- Names come from a fixed list ("Ace Bot", ...), unique within the room.
+
+Server:
+- server/src/bots/strategy.ts: decide(view, legal, rng) -> Action, where view = toGameView(state, botId)
+  and legal = getLegalActions(state, botId). This is the ONLY input, so a bot can never see hidden cards.
+  bots/ follows the engine purity rules (no timers, no I/O, no Math.random, RNG injected); extend the
+  ESLint purity config to server/src/bots/**.
+- Easy: loose-passive. Plays most hands, calls often, rarely raises, with some randomness.
+- Normal: preflop starting-hand tiers adjusted for position and player count; postflop equity from a
+  bounded Monte Carlo run-out (using the engine evaluator) compared with pot odds; value bets/raises of
+  about 1/2 to 3/4 pot; occasional bluffs; randomized so it has no fixed pattern.
+- The table controller asks the bot on its turn, waits a "think" delay (about 0.8–2.5 s, via Clock), then
+  submits through the SAME path as a human (handId + seq, engine validation). If a bot ever returns an
+  illegal action, log an error and fall back to check, else fold.
+- Bots have no session and no socket; the broadcaster skips them.
+- Events: room:addBot { level: 'easy' | 'normal' } and room:removeBot { seat } (host only, strict zod).
+  SeatView gains isBot and botLevel. Update /docs/socket-events.md and /docs/architecture.md.
+
+Client:
+- Lobby: the host sees "Add bot" (choosing the level) on open seats and "Remove" on bot seats.
+- Landing: "Play against bots" creates a room with default settings and 3 Normal bots, then opens the
+  lobby so the host can adjust before starting.
+- Seats show a "Bot" badge with the level, in the lobby and at the table.
+
+Tests:
+- fast-check: for random reachable hand states, decide() always returns a legal action (both levels).
+- No hidden information: two states that differ only in opponents' hole cards and the deck produce the
+  same decision with the same seeded RNG.
+- Room rules: add/remove are host-only; full room rejected; bots never become host; last human leaves ->
+  bots removed; 1 human + 1 bot can start; busted bot rebuys (rebuys on) or leaves (rebuys off);
+  table pauses when no connected human has chips.
+- Integration (FakeClock): 1 human + 3 bots play 50 hands through the socket server; chips conserved;
+  the human never receives a bot's hole cards before showdown.
+- Strength sanity (seeded, deterministic): Normal finishes ahead of Easy over a long simulated match.
+- Performance: a Normal decision averages under 50 ms.
+```
+
+---
+
+# PHASE 8 — UI Polish
+
+```text
+Read /CLAUDE.md. Implement PHASE 8: polish only — do not change game logic or events.
 Improve landing, create/join, lobby, table, cards, chip visualization, turn indicator,
 winner highlight/animation, dealing/chip-to-pot animations (subtle), loading/error/empty states,
 toasts for errors from acks, reconnecting banner, mobile layout, keyboard shortcuts (F/C/R).
@@ -288,7 +344,7 @@ Respect prefers-reduced-motion. Keep CSS Modules. Run the full test suite after 
 
 ---
 
-# PHASE 8 — Security & Multiplayer Audit + E2E
+# PHASE 9 — Security & Multiplayer Audit + E2E
 
 ```text
 Read /CLAUDE.md. Assume a malicious client using DevTools and raw socket.emit.
@@ -297,17 +353,18 @@ acting for another player; acting out of turn; negative/NaN/float/huge amounts; 
 brute-forcing room codes; joining a full room; spoofing playerId in payloads; reading others' hole cards
 (inspect every emitted payload); replaying/duplicating actions; acting after folding, after disconnecting,
 after leaving; modifying chips client-side; event flooding (rate limits); oversized payloads
-(Socket.IO maxHttpBufferSize); non-host starting the game.
+(Socket.IO maxHttpBufferSize); non-host starting the game, changing settings, or adding/removing bots;
+acting for a bot's seat.
 
 Fix every issue found. Add Playwright E2E with 3 browser contexts: create, join via invite link,
-play several hands, disconnect/reconnect one player.
+play several hands, disconnect/reconnect one player. Add one solo E2E: play against bots.
 
 Run unit, property, integration, E2E, typecheck, and build. Produce /docs/security-report.md.
 ```
 
 ---
 
-# PHASE 9 — Production Deployment
+# PHASE 10 — Production Deployment
 
 ```text
 Read /CLAUDE.md. Prepare a single-service deployment (Render or Railway):
@@ -322,7 +379,7 @@ Note hosting caveats (free tiers that sleep will drop live games).
 
 ---
 
-# PHASE 10 (Optional) — Persistence
+# PHASE 11 (Optional) — Persistence
 
 ```text
 Read /CLAUDE.md. Add PostgreSQL (Neon) + Drizzle.
@@ -333,7 +390,7 @@ DB failures must not break live gameplay (log and continue). Migrations + update
 
 ---
 
-# PHASE 11 (Optional) — Google Authentication
+# PHASE 12 (Optional) — Google Authentication
 
 ```text
 Read /CLAUDE.md. Add Google sign-in as an alternative way to obtain a session token.
@@ -346,5 +403,5 @@ short-lived token — document the choice in /docs/auth.md. Handle logout and ex
 
 # MVP Scope
 
-MVP = Phases 0–9. Not in MVP: real money, tournaments/blind levels, leaderboards, friends, chat,
+MVP = Phases 0–10. Not in MVP: real money, tournaments/blind levels, leaderboards, friends, chat,
 achievements, stats, Redis, multiple server instances, microservices.

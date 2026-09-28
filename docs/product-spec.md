@@ -1,7 +1,7 @@
 # Product Specification — Private Hold'em
 
 ## 1. Summary
-A web app for playing private No-Limit Texas Hold'em with friends. Someone creates a room, shares a 6-character code or an invite link, and 2–5 people play with virtual chips in real time. No accounts are needed: players pick a display name and play.
+A web app for playing private No-Limit Texas Hold'em with friends. Someone creates a room, shares a 6-character code or an invite link, and 2–5 people play with virtual chips in real time. Empty seats can be filled with bots, so one person can also play alone. No accounts are needed: players pick a display name and play.
 
 **Virtual chips only.** Chips have no monetary value, cannot be bought, sold, or transferred, and are never redeemable for anything.
 
@@ -22,15 +22,15 @@ A web app for playing private No-Limit Texas Hold'em with friends. Someone creat
 - Invite link: `https://<host>/room/<CODE>`. Opening it prompts for a name if needed, then joins.
 
 ### 3.2 Capacity & seats
-- Maximum **5 seated players**, minimum **2** to start.
+- Maximum **5 seated players**, minimum **2** to start. Bots (§3.7) take seats and count toward both limits.
 - Seats are numbered 0–4 around the table. A joining player takes the lowest free seat.
 - There are no separate spectators in the MVP. Busted players keep their seat until they leave.
 - A player can be in only one room at a time. Joining another room leaves the current one.
 
 ### 3.3 Host
 - The room creator is the host.
-- **Host-only controls:** change the room settings (lobby or finished screen only), start the game, end the game, restart after it finishes.
-- **Host migration:** if the host leaves (or is removed after disconnecting), host passes to the next occupied seat clockwise.
+- **Host-only controls:** change the room settings (lobby or finished screen only), add and remove bots, start the game, end the game, restart after it finishes.
+- **Host migration:** if the host leaves (or is removed after disconnecting), host passes to the next occupied seat clockwise, skipping bots.
 
 ### 3.4 Room states
 | State | Meaning |
@@ -58,6 +58,18 @@ Blinds do not increase over time (no tournament structure in the MVP).
 - A room with zero players is deleted after **10 minutes**.
 - All rooms are lost if the server restarts. This is an accepted MVP limitation, and players see a "Room no longer exists" message.
 
+### 3.7 Bots (Phase 7)
+- **Adding:** the host adds a bot to an open seat, choosing **Easy** or **Normal**, and can remove it again. A bot added during a game is dealt in from the next hand, like a late joiner.
+- **Solo play:** bots count toward the 2-player minimum, so one person plus one bot can play. The landing page has **Play against bots**, which creates a room with default settings and 3 Normal bots, then opens the lobby so the host can adjust before starting.
+- **Fair play:** a bot sees only what a player in its seat would see (never hidden cards) and follows exactly the same rules and turn order. It waits a second or two before acting, so the game feels natural.
+- **Levels:**
+  - **Easy** plays loosely and predictably: many hands, lots of calling, few raises.
+  - **Normal** plays by hand strength and pot odds, sizes its bets sensibly, and bluffs occasionally, with enough randomness that it has no fixed pattern.
+- **Never in charge:** bots are never the host. When the last human leaves, the bots are removed too.
+- **Never alone:** a new hand starts only if at least one human is connected and has chips. Otherwise the table pauses.
+- **Busting:** a busted bot rebuys automatically when rebuys are on. With rebuys off, it leaves the table.
+- **Display:** bots are named from a fixed list (e.g. "Ace Bot") and shown with a "Bot" badge and their level.
+
 ## 4. Gameplay
 - The full rules are in [game-rules.md](game-rules.md).
 - **Starting:** the host presses Start when at least 2 players are seated. There is no ready-check.
@@ -69,7 +81,7 @@ Blinds do not increase over time (no tournament structure in the MVP).
   - **Rebuys off:** the player stays seated as a spectator until they leave.
 - **Leaving mid-hand:** the player's hand is folded immediately. If they are all-in, the hand plays out without them and they are removed afterwards.
 - **Game end:**
-  - **Rebuys off:** the game ends when only one player has chips.
+  - **Rebuys off:** the game ends when only one player has chips, or when no human has chips (bots don't play on alone).
   - **Rebuys on:** if fewer than two players have chips at the start of a hand, the table pauses until someone rebuys or the host ends the game.
   - **Any time:** the host can end the game.
 - **Finished screen:** each player's final stack and net result (final stack − total bought in), ranked.
@@ -83,9 +95,9 @@ Blinds do not increase over time (no tournament structure in the MVP).
 - **Reconnect:** the player returns with the same session token. They get their seat, their cards, and the current table state immediately.
 
 ## 6. Screens
-1. **Landing:** name field, "Create room", "Join room" (code input).
+1. **Landing:** name field, "Create room", "Join room" (code input), "Play against bots" (Phase 7).
 2. **Create room:** the settings form (§3.5) with defaults pre-filled.
-3. **Lobby** (`/room/:code`, state `waiting`): code with a copy-link button, settings with an Edit button (host), player list with seat and host badge, count "3/5", Start (host, enabled at ≥2), Leave.
+3. **Lobby** (`/room/:code`, state `waiting`): code with a copy-link button, settings with an Edit button (host), player list with seat, host and bot badges, "Add bot" on open seats and "Remove" on bot seats (host), count "3/5", Start (host, enabled at ≥2), Leave.
 4. **Table** (state `playing`): the table with up to 5 seats (your own seat always at the bottom), board, pots, dealer and blind markers, turn countdown, action panel, hand results.
 5. **Finished:** results table, Restart (host), Leave.
 6. **Error/empty states:** room not found, room full, connection lost / reconnecting, opened in another tab.
@@ -108,3 +120,5 @@ Real money, chip purchases, tournaments and blind levels, leaderboards, friends 
 5. Every hand that reaches showdown is revealed automatically (no mucking).
 6. Blinds are fixed (no levels).
 7. Default settings: 1,000 stack, 5/10 blinds, 30 s timer, rebuys on.
+8. Room settings are editable by the host until the game starts (added after Phase 2).
+9. Bots (Phase 7): added by the host, two levels (Easy, Normal), never host, never play without a connected human, auto-rebuy when rebuys are on.

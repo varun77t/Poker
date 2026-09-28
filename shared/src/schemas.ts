@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { DISPLAY_NAME_MAX_LENGTH, SETTINGS_BOUNDS } from './constants';
+import { DISPLAY_NAME_MAX_LENGTH, MAX_CHIP_AMOUNT, SETTINGS_BOUNDS } from './constants';
+import { ACTION_TYPES } from './game';
 
 /**
  * zod schemas for every client→server payload and HTTP body. The server parses with these before
@@ -55,3 +56,16 @@ export function changedSettingKeys(before: RoomSettings, after: RoomSettings): (
 /** Codes are normalized and checked server-side, so any short string is accepted here. */
 export const JoinRoomPayloadSchema = z.strictObject({ code: z.string().max(16) });
 export type JoinRoomPayload = z.infer<typeof JoinRoomPayloadSchema>;
+
+/**
+ * A player's action. `handId` and `seq` come from the snapshot the action was based on; the server
+ * rejects anything else as STALE_ACTION. Whether `amount` is required, and its range, is the
+ * engine's call (R-4.9); here it only has to be a sane whole number.
+ */
+export const GameActionPayloadSchema = z.strictObject({
+  handId: z.int().min(0),
+  seq: z.int().min(0),
+  type: z.enum(ACTION_TYPES),
+  amount: z.int().min(0).max(MAX_CHIP_AMOUNT).optional(),
+});
+export type GameActionPayload = z.infer<typeof GameActionPayloadSchema>;

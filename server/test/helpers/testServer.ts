@@ -22,6 +22,8 @@ export interface TestPlayer {
   socket: ClientSocket;
   /** Latest `state` snapshot received, if any. */
   latest: () => TableSnapshot | undefined;
+  /** Every `state` snapshot this socket received, in order. */
+  received: TableSnapshot[];
   /** Resolves with the latest snapshot matching `predicate`, waiting for new ones if needed. */
   stateWhere: (predicate: (s: TableSnapshot) => boolean, timeoutMs?: number) => Promise<TableSnapshot>;
 }
@@ -34,6 +36,8 @@ export interface TestServer {
   connect: (token: unknown) => ClientSocket;
   /** Creates a session and a connected socket. */
   player: (displayName: string) => Promise<TestPlayer>;
+  /** A new connection with the same session (e.g. after a network drop). */
+  reconnect: (player: TestPlayer) => Promise<TestPlayer>;
   close: () => Promise<void>;
 }
 
@@ -73,14 +77,14 @@ export async function startTestServer(
     return socket;
   };
 
-  const player: TestServer['player'] = async (displayName) => {
-    const { body } = await createSession(displayName);
-    if (!body.ok) throw new Error(`session failed: ${body.message}`);
-    const socket = connect(body.data.sessionToken);
+  const attach = async (info: SessionInfo): Promise<TestPlayer> => {
+    const socket = connect(info.sessionToken);
     let latest: TableSnapshot | undefined;
+    const received: TableSnapshot[] = [];
     const waiters = new Set<(s: TableSnapshot) => void>();
     socket.on('state', (s) => {
       latest = s;
+      received.push(s);
       for (const w of [...waiters]) w(s);
     });
     await new Promise<void>((resolve, reject) => {
@@ -104,15 +108,23 @@ export async function startTestServer(
         waiters.add(check);
       });
 
-    return { info: body.data, socket, latest: () => latest, stateWhere };
+    return { info, socket, latest: () => latest, received, stateWhere };
   };
+
+  const player: TestServer['player'] = async (displayName) => {
+    const { body } = await createSession(displayName);
+    if (!body.ok) throw new Error(`session failed: ${body.message}`);
+    return attach(body.data);
+  };
+
+  const reconnect: TestServer['reconnect'] = (previous) => attach(previous.info);
 
   const close = async () => {
     for (const s of sockets) s.disconnect();
     await server.close();
   };
 
-  return { server, baseUrl, clock, createSession, connect, player, close };
+  return { server, baseUrl, clock, createSession, connect, player, reconnect, close };
 }
 
 /** Emits with an ack and a timeout, for tests. */

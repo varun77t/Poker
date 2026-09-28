@@ -1,4 +1,10 @@
-import type { CreateRoomPayload, EmptyPayload, JoinRoomPayload, UpdateSettingsPayload } from './schemas';
+import type {
+  CreateRoomPayload,
+  EmptyPayload,
+  GameActionPayload,
+  JoinRoomPayload,
+  UpdateSettingsPayload,
+} from './schemas';
 import type { TableSnapshot } from './views';
 
 /**
@@ -50,6 +56,7 @@ export interface ClientToServerEvents {
   'room:leave': (payload: EmptyPayload, ack: AckCallback) => void;
   'room:updateSettings': (payload: UpdateSettingsPayload, ack: AckCallback) => void;
   'game:start': (payload: EmptyPayload, ack: AckCallback) => void;
+  'game:action': (payload: GameActionPayload, ack: AckCallback) => void;
 }
 
 export interface ServerToClientEvents {

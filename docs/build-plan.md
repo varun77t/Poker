@@ -11,6 +11,7 @@ Revision of the original `poker_webapp_phase_prompts.md`. Key changes:
 - Styling: CSS Modules (shadcn/ui removed — it requires Tailwind).
 - "Ready" state removed — host starts the game.
 - Bots (Phase 7): the host can fill open seats with computer players, so one person can play alone.
+- Desktop only: the app is played on laptops/desktops, so there is no mobile or phone layout work.
 
 Non-negotiable rules live in `/CLAUDE.md` and apply to every phase automatically.
 
@@ -252,7 +253,7 @@ DealerButton, BlindMarkers, GameStatus (street, winner + hand label).
 
 - The viewing player is always rendered at the bottom seat.
 - Disable action buttons after sending until the next snapshot arrives (prevents double-sends).
-- Responsive: usable at 375px width (portrait phone).
+- Desktop only: lay out for laptop/desktop screens (about 1280px wide and up). No phone or tablet layout.
 - Minimal animation for now.
 ```
 
@@ -263,6 +264,11 @@ DealerButton, BlindMarkers, GameStatus (street, winner + hand label).
 ```text
 Read /CLAUDE.md. Implement PHASE 6. Complete flow:
 Landing -> Create/Join -> Lobby -> Host starts -> hands loop continuously -> game ends -> restart.
+
+Already in place from Phase 4 (keep, add UI and lifecycle tests on top): late joiners are dealt in next
+hand, leaving mid-hand folds at once and frees the seat after the hand, busted players are skipped, and
+the table waits when fewer than 2 players have chips. Known gap to close here: a busted player can
+leave and rejoin to get a fresh starting stack even with rebuys off (remember stacks of recent leavers).
 
 - Players joining during play are seated "waiting" and dealt in next hand.
 - Busted players: rebuy prompt between hands if enabled; otherwise spectate.
@@ -338,7 +344,7 @@ Tests:
 Read /CLAUDE.md. Implement PHASE 8: polish only — do not change game logic or events.
 Improve landing, create/join, lobby, table, cards, chip visualization, turn indicator,
 winner highlight/animation, dealing/chip-to-pot animations (subtle), loading/error/empty states,
-toasts for errors from acks, reconnecting banner, mobile layout, keyboard shortcuts (F/C/R).
+toasts for errors from acks, reconnecting banner, keyboard shortcuts (F/C/R). Desktop screens only (no mobile layout).
 Respect prefers-reduced-motion. Keep CSS Modules. Run the full test suite after changes.
 ```
 

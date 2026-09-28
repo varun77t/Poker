@@ -164,7 +164,7 @@ Pots are built from each player's `contributed` for the whole hand, including fo
   - If the player is `allIn`, nothing changes: their chips stay in and they remain eligible.
   - The controller removes the player from their seat after the hand ends.
 - **R-9.2** **Turn timeout** (controller): if `canCheck`, apply `check`; otherwise apply `fold`. This applies whether the player is connected or not.
-- **R-9.3** A disconnected player who has not reconnected after 3 consecutive hands is removed between hands. Their remaining chips leave with them.
+- **R-9.3** A disconnected player who is still away when 3 hands in a row have started is removed before the next hand. Reconnecting resets the count. Their remaining chips leave with them.
 
 ---
 

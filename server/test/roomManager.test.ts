@@ -238,12 +238,13 @@ describe('RoomManager', () => {
       expect(room.hostId).toBe('bob');
     });
 
-    it('does not remove disconnected players once the game is running', () => {
+    it('does not apply the lobby grace window once the game is running', () => {
+      // In a game, disconnected players stay seated; only R-9.3 (3 missed hands) removes them.
       const room = rooms.create(p('alice'), DEFAULT_ROOM_SETTINGS);
       rooms.join(p('bob'), room.code);
       rooms.setConnected('bob', false);
       rooms.start('alice');
-      clock.advance(GRACE * 2);
+      clock.advance(GRACE + 1);
       expect(rooms.getRoomOf('bob')).toBe(room);
     });
 

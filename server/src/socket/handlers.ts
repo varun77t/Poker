@@ -1,6 +1,7 @@
 import {
   CreateRoomPayloadSchema,
   EmptyPayloadSchema,
+  GameActionPayloadSchema,
   JoinRoomPayloadSchema,
   UpdateSettingsPayloadSchema,
   type PlayerId,
@@ -67,6 +68,11 @@ export function registerHandlers(socket: IoSocket, deps: HandlerDeps): void {
 
   on('game:start', EmptyPayloadSchema, ({ playerId }) => {
     rooms.start(playerId);
+    return {};
+  });
+
+  on('game:action', GameActionPayloadSchema, ({ playerId }, action) => {
+    rooms.act(playerId, action);
     return {};
   });
 }

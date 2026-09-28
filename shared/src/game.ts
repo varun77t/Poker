@@ -13,7 +13,8 @@ export type Street = 'preflop' | 'flop' | 'turn' | 'river' | 'showdown';
 export type HandPlayerStatus = 'active' | 'folded' | 'allIn';
 
 /** Client intents. `bet`/`raise` amounts are the total for the street ("raise TO"), R-4.1. */
-export type ActionType = 'fold' | 'check' | 'call' | 'bet' | 'raise' | 'allIn';
+export const ACTION_TYPES = ['fold', 'check', 'call', 'bet', 'raise', 'allIn'] as const;
+export type ActionType = (typeof ACTION_TYPES)[number];
 
 export interface ActionIntent {
   type: ActionType;

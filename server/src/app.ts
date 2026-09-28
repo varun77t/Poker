@@ -17,6 +17,7 @@ import { Broadcaster } from './socket/broadcaster';
 import { Connections } from './socket/connections';
 import { createGuard } from './socket/guard';
 import type { IoServer } from './socket/types';
+import type { NewDeck } from './table/tableController';
 
 export interface AppServerOptions {
   config: Config;
@@ -28,6 +29,8 @@ export interface AppServerOptions {
   timings?: Partial<Timings>;
   rateLimits?: Partial<RateLimits>;
   randomInt?: RandomInt;
+  /** The deck for each new hand, top card first (default: a secure shuffle). */
+  newDeck?: NewDeck;
 }
 
 export interface AppServer {
@@ -53,11 +56,13 @@ export function createAppServer(options: AppServerOptions): AppServer {
   // Domain
   const sessions = new SessionStore(clock, timings.sessionTtlMs);
   const connections = new Connections();
-  const broadcaster = new Broadcaster(connections);
+  const broadcaster = new Broadcaster(connections, clock);
   const rooms = new RoomManager({
     clock,
     timings,
     randomInt: options.randomInt,
+    newDeck: options.newDeck,
+    logger,
     onRoomChanged: (room) => broadcaster.roomChanged(room),
     onRoomDeleted: (code) => logger.debug(`room ${code} deleted (empty)`),
   });

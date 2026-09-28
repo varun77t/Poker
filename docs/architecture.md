@@ -54,7 +54,7 @@ poker/
 │       │   ├── room.ts          Room type, seat helpers, toRoomView/toSnapshot projections
 │       │   └── roomManager.ts   create/join/leave/start, host migration, TTL + grace timers, player→room index
 │       ├── table/
-│       │   └── tableController.ts  (Phase 4) one per playing room: runs hands, timers, pacing, rebuys, game end
+│       │   └── tableController.ts  one per playing room: deals hands, turn timers, pacing, payouts, button (rebuys, game end: Phase 6)
 │       ├── engine/              PURE — must not import anything outside engine/ and shared/
 │       │   ├── index.ts         the public API (import the engine from here)
 │       │   ├── deck.ts          FULL_DECK, shuffle / shuffledDeck(randomInt) — Fisher–Yates, RNG injected
@@ -205,9 +205,10 @@ server  guard → ActionSchema (integers, amount ≥ 0)
 
 ### 6.4 Turn timeout
 ```
-clock fires with (handId, seq) captured at scheduling time
-if (handId, seq) no longer current → ignore (stale timer)
-else intent = canCheck ? check : fold → same path as 6.3 (minus ack)
+the controller keeps ONE timer (turn, next street, or next hand); every transition cancels it and schedules the next
+the callback also checks the (handId, seq) captured at scheduling time → stale: ignore
+intent = canCheck ? check : fold → engine.applyAction (R-9.2), then the same scheduling as 6.3
+someone else being force-folded (6.6) keeps the current player's deadline instead of restarting it
 ```
 
 ### 6.5 Disconnect / reconnect
@@ -215,16 +216,21 @@ else intent = canCheck ? check : fold → same path as 6.3 (minus ack)
 disconnect: mark seat.connected = false, broadcast
             status waiting → start 60 s grace; on expiry leave room (host migrates)
             status playing → nothing extra; turn timer handles their turns;
-                             controller counts consecutive hands disconnected (remove after 3, between hands)
+                             each hand that starts while they are away counts (seat.missedHands);
+                             at 3, they are removed before the next hand (R-9.3); chips leave with them
 reconnect:  handshake with the same token → middleware → playerId → roomManager finds their room
-            seat.connected = true, cancel grace timer, broadcast (the reconnecting socket gets its full snapshot)
+            seat.connected = true, missedHands = 0, cancel grace timer, broadcast (the reconnecting socket gets its full snapshot)
             client also emits sync:request on connect as a belt-and-braces measure
 ```
 
 ### 6.6 Leave
 ```
-room:leave → if mid-hand and active: engine.forceFold; the seat is freed after the hand ends
-          → otherwise free the seat now; host migration; if the room is empty, start the TTL
+room:leave → the player stops being a member now (index cleared, no more snapshots, host migrates)
+          → dealt into the current hand: seat.leaving = true, engine.forceFold (all-in: stays in the hand);
+            the seat is freed before the next hand, so the hand's seats stay intact during the results pause
+          → otherwise the seat is freed now
+          → no members left: stop the table, clear the seats, status back to 'waiting', start the empty-room TTL
+rejoining the same room while the seat is still 'leaving' takes it back (the fold stands)
 ```
 
 ---
@@ -277,7 +283,8 @@ interface Room {
   seats: (Seat | null)[];           // length 5
   version: number;                  // ++ on ANY change; lets clients drop out-of-order snapshots
   emptySince: number | null;
-  table: TableController | null;
+  table: TableController | null;    // while status == 'playing'
+  lastHandId: number;               // hand ids never repeat within a room
 }
 interface Seat {
   playerId: PlayerId;
@@ -286,8 +293,8 @@ interface Seat {
   totalBuyIn: number;               // starting stack + rebuys
   connected: boolean;
   waitingForNextHand: boolean;
-  leaving: boolean;                 // left mid-hand; remove after hand
-  missedHandsDisconnected: number;
+  leaving: boolean;                 // left while dealt in; not a member; freed before the next hand
+  missedHands: number;              // hands started in a row while disconnected (R-9.3)
 }
 
 // engine/types.ts
@@ -344,14 +351,16 @@ The exact `GameView`, `LegalActions` and `HandResult` types are in [`shared/src/
 ```ts
 interface TableSnapshot {
   version: number;
+  serverTime: number;               // server clock when sent (clients correct deadlines for clock skew)
   room: RoomView;
-  game: GameView | null;            // null in lobby / finished (finished shows results in RoomView)
+  game: GameView | null;            // current hand, or the finished one during the results pause; else null
 }
 interface RoomView {
   code: string; status: Room['status']; hostId: PlayerId; settings: RoomSettings;
   youId: PlayerId;
-  seats: ({ seat: number; playerId: PlayerId; displayName: string; stack: number;
-            connected: boolean; waitingForNextHand: boolean; busted: boolean } | null)[];
+  seats: ({ seat: number; playerId: PlayerId; displayName: string; stack: number;   // live stack during a hand
+            connected: boolean; waitingForNextHand: boolean; busted: boolean; leaving: boolean } | null)[];
+  table: { nextHandAt: number | null; waitingForPlayers: boolean } | null;          // while playing
   finalResults: { playerId: PlayerId; displayName: string; finalStack: number; net: number }[] | null;
 }
 interface GameView {
@@ -413,7 +422,8 @@ Every client→server event passes through `guard()`:
 | Turn timer | room setting (30 s) | `turnDeadline` sent to clients; stale-guarded by `(handId, seq)` |
 | Street delay | 800 ms | between the end of a betting round and dealing the next street |
 | Run-out card delay | 1500 ms | each street dealt during an all-in run-out |
-| Showdown / results pause | 5000 ms (3000 ms if won by folds) | before the next hand |
+| Showdown / results pause | 5000 ms (3000 ms if won by folds) | before the next hand; `table.nextHandAt` |
+| Missed hands | 3 hands | a disconnected player is removed once 3 hands in a row started while away (R-9.3) |
 | Lobby disconnect grace | 60 s | `roomManager` |
 | Empty room TTL | 10 min | `roomManager` |
 | Session expiry | 24 h idle | `sessionStore` sweeper (every 10 min) |
@@ -497,7 +507,7 @@ Only results are written, and only at key moments: room created, hand finished, 
 | Table controller | Vitest + fake `Clock` | Hand sequencing, timers, pacing, rebuys, busts, removals, game end |
 | Socket integration | Vitest + in-process server + `socket.io-client` | Multi-client flows, all error codes, **no hole-card leakage in any emitted payload**, reconnect restores the view |
 | E2E | Playwright (3 browser contexts) | Create → invite link join → play hands → disconnect/reconnect → finish |
-| Manual | 3 browser profiles, plus one phone on the LAN | Feel, layout, timing |
+| Manual | 3 browser profiles on a laptop/desktop screen (the app is desktop-only) | Feel, layout, timing |
 
 **CI gate** (local script until CI exists): `npm run typecheck && npm run lint && npm test && npm run build`.
 
@@ -512,8 +522,9 @@ See [build-plan.md](build-plan.md):
 - **4** Controller + sync + timers + reconnection
 - **5** Table UI
 - **6** Full lifecycle
-- **7** Polish
-- **8** Security audit + E2E
-- **9** Deploy
-- **10** (optional) Persistence
-- **11** (optional) Google auth
+- **7** Bots
+- **8** Polish
+- **9** Security audit + E2E
+- **10** Deploy
+- **11** (optional) Persistence
+- **12** (optional) Google auth

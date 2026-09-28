@@ -79,7 +79,7 @@ Blinds do not increase over time (no tournament structure in the MVP).
 - **Busting:** a player with 0 chips after a hand is busted.
   - **Rebuys on:** the player sees a "Rebuy for 1,000" button, usable between hands. Rebuys are unlimited.
   - **Rebuys off:** the player stays seated as a spectator until they leave.
-- **Leaving mid-hand:** the player's hand is folded immediately. If they are all-in, the hand plays out without them and they are removed afterwards.
+- **Leaving mid-hand:** the player's hand is folded immediately. If they are all-in, the hand plays out without them and they are removed afterwards. Their seat stays (marked as left) until the hand's results have been shown. Coming back to the room before then gives them the seat and chips back.
 - **Game end:**
   - **Rebuys off:** the game ends when only one player has chips, or when no human has chips (bots don't play on alone).
   - **Rebuys on:** if fewer than two players have chips at the start of a hand, the table pauses until someone rebuys or the host ends the game.
@@ -104,7 +104,7 @@ Blinds do not increase over time (no tournament structure in the MVP).
 
 ## 7. Non-functional requirements
 - **Real time:** other players see an action within ~200 ms on a normal connection.
-- **Mobile:** fully playable at 375 px wide (portrait).
+- **Desktop only:** designed for laptop and desktop screens (about 1280 px wide and up) with a mouse and keyboard. Phones and tablets are not supported.
 - **Server authority:** the client never decides cards, legality, pots, turns, or winners (see `/CLAUDE.md`).
 - **Fairness:** shuffles use a cryptographically secure RNG, and no hidden card data ever reaches a client.
 - **Deployment:** one server instance, same origin for the web app and the socket.
@@ -122,3 +122,4 @@ Real money, chip purchases, tournaments and blind levels, leaderboards, friends 
 7. Default settings: 1,000 stack, 5/10 blinds, 30 s timer, rebuys on.
 8. Room settings are editable by the host until the game starts (added after Phase 2).
 9. Bots (Phase 7): added by the host, two levels (Easy, Normal), never host, never play without a connected human, auto-rebuy when rebuys are on.
+10. Desktop only (decided before Phase 4): the UI targets laptop/desktop screens; no phone or tablet layout.

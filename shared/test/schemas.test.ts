@@ -4,6 +4,7 @@ import {
   DEFAULT_ROOM_SETTINGS,
   DisplayNameSchema,
   EmptyPayloadSchema,
+  GameActionPayloadSchema,
   JoinRoomPayloadSchema,
   RoomSettingsSchema,
   UpdateSettingsPayloadSchema,
@@ -93,6 +94,35 @@ describe('payload schemas are strict', () => {
   it('rejects non-object payloads', () => {
     for (const payload of [null, undefined, 'x', 42, []]) {
       expect(EmptyPayloadSchema.safeParse(payload).success).toBe(false);
+    }
+  });
+});
+
+describe('GameActionPayloadSchema', () => {
+  const base = { handId: 3, seq: 12 };
+
+  it('accepts every action type, with or without an amount', () => {
+    for (const type of ['fold', 'check', 'call', 'allIn'] as const) {
+      expect(GameActionPayloadSchema.safeParse({ ...base, type }).success).toBe(true);
+    }
+    // Whether an amount belongs is the engine's call (R-4.9), not the schema's.
+    expect(GameActionPayloadSchema.safeParse({ ...base, type: 'raise', amount: 40 }).success).toBe(true);
+    expect(GameActionPayloadSchema.safeParse({ ...base, type: 'bet' }).success).toBe(true);
+  });
+
+  it('rejects non-integer, negative or huge numbers, unknown types and extra keys', () => {
+    for (const payload of [
+      { ...base, type: 'raise', amount: 20.5 },
+      { ...base, type: 'raise', amount: -10 },
+      { ...base, type: 'raise', amount: 1e10 },
+      { ...base, type: 'raise', amount: '40' },
+      { ...base, type: 'shove' },
+      { handId: -1, seq: 0, type: 'fold' },
+      { handId: 1, seq: 0.5, type: 'fold' },
+      { seq: 0, type: 'fold' },
+      { ...base, type: 'fold', playerId: 'someone-else' },
+    ]) {
+      expect(GameActionPayloadSchema.safeParse(payload).success, JSON.stringify(payload)).toBe(false);
     }
   });
 });

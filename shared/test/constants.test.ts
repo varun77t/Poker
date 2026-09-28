@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PingPayloadSchema, RANKS, ROOM_CODE_ALPHABET, SUITS } from '../src';
+import { DEFAULT_ROOM_SETTINGS, RANKS, ROOM_CODE_ALPHABET, RoomSettingsSchema, SUITS } from '../src';
 
 describe('ROOM_CODE_ALPHABET', () => {
   it('has no visually ambiguous characters', () => {
@@ -20,9 +20,8 @@ describe('cards', () => {
   });
 });
 
-describe('PingPayloadSchema', () => {
-  it('accepts an empty object and rejects unknown keys', () => {
-    expect(PingPayloadSchema.safeParse({}).success).toBe(true);
-    expect(PingPayloadSchema.safeParse({ playerId: 'spoof' }).success).toBe(false);
+describe('DEFAULT_ROOM_SETTINGS', () => {
+  it('passes its own schema', () => {
+    expect(RoomSettingsSchema.safeParse(DEFAULT_ROOM_SETTINGS).success).toBe(true);
   });
 });

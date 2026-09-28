@@ -16,7 +16,7 @@ if (existsSync(envFile)) process.loadEnvFile(envFile);
 const config = loadConfig();
 const logger = createLogger(config.LOG_LEVEL);
 
-const { httpServer, io } = createAppServer({
+const { httpServer, close } = createAppServer({
   config,
   logger,
   clientDistDir: config.NODE_ENV === 'production' ? path.join(repoRoot, 'client', 'dist') : null,
@@ -32,8 +32,8 @@ function shutdown(signal: NodeJS.Signals): void {
   if (shuttingDown) return;
   shuttingDown = true;
   logger.info(`${signal} received, shutting down`);
-  // Closes all sockets and the underlying HTTP server.
-  void io.close(() => process.exit(0));
+  // Stops timers, closes all sockets and the underlying HTTP server.
+  void close().then(() => process.exit(0));
   setTimeout(() => {
     logger.error('Forced exit after shutdown timeout');
     process.exit(1);

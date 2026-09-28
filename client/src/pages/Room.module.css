@@ -1,0 +1,33 @@
+.eyebrow {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.heading {
+  margin: 0;
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
+}
+
+.code {
+  font-family: var(--font-mono);
+  letter-spacing: 0.12em;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.joining {
+  margin: 0;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.homeLink {
+  align-self: center;
+  color: var(--color-text-muted);
+}

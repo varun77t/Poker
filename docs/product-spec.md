@@ -6,7 +6,7 @@ A web app for playing private No-Limit Texas Hold'em with friends. Someone creat
 **Virtual chips only.** Chips have no monetary value, cannot be bought, sold, or transferred, and are never redeemable for anything.
 
 ## 2. Users & identity
-- **Guest player:** enters a display name (1–20 characters, trimmed; letters, digits, spaces, and `_ - .` only).
+- **Guest player:** enters a display name (1–20 characters, trimmed, repeated spaces collapsed; letters in any language, digits, spaces, and `_ - . '` only).
 - The server issues a guest session (`playerId` + secret `sessionToken`). The browser keeps it in `localStorage`, so a refresh or a network drop does not lose your seat.
 - Sessions live in server memory and expire 24 hours after last activity. If the server restarts, the client silently creates a new session. The player keeps their name but loses any seat.
 - One browser profile = one player. Opening the app in a second tab takes over the session; the first tab shows "Opened in another tab".

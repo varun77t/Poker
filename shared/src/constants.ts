@@ -12,3 +12,21 @@ export const MAX_CHIP_AMOUNT = 1_000_000_000;
 
 /** Socket.IO max payload size in bytes (server `maxHttpBufferSize`). */
 export const MAX_SOCKET_PAYLOAD_BYTES = 10_000;
+
+/** Room setting bounds (docs/product-spec.md §3.5). Cross-field rules live in RoomSettingsSchema. */
+export const SETTINGS_BOUNDS = {
+  startingStack: { min: 100, max: 1_000_000 },
+  smallBlind: { min: 1 },
+  bigBlind: { min: 2 },
+  /** The big blind may be at most startingStack / this. */
+  minStackInBigBlinds: 10,
+  turnSeconds: { min: 15, max: 120 },
+} as const;
+
+export const DEFAULT_ROOM_SETTINGS = {
+  startingStack: 1000,
+  smallBlind: 5,
+  bigBlind: 10,
+  turnSeconds: 30,
+  rebuys: true,
+} as const;

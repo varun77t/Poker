@@ -20,6 +20,9 @@ Open http://localhost:5173. The Vite dev server proxies `/api`, `/health` and `/
 
 `PORT` always means "the port you open in the browser": Vite's port in development, the Node server's port in production. See `.env.example`.
 
+### Testing several players in one browser (development only)
+All tabs normally share one identity (a second tab takes over the first). To play as different people in one browser, add `?player=<id>` to a tab's URL once, e.g. `http://localhost:5173/?player=2`. That tab keeps its own separate guest session until it is closed. A small "dev player 2" tag shows which one you are.
+
 ## Scripts
 | Command | What it does |
 |---|---|

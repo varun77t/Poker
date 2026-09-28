@@ -1,7 +1,9 @@
+import type { CreateRoomPayload, EmptyPayload, JoinRoomPayload } from './schemas';
+import type { TableSnapshot } from './views';
+
 /**
  * Socket.IO event contract. Both server and client are typed against these maps.
- * Phase 1 only defines the system ping; room and game events arrive in Phases 2 and 4
- * (see docs/architecture.md §7, and docs/socket-events.md once it exists).
+ * Human-readable reference: docs/socket-events.md.
  */
 
 export type ErrorCode =
@@ -31,17 +33,46 @@ export interface PingResult {
   serverTime: number;
 }
 
+export interface RoomCodeResult {
+  code: string;
+}
+
+export interface SyncResult {
+  /** The room the player is seated in, if any. A `state` event for it follows. */
+  roomCode: string | null;
+}
+
 export interface ClientToServerEvents {
-  'sys:ping': (payload: Record<string, never>, ack: AckCallback<PingResult>) => void;
+  'sys:ping': (payload: EmptyPayload, ack: AckCallback<PingResult>) => void;
+  'sync:request': (payload: EmptyPayload, ack: AckCallback<SyncResult>) => void;
+  'room:create': (payload: CreateRoomPayload, ack: AckCallback<RoomCodeResult>) => void;
+  'room:join': (payload: JoinRoomPayload, ack: AckCallback<RoomCodeResult>) => void;
+  'room:leave': (payload: EmptyPayload, ack: AckCallback) => void;
+  'game:start': (payload: EmptyPayload, ack: AckCallback) => void;
 }
 
 export interface ServerToClientEvents {
-  'sys:hello': (payload: { serverTime: number }) => void;
+  /** Full per-player snapshot of the room the player is seated in. */
+  state: (snapshot: TableSnapshot) => void;
+  /** This connection was superseded by a newer one for the same session (another tab). */
+  'session:replaced': (payload: EmptyPayload) => void;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- nothing server-to-server yet
+export type ClientEventName = keyof ClientToServerEvents;
+/** Payload type of a client→server event. */
+export type EventPayload<E extends ClientEventName> = Parameters<ClientToServerEvents[E]>[0];
+/** Full ack response (`Ack<T>`) of a client→server event. */
+export type EventAck<E extends ClientEventName> = Parameters<Parameters<ClientToServerEvents[E]>[1]>[0];
+/** Success data carried by an event's ack. */
+export type EventAckData<E extends ClientEventName> = Extract<EventAck<E>, { ok: true }>['data'];
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- nothing server-to-server
 export interface InterServerEvents {}
 
-/** Data the server attaches to each socket after the handshake (identity arrives in Phase 2). */
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- filled in Phase 2
-export interface SocketData {}
+/** Set by the handshake middleware. The only source of player identity on the server. */
+export interface SocketData {
+  playerId: string;
+}
+
+/** Error message the handshake middleware uses when a session token is missing, unknown or expired. */
+export const AUTH_INVALID = 'AUTH_INVALID';

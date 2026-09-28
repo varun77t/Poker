@@ -5,7 +5,7 @@ export type ClientSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 
 /**
  * Single app-wide socket. It connects to the page's own origin: the Vite proxy in development,
- * the same Node server in production. Connection is started explicitly (autoConnect: false)
- * so the session token can be attached first once identity lands in Phase 2.
+ * the same Node server in production. It only connects once a session token is attached
+ * (see connection.ts), because the server rejects handshakes without one.
  */
 export const socket: ClientSocket = io({ autoConnect: false });

@@ -1,27 +1,52 @@
-import { PingPayloadSchema } from '@poker/shared';
 import type { Logger } from '../logger';
+import type { RateLimiter } from '../rateLimiter';
+import type { RoomManager } from '../rooms/roomManager';
+import type { SessionStore } from '../sessions/sessionStore';
+import type { Broadcaster } from './broadcaster';
+import type { Connections } from './connections';
+import type { createGuard } from './guard';
+import { registerHandlers, type HandlerDeps } from './handlers';
+import { authMiddleware } from './middleware';
 import type { IoServer } from './types';
 
-/**
- * Registers Socket.IO handlers. Phase 1 has only the system ping; the generic guard
- * (rate limit → schema → identity) and room/game handlers arrive in Phase 2.
- */
-export function registerSocketHandlers(io: IoServer, logger: Logger): void {
-  io.on('connection', (socket) => {
-    logger.debug(`socket connected ${socket.id}`);
-    socket.emit('sys:hello', { serverTime: Date.now() });
+export interface SocketDeps extends HandlerDeps {
+  logger: Logger;
+  sessions: SessionStore;
+  rooms: RoomManager;
+  connections: Connections;
+  broadcaster: Broadcaster;
+  guard: ReturnType<typeof createGuard>;
+  eventLimiter: RateLimiter;
+}
 
-    socket.on('sys:ping', (payload, ack) => {
-      if (typeof ack !== 'function') return;
-      if (!PingPayloadSchema.safeParse(payload).success) {
-        ack({ ok: false, error: 'INVALID_PAYLOAD', message: 'Invalid payload.' });
-        return;
-      }
-      ack({ ok: true, data: { serverTime: Date.now() } });
-    });
+export function registerSocketHandlers(io: IoServer, deps: SocketDeps): void {
+  const { logger, sessions, rooms, connections, broadcaster, eventLimiter } = deps;
+
+  io.use(authMiddleware(sessions));
+
+  io.on('connection', (socket) => {
+    const { playerId } = socket.data;
+    logger.debug(`player ${playerId} connected (${socket.id})`);
+
+    // One live connection per player: the newest wins (e.g. the same session opened in another tab).
+    const previous = connections.set(playerId, socket);
+    if (previous) {
+      previous.emit('session:replaced', {});
+      previous.disconnect(true);
+    }
+
+    registerHandlers(socket, deps);
+
+    // Reconnect: mark the seat connected (broadcasts on change) and make sure this socket has the room.
+    const changed = rooms.setConnected(playerId, true);
+    const room = rooms.getRoomOf(playerId);
+    if (room && !changed) broadcaster.sendTo(playerId, room);
 
     socket.on('disconnect', (reason) => {
-      logger.debug(`socket disconnected ${socket.id} (${reason})`);
+      logger.debug(`player ${playerId} disconnected (${socket.id}: ${reason})`);
+      eventLimiter.delete(socket.id);
+      sessions.touch(playerId);
+      if (connections.release(playerId, socket)) rooms.setConnected(playerId, false);
     });
   });
 }

@@ -1,0 +1,36 @@
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-text-faint);
+  font-size: 0.875rem;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.joinRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.codeField {
+  flex: 1;
+}
+
+.joinButton {
+  /* Line up with the input, below the field label. */
+  margin-top: calc(0.875rem * 1.5 + var(--space-2));
+}
+
+.inlineCode {
+  font-family: var(--font-mono);
+  letter-spacing: 0.1em;
+  color: var(--color-text);
+}

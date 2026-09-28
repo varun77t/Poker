@@ -36,20 +36,24 @@ poker/
 │       └── constants.ts         MAX_SEATS=5, ROOM_CODE_ALPHABET, defaults and bounds
 ├── server/
 │   └── src/
-│       ├── index.ts             bootstrap: Express, Socket.IO, static client, graceful shutdown
+│       ├── index.ts             bootstrap: listen, graceful shutdown
+│       ├── app.ts               wires everything; createAppServer() is also used by tests
 │       ├── config.ts            env parsing (zod)
+│       ├── clock.ts             injectable time + scheduler (system clock; FakeClock in tests)
+│       ├── policies.ts          timing and rate-limit values
+│       ├── rateLimiter.ts       token bucket per key
+│       ├── errors.ts            DomainError (expected, user-facing failures → ack errors)
 │       ├── http/
 │       │   ├── routes.ts        /health, POST /api/session
 │       │   └── static.ts        serves client/dist in production
 │       ├── sessions/
 │       │   └── sessionStore.ts  token → { playerId, displayName, lastSeen }
 │       ├── rooms/
-│       │   ├── roomCode.ts      code generation + normalization
-│       │   ├── room.ts          Room type + seat helpers
-│       │   └── roomManager.ts   create/join/leave, host migration, TTL cleanup, player→room index
+│       │   ├── roomCode.ts      secure code generation
+│       │   ├── room.ts          Room type, seat helpers, toRoomView/toSnapshot projections
+│       │   └── roomManager.ts   create/join/leave/start, host migration, TTL + grace timers, player→room index
 │       ├── table/
-│       │   ├── tableController.ts  one per playing room: runs hands, timers, pacing, rebuys, game end
-│       │   └── clock.ts         injectable scheduler (real vs fake in tests)
+│       │   └── tableController.ts  (Phase 4) one per playing room: runs hands, timers, pacing, rebuys, game end
 │       ├── engine/              PURE — must not import anything outside engine/ and shared/
 │       │   ├── deck.ts          createDeck, shuffle(rng)
 │       │   ├── evaluator.ts     evaluate7(cards) → { category, rankValue, best5, label }
@@ -59,9 +63,11 @@ poker/
 │       │   ├── types.ts         HandState, HandPlayer, EngineEvent, EngineError
 │       │   └── view.ts          toGameView(state, viewerId): the only hidden-info projection
 │       ├── socket/
-│       │   ├── middleware.ts    handshake auth (token → playerId), single-socket-per-player
-│       │   ├── guard.ts         wraps handlers: rate limit → zod parse → try/catch → ack
-│       │   ├── handlers.ts      room:*, game:* event handlers (thin)
+│       │   ├── index.ts         connection lifecycle: single socket per player, reconnect, disconnect
+│       │   ├── middleware.ts    handshake auth (token → socket.data.playerId)
+│       │   ├── connections.ts   playerId → active socket
+│       │   ├── guard.ts         wraps handlers: rate limit → ack required → zod parse → try/catch → ack
+│       │   ├── handlers.ts      sys:*, sync:*, room:*, game:* event handlers (thin)
 │       │   └── broadcaster.ts   emits per-player snapshots for a room
 │       └── db/                  Phase 10 only (Drizzle schema + migrations)
 │   └── test/                    integration tests (in-process server + socket.io-client)
@@ -244,7 +250,9 @@ type ErrorCode =
 |---|---|---|
 | `state` | `TableSnapshot` (§8.3) | after every change, per player |
 | `session:replaced` | `{}` | this socket was superseded by a newer tab/connection |
-| `room:closed` | `{ reason: 'expired' \| 'server_restart' }` | the room was removed |
+| `room:closed` | `{ reason: 'server_restart' }` | *(Phase 9, graceful shutdown)* the room was removed |
+
+The live, authoritative list is [socket-events.md](socket-events.md).
 
 ---
 
@@ -380,7 +388,7 @@ Every client→server event passes through `guard()`:
 
 ---
 
-## 10. Timers & pacing (`tableController` + `clock.ts`)
+## 10. Timers & pacing (`clock.ts`, `policies.ts`, later `tableController`)
 
 | Timer | Default | Notes |
 |---|---|---|

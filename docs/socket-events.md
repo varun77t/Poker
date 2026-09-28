@@ -58,6 +58,7 @@ This is the live reference for everything the client and server exchange. The ty
 | `room:create` | `{ settings: RoomSettings }` | `{ code }` | Leaves any current room first. Creator takes seat 0 and is host. |
 | `room:join` | `{ code: string }` (≤16 chars) | `{ code }` | See below |
 | `room:leave` | `{}` | `{}` | Frees the seat now. Host passes to the next occupied seat clockwise. An empty room is deleted after 10 minutes. `NOT_IN_ROOM` if not seated. |
+| `room:updateSettings` | `{ settings: RoomSettings }` | `{}` | Host only (`NOT_HOST`); not while `playing` (`INVALID_STATE`). In `waiting`, every seated player's stack is reset to the new `startingStack`. In `finished`, only the settings change; they apply on restart. Identical settings are a no-op (no new snapshot). |
 | `game:start` | `{}` | `{}` | Host only; status `waiting` or `finished`; ≥ 2 seated. Sets status `playing` (dealing arrives in Phase 4). |
 
 **`room:join` rules:**

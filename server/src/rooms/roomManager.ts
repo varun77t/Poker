@@ -1,6 +1,7 @@
 import {
   MAX_SEATS,
   MIN_PLAYERS_TO_START,
+  changedSettingKeys,
   isValidRoomCode,
   normalizeRoomCode,
   type PlayerId,
@@ -108,6 +109,28 @@ export class RoomManager {
     room.status = 'playing';
     for (const seat of seatedPlayers(room)) seat.waitingForNextHand = false;
     // Phase 4: hand the room to a table controller here.
+    this.changed(room);
+  }
+
+  /**
+   * Host-only, and never while a game is running. In the lobby nobody has played yet, so every
+   * stack simply becomes the new starting stack. In `finished`, the new settings apply on restart.
+   */
+  updateSettings(playerId: PlayerId, settings: RoomSettings): void {
+    const room = this.requireRoomOf(playerId);
+    if (room.hostId !== playerId) throw new DomainError('NOT_HOST', 'Only the host can change the settings.');
+    if (room.status === 'playing') {
+      throw new DomainError('INVALID_STATE', "Settings can't be changed while a game is running.");
+    }
+    if (changedSettingKeys(room.settings, settings).length === 0) return;
+
+    room.settings = { ...settings };
+    if (room.status === 'waiting') {
+      for (const seat of seatedPlayers(room)) {
+        seat.stack = settings.startingStack;
+        seat.totalBuyIn = settings.startingStack;
+      }
+    }
     this.changed(room);
   }
 

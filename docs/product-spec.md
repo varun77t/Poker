@@ -29,7 +29,7 @@ A web app for playing private No-Limit Texas Hold'em with friends. Someone creat
 
 ### 3.3 Host
 - The room creator is the host.
-- **Host-only controls:** start the game, end the game, restart after it finishes.
+- **Host-only controls:** change the room settings (lobby or finished screen only), start the game, end the game, restart after it finishes.
 - **Host migration:** if the host leaves (or is removed after disconnecting), host passes to the next occupied seat clockwise.
 
 ### 3.4 Room states
@@ -39,7 +39,11 @@ A web app for playing private No-Limit Texas Hold'em with friends. Someone creat
 | `playing` | Hands are dealt continuously. Players may still join; they are dealt in from the next hand. |
 | `finished` | Game over. Results are shown. The host can restart (fresh stacks, back to `playing`) or players can leave. |
 
-### 3.5 Room settings (chosen at creation, fixed for the game)
+### 3.5 Room settings (chosen at creation, editable by the host until the game starts)
+- The host can change any setting while the room is `waiting`, or on the finished screen before a restart. They are locked while a game is `playing`.
+- Changing them in the lobby resets every seated player's chips to the new starting stack (nobody has played yet). After a finished game the new settings apply when the host restarts.
+- Everyone sees the change straight away: the changed values are highlighted and a note says the host changed the settings.
+
 | Setting | Default | Allowed |
 |---|---|---|
 | Starting stack | 1,000 | 100 – 1,000,000 |
@@ -81,7 +85,7 @@ Blinds do not increase over time (no tournament structure in the MVP).
 ## 6. Screens
 1. **Landing:** name field, "Create room", "Join room" (code input).
 2. **Create room:** the settings form (§3.5) with defaults pre-filled.
-3. **Lobby** (`/room/:code`, state `waiting`): code with a copy-link button, player list with seat and host badge, count "3/5", Start (host, enabled at ≥2), Leave.
+3. **Lobby** (`/room/:code`, state `waiting`): code with a copy-link button, settings with an Edit button (host), player list with seat and host badge, count "3/5", Start (host, enabled at ≥2), Leave.
 4. **Table** (state `playing`): the table with up to 5 seats (your own seat always at the bottom), board, pots, dealer and blind markers, turn countdown, action panel, hand results.
 5. **Finished:** results table, Restart (host), Leave.
 6. **Error/empty states:** room not found, room full, connection lost / reconnecting, opened in another tab.

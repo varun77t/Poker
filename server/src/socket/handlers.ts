@@ -2,6 +2,7 @@ import {
   CreateRoomPayloadSchema,
   EmptyPayloadSchema,
   JoinRoomPayloadSchema,
+  UpdateSettingsPayloadSchema,
   type PlayerId,
 } from '@poker/shared';
 import type { Clock } from '../clock';
@@ -56,6 +57,11 @@ export function registerHandlers(socket: IoSocket, deps: HandlerDeps): void {
 
   on('room:leave', EmptyPayloadSchema, ({ playerId }) => {
     rooms.leave(playerId);
+    return {};
+  });
+
+  on('room:updateSettings', UpdateSettingsPayloadSchema, ({ playerId }, { settings }) => {
+    rooms.updateSettings(playerId, settings);
     return {};
   });
 

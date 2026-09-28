@@ -44,6 +44,14 @@ export type EmptyPayload = z.infer<typeof EmptyPayloadSchema>;
 export const CreateRoomPayloadSchema = z.strictObject({ settings: RoomSettingsSchema });
 export type CreateRoomPayload = z.infer<typeof CreateRoomPayloadSchema>;
 
+export const UpdateSettingsPayloadSchema = z.strictObject({ settings: RoomSettingsSchema });
+export type UpdateSettingsPayload = z.infer<typeof UpdateSettingsPayloadSchema>;
+
+/** Settings keys whose values differ between two settings objects. */
+export function changedSettingKeys(before: RoomSettings, after: RoomSettings): (keyof RoomSettings)[] {
+  return (Object.keys(RoomSettingsSchema.shape) as (keyof RoomSettings)[]).filter((key) => before[key] !== after[key]);
+}
+
 /** Codes are normalized and checked server-side, so any short string is accepted here. */
 export const JoinRoomPayloadSchema = z.strictObject({ code: z.string().max(16) });
 export type JoinRoomPayload = z.infer<typeof JoinRoomPayloadSchema>;

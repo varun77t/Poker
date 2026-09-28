@@ -49,8 +49,66 @@
 
 .settings li {
   padding: var(--space-1) var(--space-3);
+  border: 1px solid transparent;
   border-radius: 999px;
   background: var(--color-surface-raised);
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  transition:
+    background-color 300ms ease,
+    border-color 300ms ease,
+    color 300ms ease;
+}
+
+.settings li[data-changed='true'] {
+  border-color: var(--color-accent);
+  background: var(--color-warning-bg);
+  color: var(--color-accent);
+}
+
+.settings .editItem {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.editButton {
+  min-height: 32px;
+  padding: var(--space-1) var(--space-3);
+  border: 1px dashed var(--color-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.editButton:hover {
+  border-color: var(--color-text-muted);
+}
+
+.editButton:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.editorTitle {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.editorHint {
+  margin: var(--space-1) 0 0;
   color: var(--color-text-muted);
   font-size: 0.875rem;
 }

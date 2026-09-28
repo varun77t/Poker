@@ -6,6 +6,8 @@ import {
   EmptyPayloadSchema,
   JoinRoomPayloadSchema,
   RoomSettingsSchema,
+  UpdateSettingsPayloadSchema,
+  changedSettingKeys,
   isValidRoomCode,
   normalizeRoomCode,
 } from '../src';
@@ -71,11 +73,21 @@ describe('RoomSettingsSchema', () => {
   });
 });
 
+describe('changedSettingKeys', () => {
+  it('lists exactly the keys whose values differ', () => {
+    expect(changedSettingKeys(DEFAULT_ROOM_SETTINGS, { ...DEFAULT_ROOM_SETTINGS })).toEqual([]);
+    expect(
+      changedSettingKeys(DEFAULT_ROOM_SETTINGS, { ...DEFAULT_ROOM_SETTINGS, bigBlind: 20, rebuys: false }),
+    ).toEqual(['bigBlind', 'rebuys']);
+  });
+});
+
 describe('payload schemas are strict', () => {
   it('rejects spoofed identity fields', () => {
     expect(EmptyPayloadSchema.safeParse({ playerId: 'someone-else' }).success).toBe(false);
     expect(JoinRoomPayloadSchema.safeParse({ code: 'ABC234', playerId: 'x' }).success).toBe(false);
     expect(CreateRoomPayloadSchema.safeParse({ settings: DEFAULT_ROOM_SETTINGS, hostId: 'x' }).success).toBe(false);
+    expect(UpdateSettingsPayloadSchema.safeParse({ settings: DEFAULT_ROOM_SETTINGS, playerId: 'x' }).success).toBe(false);
   });
 
   it('rejects non-object payloads', () => {

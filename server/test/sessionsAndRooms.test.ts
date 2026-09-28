@@ -158,6 +158,28 @@ describe('rooms over Socket.IO', () => {
     expect((await bob.stateWhere((s) => s.room.status === 'playing')).room.status).toBe('playing');
   });
 
+  it('the host can change settings in the lobby; everyone sees them and the new stacks', async () => {
+    const [alice, bob] = [await t.player('Alice'), await t.player('Bob')];
+    const code = await createRoom(alice);
+    await request(bob.socket, 'room:join', { code });
+    const settings = { ...DEFAULT_ROOM_SETTINGS, startingStack: 5000, smallBlind: 25, bigBlind: 50, turnSeconds: 60 };
+
+    expect(await request(bob.socket, 'room:updateSettings', { settings })).toMatchObject({ ok: false, error: 'NOT_HOST' });
+    expect(await request(alice.socket, 'room:updateSettings', { settings })).toEqual({ ok: true, data: {} });
+
+    for (const player of [alice, bob]) {
+      const s = await player.stateWhere((snap) => snap.room.settings.startingStack === 5000);
+      expect(s.room.settings).toEqual(settings);
+      expect(s.room.seats.filter(Boolean).map((seat) => seat?.stack)).toEqual([5000, 5000]);
+    }
+
+    await request(alice.socket, 'game:start', {});
+    expect(await request(alice.socket, 'room:updateSettings', { settings: DEFAULT_ROOM_SETTINGS })).toMatchObject({
+      ok: false,
+      error: 'INVALID_STATE',
+    });
+  });
+
   it('snapshot versions increase', async () => {
     const [alice, bob] = [await t.player('Alice'), await t.player('Bob')];
     const code = await createRoom(alice);
@@ -192,6 +214,9 @@ describe('untrusted input', () => {
       ['room:join', { code: 'x'.repeat(100) }],
       ['room:join', 'ABC234'],
       ['room:leave', null],
+      ['room:updateSettings', { settings: { ...DEFAULT_ROOM_SETTINGS, smallBlind: 50, bigBlind: 10 } }],
+      ['room:updateSettings', { settings: { ...DEFAULT_ROOM_SETTINGS, turnSeconds: 5 } }],
+      ['room:updateSettings', DEFAULT_ROOM_SETTINGS],
       ['game:start', []],
     ];
     for (const [event, payload] of bad) {
@@ -211,6 +236,7 @@ describe('untrusted input', () => {
       ['game:start', { playerId: alice.info.playerId }],
       ['room:leave', { playerId: alice.info.playerId }],
       ['room:join', { code, playerId: alice.info.playerId }],
+      ['room:updateSettings', { settings: DEFAULT_ROOM_SETTINGS, playerId: alice.info.playerId }],
     ] as const) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- deliberately bypassing the typed contract
       const res = await (mallory.socket.timeout(2000) as any).emitWithAck(event, payload);

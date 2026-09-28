@@ -267,6 +267,68 @@ describe('RoomManager', () => {
     });
   });
 
+  describe('updateSettings', () => {
+    const bigger = { ...DEFAULT_ROOM_SETTINGS, startingStack: 2000, smallBlind: 10, bigBlind: 20, rebuys: false };
+
+    it('lets the host change settings in the lobby and resets every stack', () => {
+      const room = rooms.create(p('alice'), DEFAULT_ROOM_SETTINGS);
+      rooms.join(p('bob'), room.code);
+      const version = room.version;
+
+      rooms.updateSettings('alice', bigger);
+      expect(room.settings).toEqual(bigger);
+      expect(room.settings).not.toBe(bigger); // stored as a copy
+      expect(room.seats.filter(Boolean).map((s) => [s?.stack, s?.totalBuyIn])).toEqual([
+        [2000, 2000],
+        [2000, 2000],
+      ]);
+      expect(room.version).toBe(version + 1);
+
+      rooms.join(p('carol'), room.code); // later joiners get the new stack too
+      expect(room.seats[2]?.stack).toBe(2000);
+    });
+
+    it('is host-only and needs a seat', () => {
+      const room = rooms.create(p('alice'), DEFAULT_ROOM_SETTINGS);
+      rooms.join(p('bob'), room.code);
+      expectError(() => rooms.updateSettings('bob', bigger), 'NOT_HOST');
+      expectError(() => rooms.updateSettings('nobody', bigger), 'NOT_IN_ROOM');
+      expect(room.settings).toEqual(DEFAULT_ROOM_SETTINGS);
+    });
+
+    it('is locked while a game is running', () => {
+      const room = rooms.create(p('alice'), DEFAULT_ROOM_SETTINGS);
+      rooms.join(p('bob'), room.code);
+      rooms.start('alice');
+      expectError(() => rooms.updateSettings('alice', bigger), 'INVALID_STATE');
+      expect(room.settings).toEqual(DEFAULT_ROOM_SETTINGS);
+    });
+
+    it('after a finished game, stores new settings for the restart without touching final stacks', () => {
+      const room = rooms.create(p('alice'), DEFAULT_ROOM_SETTINGS);
+      room.status = 'finished';
+      room.seats[0]!.stack = 1234;
+      rooms.updateSettings('alice', bigger);
+      expect(room.settings).toEqual(bigger);
+      expect(room.seats[0]?.stack).toBe(1234);
+    });
+
+    it('does nothing when the settings are unchanged', () => {
+      const room = rooms.create(p('alice'), DEFAULT_ROOM_SETTINGS);
+      const version = room.version;
+      rooms.updateSettings('alice', { ...DEFAULT_ROOM_SETTINGS });
+      expect(room.version).toBe(version);
+    });
+
+    it('follows host migration', () => {
+      const room = rooms.create(p('alice'), DEFAULT_ROOM_SETTINGS);
+      rooms.join(p('bob'), room.code);
+      rooms.leave('alice');
+      rooms.updateSettings('bob', bigger);
+      expect(room.settings).toEqual(bigger);
+    });
+  });
+
   describe('rename', () => {
     it('updates the seat name and broadcasts', () => {
       const room = rooms.create(p('alice', 'Alice'), DEFAULT_ROOM_SETTINGS);

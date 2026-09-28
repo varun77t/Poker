@@ -239,6 +239,7 @@ type ErrorCode =
 | `room:create` | `{ settings: RoomSettings }` | anyone | `{ code }` |
 | `room:join` | `{ code: string }` | anyone | `{ code }` |
 | `room:leave` | `{}` | member | — |
+| `room:updateSettings` | `{ settings: RoomSettings }` | host; status `waiting` or `finished` | — |
 | `game:start` | `{}` | host; status `waiting` or `finished`; ≥ 2 seated | — |
 | `game:action` | `{ handId: number, seq: number, type: 'fold'\|'check'\|'call'\|'bet'\|'raise'\|'allIn', amount?: number }` | the player to act | — |
 | `game:rebuy` | `{}` | busted member; rebuys on; between hands | — |

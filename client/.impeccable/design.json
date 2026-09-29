@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-29T18:02:15.000Z",
+  "generatedAt": "2026-09-29T18:42:08.257Z",
   "title": "Design System: Private Hold'em",
   "extensions": {
     "colorMeta": {
@@ -564,13 +564,17 @@
         "displayName": "Action",
         "purpose": "Action button labels; the signed net on a standings plaque."
       },
+      "hand": {
+        "displayName": "Hand",
+        "purpose": "The hand hint's strong line: the kind of hand you hold."
+      },
       "label": {
         "displayName": "Label",
-        "purpose": "Bet presets, the host's bot Remove control and the \"Add a bot\" line on an open seat."
+        "purpose": "Bet presets, the host's bot Remove control, the \"Add a bot\" line on an open seat, and the hand hint's ladder rungs."
       },
       "tag": {
         "displayName": "Tag",
-        "purpose": "State tags on seat and standings plaques, and the outlined bot mark (Easy bot, Normal bot)."
+        "purpose": "State tags on seat and standings plaques, and the outlined bot mark (Easy bot, Medium bot, Pro bot)."
       },
       "card-rank": {
         "displayName": "Card Rank",
@@ -599,7 +603,7 @@
       {
         "name": "panel-float",
         "value": "0 20px 40px -12px rgb(0 0 0 / 0.7)",
-        "purpose": "The docked action panel, the next-game panel and the host's bot panels."
+        "purpose": "The docked action panel, the hand hint, the next-game panel and the host's bot panels."
       },
       {
         "name": "plaque-rest",
@@ -701,7 +705,12 @@
       {
         "name": "plate-in",
         "value": "180ms",
-        "purpose": "The host's bot panels (Add a bot, Remove confirm) fade in with a 4px drop."
+        "purpose": "The host's bot panels (Add a bot, Remove confirm) fade in with a 4px drop; the hand hint fades in with a 4px rise at the start of each hand."
+      },
+      {
+        "name": "rung-glide",
+        "value": "360ms",
+        "purpose": "The band behind the hand hint's lit rung glides to the new rung on the ease-out curve as the hand improves."
       },
       {
         "name": "reduced-motion",
@@ -817,9 +826,17 @@
       "name": "Bot Seat",
       "kind": "custom",
       "refersTo": "bot-mark",
-      "description": "A bot's plaque: the outlined bot mark and the dashed chip-stripe ring on its disc say who the seat is; the host's hanging Remove control and the Add a bot panel in the action panel's material.",
-      "html": "<div class=\"ds-bots\"><div class=\"ds-bseat\"><div class=\"ds-bplq\"><span class=\"ds-bav\">N</span><span class=\"ds-bwho\"><span class=\"ds-bname\"><b>Nora</b><span class=\"ds-bmark\">Normal bot</span></span><span class=\"ds-bstk\">1,120</span></span></div><button class=\"ds-brm\">Remove</button></div><div class=\"ds-bpanel\"><div class=\"ds-bhead\"><span>Add a bot</span><button class=\"ds-bgh\">Cancel</button></div><div class=\"ds-blv\"><button class=\"ds-bact\">Easy<small>Calls a lot</small></button><button class=\"ds-bact\">Normal<small>Plays solid poker</small></button></div></div></div>",
-      "css": ".ds-bots{display:flex;gap:24px;align-items:flex-start;padding:16px 16px 28px;background:#1f0d12;color:#f3ecdf;font:500 16px/1.15 'Barlow Semi Condensed', system-ui, sans-serif;font-variant-numeric:tabular-nums}.ds-bseat{position:relative}.ds-bplq{display:inline-grid;grid-template-columns:auto 1fr;align-items:center;gap:10px;min-width:176px;padding:7px 16px 7px 7px;border:1.5px solid #4a2a1d;border-radius:999px;background:#24110f;box-shadow:0 8px 18px -6px rgb(0 0 0 / .6)}.ds-bav{position:relative;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#5a2e22;font:20px/1 'Marcellus', Georgia, serif}.ds-bav::after{position:absolute;inset:3px;border:1.5px dashed rgb(255 255 255 / .35);border-radius:50%;content:''}.ds-bwho{display:flex;flex-direction:column}.ds-bname{display:flex;align-items:center;gap:7px}.ds-bname b{font-weight:600}.ds-bmark{padding:0 7px;border:1px solid color-mix(in srgb,#c5b49c 45%,transparent);border-radius:999px;color:#c5b49c;font-size:13px;font-weight:700;line-height:1.35;letter-spacing:.04em;white-space:nowrap}.ds-bstk{color:#c5b49c}.ds-brm{position:absolute;top:calc(100% - 11px);left:50%;translate:-50% 0;padding:2px 10px;border:1px solid #4a2a1d;border-radius:7px;background:#24110f;color:#c5b49c;font:600 14px/1.35 'Barlow Semi Condensed', system-ui, sans-serif;cursor:pointer;transition:border-color 150ms,color 150ms}.ds-brm:hover{border-color:#a88444;color:#f3ecdf}.ds-brm:focus-visible,.ds-bgh:focus-visible,.ds-bact:focus-visible{outline:2px solid #d2a54c;outline-offset:3px}.ds-bpanel{display:grid;gap:10px;width:268px;padding:12px;border:1px solid #4a2a1d;border-radius:16px;background:rgb(24 10 12 / .96);box-shadow:0 20px 40px -12px rgb(0 0 0 / .7)}.ds-bhead{display:flex;align-items:center;justify-content:space-between;gap:12px}.ds-bhead span{font-weight:600}.ds-bgh{padding:3px 10px;border:1px solid #4a2a1d;border-radius:8px;background:transparent;color:#c5b49c;font:600 14px 'Barlow Semi Condensed', system-ui, sans-serif;cursor:pointer}.ds-bgh:hover{border-color:#a88444;color:#f3ecdf}.ds-blv{display:grid;grid-template-columns:1fr 1fr;gap:8px}.ds-bact{display:grid;place-content:center;height:48px;border:1px solid #4a2a1d;border-radius:10px;background:#33191a;color:#f3ecdf;font:700 18px/1.1 'Barlow Semi Condensed', system-ui, sans-serif;cursor:pointer;transition:transform 90ms,background-color 150ms}.ds-bact small{font-size:13px;font-weight:600;opacity:.85}.ds-bact:hover{background:#43211f}.ds-bact:active{transform:translateY(1px)}"
+      "description": "A bot's plaque: the outlined bot mark and the dashed chip-stripe ring on its disc say who the seat is; the host's hanging Remove control and the Add a bot panel in the action panel's material, with the three levels as full-width rows.",
+      "html": "<div class=\"ds-bots\"><div class=\"ds-bseat\"><div class=\"ds-bplq\"><span class=\"ds-bav\">N</span><span class=\"ds-bwho\"><span class=\"ds-bname\"><b>Nora</b><span class=\"ds-bmark\">Medium bot</span></span><span class=\"ds-bstk\">1,120</span></span></div><button class=\"ds-brm\">Remove</button></div><div class=\"ds-bpanel\"><div class=\"ds-bhead\"><span>Add a bot</span><button class=\"ds-bgh\">Cancel</button></div><div class=\"ds-blv\"><button class=\"ds-bact\">Easy<small>Calls a lot</small></button><button class=\"ds-bact\">Medium<small>Plays solid poker</small></button><button class=\"ds-bact\">Pro<small>Reads you, bluffs well</small></button></div></div></div>",
+      "css": ".ds-bots{display:flex;gap:24px;align-items:flex-start;padding:16px 16px 28px;background:#1f0d12;color:#f3ecdf;font:500 16px/1.15 'Barlow Semi Condensed', system-ui, sans-serif;font-variant-numeric:tabular-nums}.ds-bseat{position:relative}.ds-bplq{display:inline-grid;grid-template-columns:auto 1fr;align-items:center;gap:10px;min-width:176px;padding:7px 16px 7px 7px;border:1.5px solid #4a2a1d;border-radius:999px;background:#24110f;box-shadow:0 8px 18px -6px rgb(0 0 0 / .6)}.ds-bav{position:relative;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#5a2e22;font:20px/1 'Marcellus', Georgia, serif}.ds-bav::after{position:absolute;inset:3px;border:1.5px dashed rgb(255 255 255 / .35);border-radius:50%;content:''}.ds-bwho{display:flex;flex-direction:column}.ds-bname{display:flex;align-items:center;gap:7px}.ds-bname b{font-weight:600}.ds-bmark{padding:0 7px;border:1px solid color-mix(in srgb,#c5b49c 45%,transparent);border-radius:999px;color:#c5b49c;font-size:13px;font-weight:700;line-height:1.35;letter-spacing:.04em;white-space:nowrap}.ds-bstk{color:#c5b49c}.ds-brm{position:absolute;top:calc(100% - 11px);left:50%;translate:-50% 0;padding:2px 10px;border:1px solid #4a2a1d;border-radius:7px;background:#24110f;color:#c5b49c;font:600 14px/1.35 'Barlow Semi Condensed', system-ui, sans-serif;cursor:pointer;transition:border-color 150ms,color 150ms}.ds-brm:hover{border-color:#a88444;color:#f3ecdf}.ds-brm:focus-visible,.ds-bgh:focus-visible,.ds-bact:focus-visible{outline:2px solid #d2a54c;outline-offset:3px}.ds-bpanel{display:grid;gap:10px;width:268px;padding:12px;border:1px solid #4a2a1d;border-radius:16px;background:rgb(24 10 12 / .96);box-shadow:0 20px 40px -12px rgb(0 0 0 / .7)}.ds-bhead{display:flex;align-items:center;justify-content:space-between;gap:12px}.ds-bhead span{font-weight:600}.ds-bgh{padding:3px 10px;border:1px solid #4a2a1d;border-radius:8px;background:transparent;color:#c5b49c;font:600 14px 'Barlow Semi Condensed', system-ui, sans-serif;cursor:pointer}.ds-bgh:hover{border-color:#a88444;color:#f3ecdf}.ds-blv{display:grid;gap:6px}.ds-bact{display:flex;align-items:center;justify-content:space-between;gap:12px;height:44px;padding:0 14px;text-align:left;border:1px solid #4a2a1d;border-radius:10px;background:#33191a;color:#f3ecdf;font:700 18px/1.1 'Barlow Semi Condensed', system-ui, sans-serif;cursor:pointer;transition:transform 90ms,background-color 150ms}.ds-bact small{color:#c5b49c;font-size:13px;font-weight:600}.ds-bact:hover{background:#43211f}.ds-bact:active{transform:translateY(1px)}"
+    },
+    {
+      "name": "Hand Hint",
+      "kind": "card",
+      "refersTo": "hand-hint",
+      "description": "Docked bottom-left opposite the action panel: the kind of hand you hold, its detail and notes, over the nine-rung ladder with a plaque-turn band behind your rung. Information, so no brass.",
+      "html": "<div class=\"ds-hbg\"><aside class=\"ds-hint\" aria-label=\"Your hand\"><p class=\"ds-hh\" aria-live=\"polite\">Two Pair<span class=\"ds-hd\">Kings and Sevens</span></p><p class=\"ds-hn\">Drawing to a flush.</p><div class=\"ds-lad\"><span class=\"ds-band\"></span><ol><li>Straight flush</li><li>Four of a kind</li><li>Full house</li><li class=\"ds-dr\">Flush<i>draw</i></li><li>Straight</li><li>Three of a kind</li><li class=\"ds-lit\" aria-current=\"true\">Two pair</li><li>Pair</li><li>High card</li></ol></div></aside></div>",
+      "css": ".ds-hbg{padding:16px;background:#1f0d12}.ds-hint{width:188px;box-sizing:border-box;padding:12px 12px 10px;border:1px solid #4a2a1d;border-radius:16px;background:rgb(24 10 12 / .92);box-shadow:0 20px 40px -12px rgb(0 0 0 / .7);font-family:'Barlow Semi Condensed', system-ui, sans-serif;font-variant-numeric:tabular-nums}.ds-hh{margin:0;color:#f3ecdf;font:700 20px/1.15 'Barlow Semi Condensed', system-ui, sans-serif}.ds-hd{display:block;margin-top:1px;color:#c5b49c;font:600 16px/1.25 'Barlow Semi Condensed', system-ui, sans-serif}.ds-hn{margin:4px 0 0;color:#c5b49c;font-size:16px;line-height:1.3}.ds-lad{position:relative;margin-top:10px;padding-top:8px;border-top:1px solid #4a2a1d}.ds-lad ol{position:relative;margin:0;padding:0;list-style:none}.ds-lad li{display:flex;align-items:baseline;justify-content:space-between;height:19px;padding:0 8px;color:#c5b49c;font:600 14px/19px 'Barlow Semi Condensed', system-ui, sans-serif}.ds-lad li.ds-lit{color:#f3ecdf;font-weight:700}.ds-lad li.ds-dr{color:#f3ecdf}.ds-lad i{color:#c5b49c;font-size:13px;font-weight:600}.ds-band{position:absolute;top:8px;left:0;right:0;height:19px;border-radius:6px;background:#33190f;box-shadow:inset 0 0 0 1px #4a2a1d;transform:translateY(114px);transition:transform 360ms cubic-bezier(0.16, 1, 0.3, 1)}"
     }
   ],
   "narrative": {
@@ -893,6 +910,7 @@
       "**Don't** fall back to a flat grey software table or generic UI chrome.",
       "**Don't** use brass as decoration; decorative brass is brass-trim.",
       "**Don't** put brass on a status such as \"Last hand\", \"Out of chips\" or \"Left\"; statuses are cream or quiet plaque-edge tags.",
+      "**Don't** put brass or an eyebrow label on the hand hint; it is information, not the move.",
       "**Don't** use payout green or fold blush without a signed figure beside them.",
       "**Don't** use a dashed border for anything but an empty place, except the chip-stripe rings on chips and a bot's avatar disc.",
       "**Don't** use money language (deposit, cash, jackpot, win big); chips are virtual and never bought.",

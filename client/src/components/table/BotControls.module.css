@@ -80,10 +80,25 @@
   font-size: 14px;
 }
 
+/* Three levels, one per row: the name on the left, how it plays on the right. */
 .levels {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 6px;
+}
+
+.levels > button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 44px;
+  padding: 0 14px;
+  text-align: left;
+}
+
+.levels small {
+  color: var(--ink-muted);
+  opacity: 1;
 }
 
 .error {

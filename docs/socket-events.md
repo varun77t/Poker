@@ -59,7 +59,7 @@ This is the live reference for everything the client and server exchange. The ty
 |---|---|---|---|
 | `sys:ping` | `{}` | `{ serverTime: number }` | Latency check |
 | `sync:request` | `{}` | `{ roomCode: string \| null }` | Reports the player's room. If they have one, the server also re-sends `state`. The client sends this on every (re)connect. |
-| `room:create` | `{ settings: RoomSettings; bots?: BotLevel[] }` | `{ code }` | Leaves any current room first. Creator takes seat 0 and is host. `bots` (at most 4; `'easy'` or `'normal'`) are seated in seats 1, 2, … ("Play against bots" sends three `'normal'`). |
+| `room:create` | `{ settings: RoomSettings; bots?: BotLevel[] }` | `{ code }` | Leaves any current room first. Creator takes seat 0 and is host. `bots` (at most 4; `'easy'`, `'medium'` or `'pro'`) are seated in seats 1, 2, … ("Play against bots" sends three `'medium'`). |
 | `room:join` | `{ code: string }` (≤16 chars) | `{ code }` | See below |
 | `room:leave` | `{}` | `{}` | See below. Host passes to the next member clockwise. When the last member leaves, any game stops, the room goes back to an empty lobby and is deleted after 10 minutes. `NOT_IN_ROOM` if not seated. |
 | `room:updateSettings` | `{ settings: RoomSettings }` | `{}` | Host only (`NOT_HOST`); not while `playing` (`INVALID_STATE`). In `waiting`, every seated player's stack is reset to the new `startingStack`. In `finished`, only the settings change; they apply on restart. Identical settings are a no-op (no new snapshot). |
@@ -115,7 +115,7 @@ The host ends the game (R-10.4). Payload `{}`.
 ### 3.5 Bots: `room:addBot`, `room:removeBot`
 
 Bots are server-run players (product-spec §3.7). Both events are host only (`NOT_HOST`) and work in any room status.
-- `room:addBot { level, seat? }`: `level` is `'easy'` or `'normal'`. `seat` (0–4) is the open seat to use; without it the lowest open seat is used. The bot gets the starting stack and the first free name from a fixed list (Ace Bot, King Bot, Queen Bot, Jack Bot, Ten Bot). Added during a game, it is `waitingForNextHand` and dealt in from the next hand. A table waiting for players (§4.2) deals at once if it now can. The ack returns the seat used.
+- `room:addBot { level, seat? }`: `level` is `'easy'`, `'medium'` or `'pro'`. `seat` (0–4) is the open seat to use; without it the lowest open seat is used. The bot gets the starting stack and the first free name from a fixed list (Ace Bot, King Bot, Queen Bot, Jack Bot, Ten Bot). Added during a game, it is `waitingForNextHand` and dealt in from the next hand. A table waiting for players (§4.2) deals at once if it now can. The ack returns the seat used.
 - `room:removeBot { seat }`: behaves like `room:leave` for that bot. Not dealt into the current hand: the seat is freed now. Dealt in: its hand is folded at once and the seat is marked `leaving` and freed after the hand.
 - Bots are never host, have no session or socket, receive no `state`, and never time out or disconnect. When the last person leaves a room, every bot goes with them.
 - **Errors:** `NOT_IN_ROOM`, `NOT_HOST`, `ROOM_FULL` ("The table is full."), `INVALID_STATE` ("That seat is taken." / "There is no bot in that seat.").
@@ -165,7 +165,7 @@ interface FinalResult {     // everyone dealt into at least one hand of the game
   totalBuyIn: number;       // starting stack + every rebuy
   rebuys: number;
   net: number;              // finalStack - totalBuyIn; the nets of a game sum to zero
-  botLevel: 'easy' | 'normal' | null; // the bot's level; null for people
+  botLevel: 'easy' | 'medium' | 'pro' | null; // the bot's level; null for people
 }
 interface SeatView {
   seat: number;
@@ -177,7 +177,7 @@ interface SeatView {
   busted: boolean;          // 0 chips and not in a hand being played (R-10.1): not dealt in; may rebuy if rebuys are on
   leaving: boolean;         // left during this hand; the seat is freed before the next one
   isBot: boolean;           // a server-run bot (always connected)
-  botLevel: 'easy' | 'normal' | null; // null for people
+  botLevel: 'easy' | 'medium' | 'pro' | null; // null for people
 }
 interface TableView {
   nextHandAt: number | null;   // server time the next hand is dealt, during the results pause
@@ -213,6 +213,16 @@ interface GameView {
     wonByFold: boolean;     // nobody's cards are shown (R-7.4)
     pots: { amount: number; eligibleSeats: number[]; winners: { seat: number; playerId: string; amount: number }[] }[];
     shown: { seat: number; playerId: string; holeCards: [Card, Card]; best5: Card[]; category: string; label: string }[];
+  } | null;
+  history: {                // every action this hand, in order (public; blinds not included)
+    seat: number; street: 'preflop' | 'flop' | 'turn' | 'river';
+    type: 'fold' | 'check' | 'call' | 'bet' | 'raise'; amount?: number; allIn: boolean;
+  }[];
+  yourHand: {               // what the viewer's own cards make now; null unless they hold live (unfolded) cards
+    category: HandCategory; // 'highCard' … 'straightFlush'
+    label: string;          // "Pair of Kings", "Ace high", "Full House, Kings over Sevens"
+    onBoard: boolean;       // the board alone makes this hand
+    draws: ('flushDraw' | 'straightDraw' | 'gutshot')[]; // flop and turn only, using the viewer's own cards
   } | null;
 }
 ```

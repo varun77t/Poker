@@ -33,7 +33,7 @@ export function Landing() {
     navigate(destination);
   }
 
-  /** A room of your own with three Normal bots, opened at its lobby so you can adjust before starting. */
+  /** A room of your own with three Medium bots, opened at its lobby so you can adjust before starting. */
   async function playBots() {
     setBusy('bots');
     setBotsError(null);
@@ -45,7 +45,7 @@ export function Landing() {
     }
     const res = await request('room:create', {
       settings: { ...DEFAULT_ROOM_SETTINGS },
-      bots: Array.from({ length: SOLO_BOT_COUNT }, () => 'normal' as const),
+      bots: Array.from({ length: SOLO_BOT_COUNT }, () => 'medium' as const),
     });
     setBusy(null);
     if (!res.ok) {

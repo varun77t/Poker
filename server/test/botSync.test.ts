@@ -15,7 +15,7 @@ beforeEach(async () => {
 });
 afterEach(() => t.close());
 
-async function createRoom(host: TestPlayer, bots?: ('easy' | 'normal')[]): Promise<string> {
+async function createRoom(host: TestPlayer, bots?: ('easy' | 'medium')[]): Promise<string> {
   const res = await request(host.socket, 'room:create', { settings: DEFAULT_ROOM_SETTINGS, ...(bots ? { bots } : {}) });
   if (!res.ok) throw new Error(res.message);
   await host.stateWhere((s) => s.room.code === res.data.code);
@@ -41,13 +41,13 @@ describe('bots over Socket.IO', () => {
   it('creates a room with bots and lets only the host add and remove them, with strict payloads', async () => {
     const alice = await t.player('Alice');
     const bob = await t.player('Bob');
-    const code = await createRoom(alice, ['normal', 'normal', 'normal']);
+    const code = await createRoom(alice, ['medium', 'medium', 'medium']);
     const seats = alice.latest()!.room.seats;
     expect(seats.map((s) => s && [s.displayName, s.isBot, s.botLevel])).toEqual([
       ['Alice', false, null],
-      ['Ace Bot', true, 'normal'],
-      ['King Bot', true, 'normal'],
-      ['Queen Bot', true, 'normal'],
+      ['Ace Bot', true, 'medium'],
+      ['King Bot', true, 'medium'],
+      ['Queen Bot', true, 'medium'],
       null,
     ]);
     expect((await request(bob.socket, 'room:join', { code })).ok).toBe(true);
@@ -80,7 +80,7 @@ describe('bots over Socket.IO', () => {
 
   it('one person plays 50 hands against three bots: chips are conserved and bot cards never leak', async () => {
     const alice = await t.player('Alice');
-    const code = await createRoom(alice, ['normal', 'easy', 'normal']);
+    const code = await createRoom(alice, ['medium', 'easy', 'medium']);
     const room = t.server.rooms.getRoom(code)!;
     expect((await request(alice.socket, 'game:start', {})).ok).toBe(true);
 

@@ -175,12 +175,12 @@ describe('decide()', () => {
     );
   }, 60_000);
 
-  it('Normal raises aces preflop, folds seven-deuce to a raise, and never folds when it can check', () => {
+  it('Medium raises aces preflop, folds seven-deuce to a raise, and never folds when it can check', () => {
     let raisedAces = 0;
     for (let seed = 0; seed < 200; seed++) {
       // Five-handed, the bot under the gun (seat 3, button 0) with aces; nobody has acted yet.
       const aces = newHand({ stacks: [1000, 1000, 1000, 1000, 1000], button: 0, hole: { 3: ['As', 'Ad'] } });
-      if (decide(inputFor(aces, 'normal'), createRng(seed)).type === 'raise') raisedAces++;
+      if (decide(inputFor(aces, 'medium'), createRng(seed)).type === 'raise') raisedAces++;
 
       // Seven-deuce facing a raise to 60 from under the gun.
       const junk = act(
@@ -189,14 +189,14 @@ describe('decide()', () => {
         'raise',
         60,
       );
-      expect(decide(inputFor(junk, 'normal'), createRng(seed)).type).toBe('fold');
+      expect(decide(inputFor(junk, 'medium'), createRng(seed)).type).toBe('fold');
     }
     expect(raisedAces).toBeGreaterThan(190);
   });
 
-  it('Easy plays loose and passive: calls a small raise with junk far more often than Normal', () => {
+  it('Easy plays loose and passive: calls a small raise with junk far more often than Medium', () => {
     let easyCalls = 0;
-    let normalCalls = 0;
+    let mediumCalls = 0;
     for (let seed = 0; seed < 300; seed++) {
       // Three-handed, button 0: the button raises to 30, the small blind folds, and the big blind
       // (seat 2) has nine-four.
@@ -204,31 +204,31 @@ describe('decide()', () => {
       const bb = inputFor(act(raised, 1, 'fold'), 'easy');
       expect(bb.view.players.find((p) => p.seat === 2)?.holeCards).toEqual(['9d', '4c']);
       if (decide(bb, createRng(seed)).type === 'call') easyCalls++;
-      if (decide({ ...bb, level: 'normal' }, createRng(seed)).type === 'call') normalCalls++;
+      if (decide({ ...bb, level: 'medium' }, createRng(seed)).type === 'call') mediumCalls++;
     }
     expect(easyCalls).toBeGreaterThan(200);
-    expect(normalCalls).toBeLessThan(easyCalls / 3);
+    expect(mediumCalls).toBeLessThan(easyCalls / 3);
   });
 });
 
 describe('bot strength and speed', () => {
-  it('Normal finishes well ahead of Easy over a long seeded match', () => {
-    const levels: BotLevel[] = ['normal', 'easy', 'normal', 'easy'];
+  it('Medium finishes well ahead of Easy over a long seeded match', () => {
+    const levels: BotLevel[] = ['medium', 'easy', 'medium', 'easy'];
     const { net, hands } = playMatch(levels, 250, 1);
     const byLevel = (level: BotLevel) => net.reduce((sum, n, i) => (levels[i] === level ? sum + n : sum), 0);
     expect(hands).toBe(250);
     expect(net.reduce((a, b) => a + b, 0)).toBe(0); // chips only move between seats
-    expect(byLevel('normal')).toBeGreaterThan(5000); // more than 5 starting stacks
+    expect(byLevel('medium')).toBeGreaterThan(5000); // more than 5 starting stacks
   }, 60_000);
 
-  it('makes a Normal decision in well under 50 ms on average', () => {
+  it.each(['medium', 'pro'] as const)('makes a %s decision in well under 50 ms on average', (level) => {
     // Postflop spots are the slow ones (Monte Carlo). Collect a spread of them first.
     const spots: BotInput[] = [];
     fc.assert(
       fc.property(tableArb, (table) => {
-        playRandomHand({ ...table, chaos: 0.3 }, (state, level) => {
-          if (state.street !== 'preflop') spots.push(inputFor(state, 'normal'));
-          return decide(inputFor(state, level), createRng(table.seed));
+        playRandomHand({ ...table, chaos: 0.3 }, (state, seatLevel) => {
+          if (state.street !== 'preflop') spots.push(inputFor(state, level));
+          return decide(inputFor(state, seatLevel), createRng(table.seed));
         });
       }),
       { numRuns: 400, seed: 7 },

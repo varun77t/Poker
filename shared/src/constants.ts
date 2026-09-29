@@ -24,10 +24,10 @@ export const SETTINGS_BOUNDS = {
 } as const;
 
 /** Computer players (docs/product-spec.md §3.7). */
-export const BOT_LEVELS = ['easy', 'normal'] as const;
+export const BOT_LEVELS = ['easy', 'medium', 'pro'] as const;
 export type BotLevel = (typeof BOT_LEVELS)[number];
 
-/** "Play against bots" seats this many Normal bots next to the host. */
+/** "Play against bots" seats this many Medium bots next to the host. */
 export const SOLO_BOT_COUNT = 3;
 
 export const DEFAULT_ROOM_SETTINGS = {

@@ -348,7 +348,9 @@ Tests:
 - The host adds and removes bots in the lobby **and at the table** (an open seat opens an "Add a bot" panel; a bot's seat shows "Remove" on hover, with a confirm). `room:addBot` takes an optional `seat` so the bot lands where the host clicked. The finished screen has no bot controls.
 - A bot removed mid-hand folds and its seat is freed after the hand, exactly like a person leaving.
 - New rule R-10.6 in game-rules.md: a hand with bots needs a connected person with chips; with rebuys off, the game ends when no person has chips.
-- Normal's postflop strength uses a fast integer ranker (`bots/fastRank.ts`, checked equal to the engine evaluator by a property test) so 600 run-outs take a few milliseconds.
+- Medium's (formerly Normal's) postflop strength uses a fast integer ranker (`bots/fastRank.ts`, checked equal to the engine evaluator by a property test) so 600 run-outs take a few milliseconds.
+- Follow-up requested after the phase: three levels, **Easy, Medium (the old Normal) and Pro**. Pro reads opponents' ranges from the hand's public betting (GameView.history) and per-player tendencies it builds from public actions (bots/reads.ts, kept per table), and weighs its equity against those ranges (bots/ranges.ts). Seeded tests check it folds to a tight player's barrels, bluffs players who fold but not calling stations, and beats Medium heads-up.
+- Also added: a **hand hint** for each player (GameView.yourHand, computed by the engine from the viewer's own cards and the board): the made hand, draws, whether the board alone makes it, and a ladder of the nine hand kinds.
 
 ---
 

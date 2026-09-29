@@ -83,7 +83,7 @@ export function AddBotSeat({ seat }: { seat: number }) {
                 type="button"
                 className={room.act}
                 disabled={busy}
-                autoFocus={level === 'normal'}
+                autoFocus={level === 'medium'}
                 onClick={() => void add(level)}
               >
                 {BOT_LEVEL_TEXT[level].name}

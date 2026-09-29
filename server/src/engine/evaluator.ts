@@ -25,9 +25,9 @@ const RANK_VALUE: Readonly<Record<string, number>> = {
 const NAMES = ['', '', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Jack', 'Queen', 'King', 'Ace'];
 const PLURALS = ['', '', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes', 'Sevens', 'Eights', 'Nines', 'Tens', 'Jacks', 'Queens', 'Kings', 'Aces'];
 
-const rankOf = (card: Card): number => RANK_VALUE[card[0] as string] as number;
-const name = (rank: number) => NAMES[rank] as string;
-const plural = (rank: number) => PLURALS[rank] as string;
+export const rankOf = (card: Card): number => RANK_VALUE[card[0] as string] as number;
+export const name = (rank: number) => NAMES[rank] as string;
+export const plural = (rank: number) => PLURALS[rank] as string;
 
 /** Rank-descending order; ties keep input order so results are deterministic. */
 const byRankDesc = (cards: readonly Card[]) => [...cards].sort((a, b) => rankOf(b) - rankOf(a));

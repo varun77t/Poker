@@ -7,7 +7,7 @@ import {
   type PlayerId,
   type TableView,
 } from '@poker/shared';
-import { createRng, decide } from '../bots';
+import { createRng, decide, recordHand, type PlayerRead } from '../bots';
 import type { Cancel, Clock } from '../clock';
 import {
   advance,
@@ -81,6 +81,8 @@ export class TableController {
   private endRequested = false;
   private timer: { kind: PendingTimer; cancel: Cancel } | null = null;
   private stopped = false;
+  /** How each player has played so far this game, from public actions only; the bots' shared memory (§3.7). */
+  private readonly reads = new Map<PlayerId, PlayerRead>();
 
   constructor(
     private readonly room: Room,
@@ -292,7 +294,7 @@ export class TableController {
     let intent = fallback;
     try {
       const view = toGameView(hand, actor.playerId);
-      intent = decide({ level, view, legal, bigBlind: hand.bigBlind }, createRng(this.deps.randomInt(2 ** 31)));
+      intent = decide({ level, view, legal, bigBlind: hand.bigBlind, reads: this.reads }, createRng(this.deps.randomInt(2 ** 31)));
     } catch (err) {
       this.deps.logger.error(`room ${this.room.code}: bot at seat ${actor.seat} could not decide`, err);
     }
@@ -322,6 +324,8 @@ export class TableController {
       const seat = this.room.seats[p.seat];
       if (seat?.playerId === p.playerId) seat.stack = p.stack;
     }
+    // Nobody is the viewer here: only the public history is read.
+    recordHand(this.reads, hand.players, toGameView(hand, '').history);
     const { foldWinPauseMs, showdownPauseMs } = this.deps.timings;
     const pause = hand.result?.wonByFold ? foldWinPauseMs : showdownPauseMs;
     this.nextHandAt = this.deps.clock.now() + pause;

@@ -1,6 +1,23 @@
-import type { ActionIntent, BotLevel, Card, GamePlayerView, GameView, LegalActions } from '@poker/shared';
+import type { ActionIntent, BotLevel, LegalActions } from '@poker/shared';
 import { estimateEquity, preflopScore } from './handStrength';
+import { proPostflop, proPreflop } from './pro';
 import type { Rng } from './rng';
+import {
+  CALL,
+  CHECK,
+  either,
+  FOLD,
+  playersBehind,
+  potSized,
+  raiseTo,
+  readSpot,
+  strongAt,
+  type BotInput,
+  type Spot,
+  type Wish,
+} from './spot';
+
+export type { BotInput } from './spot';
 
 /**
  * How bots choose an action (docs/product-spec.md §3.7). Pure, like the engine: no timers, no I/O,
@@ -10,71 +27,19 @@ import type { Rng } from './rng';
  * legal actions and the room's public big blind. It never sees other players' hole cards or the
  * deck, so its Monte Carlo runs deal the unseen cards at random, like a person guessing.
  */
-export interface BotInput {
-  level: BotLevel;
-  /** toGameView(state, botId) on the bot's turn. */
-  view: GameView;
-  /** getLegalActions(state, botId). */
-  legal: LegalActions;
-  /** The room's big blind (public), for preflop bet sizes. */
-  bigBlind: number;
-}
 
-/** Monte Carlo run-outs per postflop decision. Normal stays well under 50 ms a decision. */
-export const EQUITY_TRIALS: Record<BotLevel, number> = { easy: 150, normal: 600 };
-
-/** What a strategy wants; `toLegal` turns it into an intent the engine accepts. `raise` also means bet. */
-type Wish = { type: 'fold' | 'check' | 'call' } | { type: 'raise'; to: number };
-
-const FOLD: Wish = { type: 'fold' };
-const CHECK: Wish = { type: 'check' };
-const CALL: Wish = { type: 'call' };
-
-/** The bot's read of the table on its turn. Everything here comes from the bot's own view. */
-interface Spot {
-  view: GameView;
-  legal: LegalActions;
-  bigBlind: number;
-  me: GamePlayerView;
-  hole: [Card, Card];
-  preflop: boolean;
-  /** Everything in the middle, this street's bets included. */
-  pot: number;
-  /** The street's bet to match (preflop at least the big blind, R-2.6). */
-  level: number;
-  toCall: number;
-  /** The bot's chips for this hand: behind plus already in on this street. */
-  depth: number;
-  /** Opponents still holding cards. */
-  opponents: number;
-}
+/** Monte Carlo run-outs per post-flop decision. Every level stays well under 50 ms a decision. */
+export const EQUITY_TRIALS: Record<BotLevel, number> = { easy: 150, medium: 600, pro: 500 };
 
 /** A bot's action. Always legal for `input.legal`: every wish passes through `toLegal`. */
 export function decide(input: BotInput, rng: Rng): ActionIntent {
   const spot = readSpot(input);
-  const play = input.level === 'easy' ? (spot.preflop ? easyPreflop : easyPostflop) : spot.preflop ? normalPreflop : normalPostflop;
-  return toLegal(play(spot, rng), input.legal);
-}
-
-function readSpot({ view, legal, bigBlind }: BotInput): Spot {
-  const me = view.players.find((p) => p.seat === view.toActSeat);
-  if (!me?.holeCards) throw new Error('decide() called off the bot turn');
-  const preflop = view.street === 'preflop';
-  const committed = view.players.reduce((sum, p) => sum + p.committed, 0);
-  const level = Math.max(preflop ? bigBlind : 0, ...view.players.map((p) => p.committed));
-  return {
-    view,
-    legal,
-    bigBlind,
-    me,
-    hole: me.holeCards,
-    preflop,
-    pot: view.pots.reduce((sum, pot) => sum + pot.amount, 0) + committed,
-    level,
-    toCall: legal.callAmount,
-    depth: me.stack + me.committed,
-    opponents: view.players.filter((p) => p !== me && p.status !== 'folded').length,
-  };
+  const reads = input.reads ?? new Map();
+  let wish: Wish;
+  if (input.level === 'easy') wish = spot.preflop ? easyPreflop(spot, rng) : easyPostflop(spot, rng);
+  else if (input.level === 'medium') wish = spot.preflop ? mediumPreflop(spot, rng) : mediumPostflop(spot, rng);
+  else wish = spot.preflop ? proPreflop(spot, rng, reads) : proPostflop(spot, rng, reads, EQUITY_TRIALS.pro);
+  return toLegal(wish, input.legal);
 }
 
 /**
@@ -92,22 +57,6 @@ export function toLegal(wish: Wish, legal: LegalActions): ActionIntent {
   if (wish.type === 'call') return legal.canCall ? { type: 'call' } : { type: 'check' };
   return legal.canCheck ? { type: 'check' } : { type: 'fold' };
 }
-
-// ----------------------------------------------------------------- sizing
-
-/** A street total; anything within reach of the whole stack becomes all-in rather than leaving crumbs. */
-function raiseTo(spot: Spot, to: number): Wish {
-  return { type: 'raise', to: to >= spot.depth * 0.8 ? spot.depth : to };
-}
-
-/** Bet `fraction` of the pot, or raise: call first, then add `fraction` of the pot after the call. */
-function potSized(spot: Spot, fraction: number): Wish {
-  const to = spot.level === 0 ? spot.pot * fraction : spot.level + (spot.pot + spot.toCall) * fraction;
-  return raiseTo(spot, to);
-}
-
-/** Probability-weighted choice between two wishes. */
-const either = (rng: Rng, p: number, a: Wish, b: Wish): Wish => (rng() < p ? a : b);
 
 // ----------------------------------------------------------------- Easy
 
@@ -135,13 +84,13 @@ function easyPostflop(spot: Spot, rng: Rng): Wish {
   return either(rng, 0.2, CALL, FOLD);
 }
 
-// --------------------------------------------------------------- Normal
+// --------------------------------------------------------------- Medium
 
 /**
  * Starting-hand tiers by Chen score. The bar to open drops with fewer players left to act (late
  * position, short tables); ±1 point of noise keeps edge hands from following a fixed pattern.
  */
-function normalPreflop(spot: Spot, rng: Rng): Wish {
+function mediumPreflop(spot: Spot, rng: Rng): Wish {
   const { view, bigBlind, legal } = spot;
   const score = preflopScore(spot.hole) + (rng() - 0.5) * 2;
   const behind = playersBehind(spot);
@@ -179,9 +128,9 @@ function normalPreflop(spot: Spot, rng: Rng): Wish {
  * Bets for value at about half to three-quarters of the pot and bluffs now and then, more often
  * against a single opponent.
  */
-function normalPostflop(spot: Spot, rng: Rng): Wish {
+function mediumPostflop(spot: Spot, rng: Rng): Wish {
   const { opponents } = spot;
-  const equity = estimateEquity(spot.hole, spot.view.board, opponents, EQUITY_TRIALS.normal, rng);
+  const equity = estimateEquity(spot.hole, spot.view.board, opponents, EQUITY_TRIALS.medium, rng);
   const strong = strongAt(opponents);
   const value = Math.min(0.62, 1.2 / (opponents + 1) + 0.02);
   const valueBet = () => potSized(spot, 0.5 + rng() * 0.25);
@@ -200,25 +149,4 @@ function normalPostflop(spot: Spot, rng: Rng): Wish {
   if (equity >= needed) return CALL;
   if (opponents === 1 && spot.view.street !== 'river' && rng() < 0.04) return potSized(spot, 0.7); // rare bluff-raise
   return FOLD;
-}
-
-/** Equity that counts as a strong hand against this many opponents (a fair share is 1 / (n + 1)). */
-function strongAt(opponents: number): number {
-  return Math.min(0.75, 1.6 / (opponents + 1));
-}
-
-/** Preflop: players still to act after the bot before the round closes at the big blind. */
-function playersBehind({ view, me }: Spot): number {
-  if (me.seat === view.bbSeat) return 0;
-  const seats = view.players
-    .filter((p) => p.status !== 'folded')
-    .map((p) => p.seat)
-    .sort((a, b) => a - b);
-  const from = seats.indexOf(me.seat);
-  let behind = 0;
-  for (let step = 1; step < seats.length; step++) {
-    behind += 1;
-    if (seats[(from + step) % seats.length] === view.bbSeat) break;
-  }
-  return behind;
 }

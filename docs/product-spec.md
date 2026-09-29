@@ -59,16 +59,17 @@ Blinds do not increase over time (no tournament structure in the MVP).
 - All rooms are lost if the server restarts. This is an accepted MVP limitation, and players see a "Room no longer exists" message.
 
 ### 3.7 Bots (Phase 7)
-- **Adding:** the host adds a bot to an open seat, choosing **Easy** or **Normal**, and can remove it again, both in the lobby and at the table (an open seat at the table offers "Add a bot"; hovering a bot's seat shows "Remove", which asks to confirm). A bot added during a game is dealt in from the next hand, like a late joiner. A bot removed during a hand folds it and leaves after the hand. The finished screen has no bot controls.
-- **Solo play:** bots count toward the 2-player minimum, so one person plus one bot can play. The landing page has **Play against bots**, which creates a room with default settings and 3 Normal bots, then opens the lobby so the host can adjust before starting.
+- **Adding:** the host adds a bot to an open seat, choosing **Easy**, **Medium** or **Pro**, and can remove it again, both in the lobby and at the table (an open seat at the table offers "Add a bot"; hovering a bot's seat shows "Remove", which asks to confirm). A bot added during a game is dealt in from the next hand, like a late joiner. A bot removed during a hand folds it and leaves after the hand. The finished screen has no bot controls.
+- **Solo play:** bots count toward the 2-player minimum, so one person plus one bot can play. The landing page has **Play against bots**, which creates a room with default settings and 3 Medium bots, then opens the lobby so the host can adjust before starting.
 - **Fair play:** a bot sees only what a player in its seat would see (never hidden cards) and follows exactly the same rules and turn order. It waits a second or two before acting, so the game feels natural.
 - **Levels:**
   - **Easy** plays loosely and predictably: many hands, lots of calling, few raises.
-  - **Normal** plays by hand strength and pot odds, sizes its bets sensibly, and bluffs occasionally, with enough randomness that it has no fixed pattern.
+  - **Medium** plays by hand strength and pot odds, sizes its bets sensibly, and bluffs occasionally, with enough randomness that it has no fixed pattern.
+  - **Pro** plays like a skilled player. It reads each opponent's betting this hand (who raised, who called, who kept betting) and remembers how each player tends to play, and weighs its hand against what they are likely to hold rather than against random cards. So it folds a decent hand when a tight player's betting says it is beaten, and calls down players who bluff a lot. It opens more hands in late position and steals from tight blinds, re-raises its best hands (and a few bluffs), bets for value at sizes suited to the board and the opponent (bigger against players who call too much), semi-bluffs its draws, and bluffs when an opponent shows weakness, but hardly ever against someone who never folds. It only ever uses what a player in its seat could see.
 - **Never in charge:** bots are never the host. When the last human leaves, the bots are removed too.
 - **Never alone:** a new hand with bots in it starts only if at least one human is connected and has chips. Otherwise the table pauses and says why (R-10.6).
 - **Busting:** a busted bot rebuys automatically when rebuys are on. With rebuys off, it leaves the table.
-- **Display:** bots are named from a fixed list (Ace Bot, King Bot, Queen Bot, Jack Bot, Ten Bot; the first one not taken in the room) and shown with a badge naming their level ("Normal bot") in the lobby, at the table and in the final standings. At the table a bot's avatar has a dashed ring.
+- **Display:** bots are named from a fixed list (Ace Bot, King Bot, Queen Bot, Jack Bot, Ten Bot; the first one not taken in the room) and shown with a badge naming their level ("Medium bot") in the lobby, at the table and in the final standings. At the table a bot's avatar has a dashed ring.
 
 ## 4. Gameplay
 - The full rules are in [game-rules.md](game-rules.md).
@@ -122,5 +123,5 @@ Real money, chip purchases, tournaments and blind levels, leaderboards, friends 
 6. Blinds are fixed (no levels).
 7. Default settings: 1,000 stack, 5/10 blinds, 30 s timer, rebuys on.
 8. Room settings are editable by the host until the game starts (added after Phase 2).
-9. Bots (Phase 7): added by the host, two levels (Easy, Normal), never host, never play without a connected human, auto-rebuy when rebuys are on.
+9. Bots (Phase 7): added by the host, three levels (Easy, Medium, Pro), never host, never play without a connected human, auto-rebuy when rebuys are on.
 10. Desktop only (decided before Phase 4): the UI targets laptop/desktop screens; no phone or tablet layout.

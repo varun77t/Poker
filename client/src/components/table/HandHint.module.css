@@ -1,0 +1,121 @@
+/* The hand hint (DESIGN.md: Hand Hint): docked bottom-left, the action panel's mirror in its material. */
+.plate {
+  --row: 19px;
+
+  position: absolute;
+  left: 24px;
+  bottom: 20px;
+  z-index: 5;
+  width: 188px;
+  padding: 12px 12px 10px;
+  border: 1px solid var(--plaque-edge);
+  border-radius: 16px;
+  background: rgb(24 10 12 / 0.92);
+  box-shadow: 0 20px 40px -12px rgb(0 0 0 / 0.7);
+  animation: plate-in 180ms var(--ease-out) both;
+}
+
+@keyframes plate-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+/* The hand itself, the plate's one strong line. */
+.hand {
+  margin: 0;
+  color: var(--ink);
+  font: 700 20px / 1.15 var(--font-ui);
+  text-wrap: balance;
+}
+
+.detail {
+  display: block;
+  margin-top: 1px;
+  color: var(--ink-muted);
+  font: 600 16px / 1.25 var(--font-ui);
+}
+
+/* Read aloud between the hand and its detail, never shown. */
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.note {
+  margin: 4px 0 0;
+  color: var(--ink-muted);
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+/* The nine kinds of hand, best first. A band sits behind yours and glides as your hand improves. */
+.ladder {
+  position: relative;
+  margin: 10px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--plaque-edge);
+}
+
+.ladder ol {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ladder li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  height: var(--row);
+  padding: 0 8px;
+  color: var(--ink-muted);
+  font: 600 14px / var(--row) var(--font-ui);
+  transition: color 200ms;
+}
+
+.ladder li.lit {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.band {
+  position: absolute;
+  top: 8px;
+  left: 0;
+  right: 0;
+  height: var(--row);
+  border-radius: 6px;
+  background: var(--plaque-turn);
+  box-shadow: inset 0 0 0 1px var(--plaque-edge);
+  transform: translateY(calc(var(--rung) * var(--row)));
+  transition: transform 360ms var(--ease-out);
+}
+
+/* A kind of hand you're drawing to. */
+.drawMark {
+  color: var(--ink-muted);
+  font-size: 13px;
+  font-weight: 600;
+  font-style: italic;
+}
+
+.ladder li.draw {
+  color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plate {
+    animation: none;
+  }
+
+  .band {
+    transition: none;
+  }
+}

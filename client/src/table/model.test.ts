@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { game, player, seat, snapshot } from './fixtures';
 import type { FinalResult } from '@poker/shared';
-import { buildStandings, buildTableModel, chipColors, formatNet, potTotal, sizingPresets, slotOf, summarizeGame, summarizeResult, waitingHint, type SeatModel } from './model';
+import { buildStandings, buildTableModel, chipColors, formatNet, potTotal, sizingPresets, slotOf, summarizeGame, summarizeResult, waitingHint, hintNotes, HAND_LADDER, type SeatModel } from './model';
 
 const seated = (m: ReturnType<typeof buildTableModel>) => m.seats.filter((s): s is SeatModel => !('empty' in s));
 
@@ -192,7 +192,7 @@ describe('final standings (finished screen)', () => {
 });
 
 describe('waiting message (R-10.4, R-10.6)', () => {
-  const bot = (i: number, name: string) => seat(i, { playerId: `bot:${i}`, displayName: name, isBot: true, botLevel: 'normal' });
+  const bot = (i: number, name: string) => seat(i, { playerId: `bot:${i}`, displayName: name, isBot: true, botLevel: 'medium' });
 
   it('names who can rebuy and offers the host a bot when fewer than two have chips', () => {
     const s = snapshot(null, [seat(0, { stack: 0, busted: true }), seat(1)]);
@@ -205,5 +205,20 @@ describe('waiting message (R-10.4, R-10.6)', () => {
     expect(waitingHint(busted)).toBe("The bots don't play on their own. You can rebuy. Invite a friend with code ABC234, or end the game from the top bar.");
     const away = snapshot(null, [seat(0, { stack: 0, busted: true }), bot(1, 'Ace Bot'), seat(3, { connected: false })]);
     expect(waitingHint(away)).toBe("The bot doesn't play on its own. Waiting for Dev to come back. You can rebuy. Invite a friend with code ABC234, or end the game from the top bar.");
+  });
+});
+
+describe('hand hint text', () => {
+  it('says what you are drawing to and when the board makes your hand', () => {
+    expect(hintNotes({ category: 'highCard', label: 'King high', onBoard: false, draws: ['flushDraw', 'straightDraw'] })).toEqual([
+      'Drawing to a flush or a straight.',
+    ]);
+    expect(hintNotes({ category: 'pair', label: 'Pair of Nines', onBoard: false, draws: ['gutshot'] })).toEqual(['Drawing to an inside straight.']);
+    expect(hintNotes({ category: 'twoPair', label: 'Two Pair, Queens and Nines', onBoard: true, draws: [] })).toEqual(["It's all on the board."]);
+    expect(hintNotes({ category: 'pair', label: 'Pair of Aces', onBoard: false, draws: [] })).toEqual([]);
+  });
+
+  it('ranks all nine kinds of hand, best first', () => {
+    expect(HAND_LADDER.map((r) => r.category)).toEqual(['straightFlush', 'quads', 'fullHouse', 'flush', 'straight', 'trips', 'twoPair', 'pair', 'highCard']);
   });
 });

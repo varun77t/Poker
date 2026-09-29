@@ -112,4 +112,31 @@ export interface GameView {
   /** The viewer's options, only on their turn. */
   legalActions: LegalActions | null;
   result: HandResult | null;
+  /** Every action taken this hand, in order (public: everyone at the table saw them). Blinds are not included. */
+  history: PublicAction[];
+  /** What the viewer's own cards make right now, with any draws; null unless they hold live cards. */
+  yourHand: HandHint | null;
+}
+
+/** One action in the hand's public history. Timeouts and leaves appear as the check or fold they became. */
+export interface PublicAction {
+  seat: number;
+  street: Exclude<Street, 'showdown'>;
+  type: LastAction['type'];
+  /** Street total after the action, for call/bet/raise. */
+  amount?: number;
+  allIn: boolean;
+}
+
+/** A draw on the flop or turn: four to a flush; a straight that two ranks would complete (open-ended or double gutshot); one that only one rank would (gutshot). */
+export type HandDraw = 'flushDraw' | 'straightDraw' | 'gutshot';
+
+/** The viewer's current hand, as a hint (the server works it out; the client only shows it). */
+export interface HandHint {
+  category: HandCategory;
+  /** e.g. "Pair of Kings", "Ace high". */
+  label: string;
+  /** True when the board alone makes this hand, so the viewer's own cards add nothing to it yet. */
+  onBoard: boolean;
+  draws: HandDraw[];
 }

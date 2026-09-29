@@ -36,8 +36,8 @@ describe('adding and removing bots', () => {
     const h = table(['alice', 'bob']);
     expectDomainError(() => h.rooms.addBot('bob', 'easy'), 'NOT_HOST');
     expect(h.rooms.addBot('alice', 'easy')).toBe(2);
-    expect(h.rooms.addBot('alice', 'normal')).toBe(3);
-    expect(h.rooms.addBot('alice', 'normal')).toBe(4);
+    expect(h.rooms.addBot('alice', 'medium')).toBe(3);
+    expect(h.rooms.addBot('alice', 'medium')).toBe(4);
     expectDomainError(() => h.rooms.addBot('alice', 'easy'), 'ROOM_FULL');
     expectDomainError(() => h.join('carol'), 'ROOM_FULL'); // bots take real seats
 
@@ -46,8 +46,8 @@ describe('adding and removing bots', () => {
       ['alice', false, null],
       ['bob', false, null],
       ['Ace Bot', true, 'easy'],
-      ['King Bot', true, 'normal'],
-      ['Queen Bot', true, 'normal'],
+      ['King Bot', true, 'medium'],
+      ['Queen Bot', true, 'medium'],
     ]);
 
     expectDomainError(() => h.rooms.removeBot('bob', 3), 'NOT_HOST');
@@ -61,8 +61,8 @@ describe('adding and removing bots', () => {
 
   it('seats a bot in the open seat the host picked, and refuses a taken one', () => {
     const h = table(['alice', 'bob']);
-    expect(h.rooms.addBot('alice', 'normal', 4)).toBe(4); // not the lowest open seat (2)
-    expect(h.room.seats[4]).toMatchObject({ bot: 'normal' });
+    expect(h.rooms.addBot('alice', 'medium', 4)).toBe(4); // not the lowest open seat (2)
+    expect(h.room.seats[4]).toMatchObject({ bot: 'medium' });
     expect(h.room.seats[2]).toBeNull();
     expectDomainError(() => h.rooms.addBot('alice', 'easy', 1), 'INVALID_STATE'); // bob's
     expectDomainError(() => h.rooms.addBot('alice', 'easy', 4), 'INVALID_STATE'); // the bot's
@@ -71,16 +71,16 @@ describe('adding and removing bots', () => {
 
   it('seats bots at creation ("Play against bots") with fresh stacks, and never indexes them as players', () => {
     const h = table(['alice']);
-    const room = h.rooms.create(h.ref('dana'), { ...DEFAULT_ROOM_SETTINGS }, ['normal', 'normal', 'normal']);
+    const room = h.rooms.create(h.ref('dana'), { ...DEFAULT_ROOM_SETTINGS }, ['medium', 'medium', 'medium']);
     expect(room.hostId).toBe('dana');
-    expect(room.seats.map((s) => s?.bot ?? null)).toEqual([null, 'normal', 'normal', 'normal', null]);
+    expect(room.seats.map((s) => s?.bot ?? null)).toEqual([null, 'medium', 'medium', 'medium', null]);
     expect(room.seats.slice(1, 4).every((s) => s?.stack === START && s.connected)).toBe(true);
     for (const seat of room.seats.slice(1, 4)) expect(h.rooms.getRoomOf(seat!.playerId)).toBeUndefined();
   });
 
   it('never makes a bot host, and the last person to leave takes the bots along', () => {
     const h = table(['alice']);
-    h.rooms.addBot('alice', 'normal'); // seat 1, right after the host
+    h.rooms.addBot('alice', 'medium'); // seat 1, right after the host
     h.join('bob'); // seat 2
     h.rooms.leave('alice');
     expect(h.room.hostId).toBe('bob'); // skipped the bot
@@ -93,7 +93,7 @@ describe('adding and removing bots', () => {
 
   it('takes the bots along when the last person leaves in the middle of a hand', () => {
     const h = table(['alice']);
-    h.rooms.addBot('alice', 'normal');
+    h.rooms.addBot('alice', 'medium');
     h.rooms.addBot('alice', 'easy');
     h.start();
     h.rooms.leave('alice');
@@ -115,7 +115,7 @@ describe('adding and removing bots', () => {
 
   it('folds a bot removed mid-hand at once and frees its seat after the hand', () => {
     const h = table(['alice', 'bob']);
-    h.rooms.addBot('alice', 'normal'); // seat 2
+    h.rooms.addBot('alice', 'medium'); // seat 2
     h.start(); // three-handed, button on seat 0: the bot is the big blind
     h.rooms.removeBot('alice', 2);
     expect(h.game().players.find((p) => p.seat === 2)?.status).toBe('folded');
@@ -131,7 +131,7 @@ describe('adding and removing bots', () => {
 describe('bots at the table', () => {
   it('lets one person play one bot; the bot thinks for a moment, then acts through the same checks', () => {
     const h = table(['alice']);
-    h.rooms.addBot('alice', 'normal'); // seat 1
+    h.rooms.addBot('alice', 'medium'); // seat 1
     h.start(); // heads-up, button (small blind) on seat 0: alice acts first
     expect(h.toAct()).toBe('alice');
     expect(h.room.table?.pendingTimer).toBe('turn');
@@ -156,7 +156,7 @@ describe('bots at the table', () => {
     // Same seed, same button; the only difference is alice's hole cards (and so the rest of the deck).
     const firstBotAction = (alice: HandCards['hole']) => {
       const h = createTableHarness(['alice'], { seed: 5, hands: { 1: { hole: { ...alice, 1: ['Qh', 'Js'] } } } });
-      h.rooms.addBot('alice', 'normal');
+      h.rooms.addBot('alice', 'medium');
       h.start();
       h.act('alice', 'call');
       h.clock.runNext();
@@ -170,7 +170,7 @@ describe('bots at the table', () => {
 
   it('rebuys a busted bot before the next hand when rebuys are on', () => {
     const h = table(['alice'], { hands: { 2: { hole: { 0: ['As', 'Ad'], 1: ['7d', '2c'] }, board: ['Kc', '9h', '4s', '3d', 'Jc'] } } });
-    h.rooms.addBot('alice', 'normal'); // seat 1
+    h.rooms.addBot('alice', 'medium'); // seat 1
     h.start();
     runUntil(h, handOver(h));
     // Between hands, leave the bot just its small blind (hand 2's button, heads-up) so posting it is all-in.
@@ -194,7 +194,7 @@ describe('bots at the table', () => {
       settings: { rebuys: false },
       hands: { 2: { hole: { 0: ['As', 'Ad'], 1: ['Kc', 'Kd'], 2: ['7d', '2c'] }, board: ['Qc', '9h', '4s', '3d', 'Jc'] } },
     });
-    h.rooms.addBot('alice', 'normal'); // seat 2
+    h.rooms.addBot('alice', 'medium'); // seat 2
     h.start();
     runUntil(h, handOver(h));
     // Hand 2 (button 1): the bot on seat 2 is the small blind; leave it just that.
@@ -206,15 +206,15 @@ describe('bots at the table', () => {
     expect(h.room.seats[2]?.stack).toBe(0);
     runUntil(h, handDealt(h, 3));
     expect(h.room.seats[2]).toBeNull();
-    expect(h.room.departed.get(bot.playerId)).toMatchObject({ displayName: 'Ace Bot', stack: 0, botLevel: 'normal' });
+    expect(h.room.departed.get(bot.playerId)).toMatchObject({ displayName: 'Ace Bot', stack: 0, botLevel: 'medium' });
     h.rooms.endGame('alice');
     runUntil(h, () => h.room.status === 'finished');
-    expect(h.room.finalResults?.find((r) => r.playerId === bot.playerId)).toMatchObject({ finalStack: 0, net: -START, botLevel: 'normal' });
+    expect(h.room.finalResults?.find((r) => r.playerId === bot.playerId)).toMatchObject({ finalStack: 0, net: -START, botLevel: 'medium' });
   });
 
   it('pauses while no person with chips is here, and deals again when they come back (R-10.6)', () => {
     const h = table(['alice']);
-    h.rooms.addBot('alice', 'normal');
+    h.rooms.addBot('alice', 'medium');
     h.rooms.addBot('alice', 'easy');
     h.start();
     h.rooms.setConnected('alice', false);
@@ -234,7 +234,7 @@ describe('bots at the table', () => {
 
   it('with rebuys off, ends a paused game once the only person with chips leaves', () => {
     const h = table(['alice', 'bob'], { settings: { rebuys: false } });
-    h.rooms.addBot('alice', 'normal');
+    h.rooms.addBot('alice', 'medium');
     h.start();
     runUntil(h, handOver(h));
     // Alice busts (her chips go to the bot); bob, the only person with chips, drops out.
@@ -250,8 +250,8 @@ describe('bots at the table', () => {
 
   it('with rebuys on, waits for a busted person to rebuy rather than let the bots play alone', () => {
     const h = table(['alice']);
-    h.rooms.addBot('alice', 'normal');
-    h.rooms.addBot('alice', 'normal');
+    h.rooms.addBot('alice', 'medium');
+    h.rooms.addBot('alice', 'medium');
     h.start();
     runUntil(h, handOver(h));
     // Alice goes broke in hand 1 (her chips move to a bot, so none are lost).
@@ -268,7 +268,7 @@ describe('bots at the table', () => {
 
   it('with rebuys off, ends the game once no person has chips, even though the bots do', () => {
     const h = table(['alice'], { settings: { rebuys: false } });
-    h.rooms.addBot('alice', 'normal');
+    h.rooms.addBot('alice', 'medium');
     h.rooms.addBot('alice', 'easy');
     h.start();
     runUntil(h, handOver(h));
@@ -278,7 +278,7 @@ describe('bots at the table', () => {
     h.clock.advance(TIMINGS.showdownPauseMs);
     expect(h.room.status).toBe('finished');
     expect(h.room.finalResults?.map((r) => [r.displayName, r.botLevel])).toEqual([
-      ['Ace Bot', 'normal'],
+      ['Ace Bot', 'medium'],
       ['King Bot', 'easy'],
       ['alice', null],
     ]);
@@ -299,7 +299,7 @@ describe('bots at the table', () => {
 
   it('plays a long game of one person and four bots without stalling or losing a chip', () => {
     const h = table(['alice']);
-    for (let i = 0; i < 4; i++) h.rooms.addBot('alice', i % 2 ? 'easy' : 'normal');
+    for (let i = 0; i < 4; i++) h.rooms.addBot('alice', i % 2 ? 'easy' : 'medium');
     h.start();
     const total = () => {
       const seated = h.room.seats.reduce((sum, s) => sum + (s ? s.stack - s.totalBuyIn : 0), 0);

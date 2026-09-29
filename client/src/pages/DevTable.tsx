@@ -1,4 +1,4 @@
-import { DEFAULT_ROOM_SETTINGS, MAX_SEATS, type FinalResult, type GamePlayerView, type GameView, type SeatView, type TableSnapshot } from '@poker/shared';
+import { DEFAULT_ROOM_SETTINGS, MAX_SEATS, type FinalResult, type GamePlayerView, type GameView, type HandCategory, type HandDraw, type HandHint, type SeatView, type TableSnapshot } from '@poker/shared';
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 import { FinishedPage } from './FinishedPage';
@@ -7,7 +7,7 @@ import { TablePage } from './TablePage';
 /**
  * Development only: the real in-game screens fed with sample snapshots, for design review and
  * screenshots without a running game. Not in production builds.
- * /dev/table?state=turn|flop|showdown|waiting|busted|busted-off|ending|finished|finished-guest|bots|bots-waiting|bots-finished
+ * /dev/table?state=turn|flop|showdown|waiting|busted|busted-off|ending|finished|finished-guest|bots|bots-waiting|bots-finished|draw|board
  * (&edit=1 opens the settings editor)
  */
 
@@ -19,7 +19,7 @@ function seat(i: number, over: Partial<SeatView> = {}): SeatView {
 }
 
 /** A bot in seat `i` (§3.7). */
-function bot(i: number, name: string, level: 'easy' | 'normal', over: Partial<SeatView> = {}): SeatView {
+function bot(i: number, name: string, level: 'easy' | 'medium', over: Partial<SeatView> = {}): SeatView {
   return seat(i, { playerId: `bot:${i}`, displayName: name, isBot: true, botLevel: level, ...over });
 }
 
@@ -41,8 +41,9 @@ function build(state: string): TableSnapshot {
   const now = Date.now();
   const base: Omit<GameView, 'players'> = {
     handId: 12, seq: 9, street: 'preflop', board: [], pots: [], buttonSeat: 3, sbSeat: 4, bbSeat: 0,
-    toActSeat: 0, turnDeadline: now + 18_000, legalActions: null, result: null,
+    toActSeat: 0, turnDeadline: now + 18_000, legalActions: null, result: null, history: [], yourHand: null,
   };
+  const hint = (category: HandCategory, label: string, onBoard = false, draws: HandDraw[] = []): HandHint => ({ category, label, onBoard, draws });
 
   if (state === 'showdown') {
     const players = [
@@ -56,6 +57,7 @@ function build(state: string): TableSnapshot {
       [seat(0, { stack: 1180 }), seat(1, { stack: 1200 }), seat(2, { stack: 860 }), seat(3, { stack: 1005 }), seat(4, { stack: 755 })],
       {
         ...base, street: 'showdown', board: ['7h', 'Kd', '2c', 'Jc', '7c'], toActSeat: null, turnDeadline: null, players,
+        yourHand: hint('fullHouse', 'Full House, Kings over Sevens'),
         result: {
           wonByFold: false,
           pots: [{ amount: 280, eligibleSeats: [0, 3], winners: [{ seat: 0, playerId: id(0), amount: 280 }] }],
@@ -82,6 +84,7 @@ function build(state: string): TableSnapshot {
       [seat(0, { stack: 820 }), seat(1, { stack: 0 }), seat(2, { stack: 850, leaving: true }), seat(3, { stack: 760, connected: false }), seat(4, { stack: 700 })],
       {
         ...base, street: 'flop', board: ['9s', '4h', 'Qc'], seq: 21, players, toActSeat: 0,
+        yourHand: hint('trips', 'Three of a Kind, Queens'),
         pots: [{ amount: 360, eligibleSeats: [0, 1, 3] }, { amount: 90, eligibleSeats: [0, 3] }],
         legalActions: { canFold: true, canCheck: false, canCall: true, callAmount: 120, canBet: false, canRaise: true, minTo: 240, maxTo: 820 },
       },
@@ -134,8 +137,8 @@ function build(state: string): TableSnapshot {
       hp(3, { playerId: 'bot:3', stack: 1070, committed: 0, status: 'folded', lastAction: { type: 'fold', allIn: false } }),
     ];
     return snap(
-      [seat(0, { stack: 950 }), bot(1, 'Ace Bot', 'normal', { stack: 990 }), null, bot(3, 'King Bot', 'easy', { stack: 1070 })],
-      { ...base, handId: 7, buttonSeat: 0, sbSeat: 1, bbSeat: 3, toActSeat: 1, players },
+      [seat(0, { stack: 950 }), bot(1, 'Ace Bot', 'medium', { stack: 990 }), null, bot(3, 'King Bot', 'easy', { stack: 1070 })],
+      { ...base, handId: 7, buttonSeat: 0, sbSeat: 1, bbSeat: 3, toActSeat: 1, players, yourHand: hint('highCard', 'Jack high') },
       { nextHandAt: null, waitingForPlayers: false, endingAfterHand: false },
     );
   }
@@ -143,7 +146,7 @@ function build(state: string): TableSnapshot {
   if (state === 'bots-waiting') {
     // You busted with rebuys on: the bots have chips but don't play on their own (R-10.6).
     return snap(
-      [seat(0, { stack: 0, busted: true }), bot(1, 'Ace Bot', 'normal', { stack: 1840 }), bot(2, 'King Bot', 'normal', { stack: 1160 })],
+      [seat(0, { stack: 0, busted: true }), bot(1, 'Ace Bot', 'medium', { stack: 1840 }), bot(2, 'King Bot', 'medium', { stack: 1160 })],
       null,
       { nextHandAt: null, waitingForPlayers: true, endingAfterHand: false },
     );
@@ -151,11 +154,11 @@ function build(state: string): TableSnapshot {
 
   if (state === 'bots-finished') {
     const results: FinalResult[] = [
-      { playerId: 'bot:1', displayName: 'Ace Bot', finalStack: 1720, totalBuyIn: 1000, rebuys: 0, net: 720, botLevel: 'normal' },
+      { playerId: 'bot:1', displayName: 'Ace Bot', finalStack: 1720, totalBuyIn: 1000, rebuys: 0, net: 720, botLevel: 'medium' },
       { playerId: id(0), displayName: 'Sam', finalStack: 1180, totalBuyIn: 1000, rebuys: 0, net: 180, botLevel: null },
       { playerId: 'bot:2', displayName: 'King Bot', finalStack: 1100, totalBuyIn: 2000, rebuys: 1, net: -900, botLevel: 'easy' },
     ];
-    const s = snap([seat(0, { stack: 1180 }), bot(1, 'Ace Bot', 'normal', { stack: 1720 }), bot(2, 'King Bot', 'easy', { stack: 1100 })], null, null);
+    const s = snap([seat(0, { stack: 1180 }), bot(1, 'Ace Bot', 'medium', { stack: 1720 }), bot(2, 'King Bot', 'easy', { stack: 1100 })], null, null);
     s.room = { ...s.room, status: 'finished', finalResults: results };
     return s;
   }
@@ -168,8 +171,28 @@ function build(state: string): TableSnapshot {
     ];
     return snap(
       [seat(0, { stack: 900 }), seat(1, { stack: 1060 }), null, seat(3, { stack: 700 })],
-      { ...base, handId: 44, buttonSeat: 3, sbSeat: 0, bbSeat: 1, toActSeat: 1, street: 'preflop', players },
+      { ...base, handId: 44, buttonSeat: 3, sbSeat: 0, bbSeat: 1, toActSeat: 1, street: 'preflop', players, yourHand: hint('pair', 'Pair of Nines') },
       { nextHandAt: null, waitingForPlayers: false, endingAfterHand: true },
+    );
+  }
+
+  if (state === 'draw' || state === 'board') {
+    // Heads-up on the turn, your move. "draw": two draws at once; "board": the board's two pair plays for you.
+    const draw = state === 'draw';
+    const players = [
+      hp(0, { stack: 880, committed: 0, holeCards: draw ? ['9h', '8h'] : ['5c', '3d'] }),
+      hp(3, { stack: 820, committed: 60, lastAction: { type: 'bet', amount: 60, allIn: false } }),
+    ];
+    return snap(
+      [seat(0, { stack: 880 }), null, null, seat(3, { stack: 820 })],
+      {
+        ...base, handId: 19, seq: 30, street: 'turn', buttonSeat: 0, sbSeat: 0, bbSeat: 3, players, toActSeat: 0,
+        board: draw ? ['7h', '6c', '2h', 'Kd'] : ['Qs', 'Qh', '9d', '9c'],
+        pots: [{ amount: 240, eligibleSeats: [0, 3] }],
+        legalActions: { canFold: true, canCheck: false, canCall: true, callAmount: 60, canBet: false, canRaise: true, minTo: 120, maxTo: 880 },
+        yourHand: draw ? hint('highCard', 'King high', false, ['flushDraw', 'straightDraw']) : hint('twoPair', 'Two Pair, Queens and Nines', true),
+      },
+      { nextHandAt: null, waitingForPlayers: false, endingAfterHand: false },
     );
   }
 
@@ -183,7 +206,7 @@ function build(state: string): TableSnapshot {
   ];
   return snap(
     [seat(0, { stack: 990 }), seat(1, { stack: 960 }), seat(2, { stack: 860 }), seat(3, { stack: 1065 }), seat(4, { stack: 755 })],
-    { ...base, players, legalActions: { canFold: true, canCheck: false, canCall: true, callAmount: 30, canBet: false, canRaise: true, minTo: 70, maxTo: 1000 } },
+    { ...base, players, yourHand: hint('highCard', 'Ace high'), legalActions: { canFold: true, canCheck: false, canCall: true, callAmount: 30, canBet: false, canRaise: true, minTo: 70, maxTo: 1000 } },
     { nextHandAt: null, waitingForPlayers: false, endingAfterHand: false },
   );
 }

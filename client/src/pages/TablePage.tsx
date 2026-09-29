@@ -6,6 +6,7 @@ import type { GameView, TableSnapshot } from '@poker/shared';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { ActionPanel, type OutOfChips } from '../components/table/ActionPanel';
+import { HandHintPlate } from '../components/table/HandHint';
 import { SuitSymbols } from '../components/table/PlayingCard';
 import { PokerTable } from '../components/table/PokerTable';
 import { BarConfirm, BarMeta, BarNotice, RoomBar } from '../components/table/RoomBar';
@@ -49,6 +50,7 @@ export function TablePage({ snapshot }: { snapshot: TableSnapshot }) {
         <PokerTable snapshot={snapshot} model={model} result={result} clock={clock} />
         <div className={styles.overlay} ref={overlay} aria-hidden="true" />
       </main>
+      {game?.yourHand && <HandHintPlate key={game.handId} hint={game.yourHand} />}
       <ActionPanel game={game} status={statusLine(snapshot, model, nameOf)} secondsLeft={secondsLeft} outOfChips={outOfChips} />
     </div>
   );

@@ -22,7 +22,7 @@ A private table for one group of friends, not a poker site: no accounts, no lobb
 
 ## Capabilities and Constraints
 - Rooms of 2-5 seats, host starts the game, late joiners are dealt in next hand, players can leave mid-hand, disconnected players keep their seat and time out.
-- Fixed blinds; optional unlimited rebuys at 0 chips (Phase 6); bots at two levels (Phase 7).
+- Fixed blinds; optional unlimited rebuys at 0 chips (Phase 6); bots at three levels, Easy, Medium and Pro (Phase 7); a hand hint shows each player what their own cards make.
 - The client never decides anything about the game: it renders server snapshots and sends intents. Every button and bet-size bound comes from the server's legal actions.
 - Stack: React + Vite + CSS Modules (no Tailwind, no component library), TypeScript monorepo.
 

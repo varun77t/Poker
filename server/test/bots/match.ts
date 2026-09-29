@@ -1,5 +1,5 @@
 import type { BotLevel } from '@poker/shared';
-import { createRng, decide } from '../../src/bots';
+import { createRng, decide, recordHand, type PlayerRead } from '../../src/bots';
 import {
   advance,
   applyAction,
@@ -32,6 +32,7 @@ export function playMatch(levels: BotLevel[], hands: number, seed: number): Matc
   const seats = levels.map((_, i) => i);
   let button = firstButtonSeat(seats, random);
   let decisions = 0;
+  const reads = new Map<string, PlayerRead>();
 
   for (let handId = 1; handId <= hands; handId++) {
     stacks.forEach((stack, i) => {
@@ -58,7 +59,7 @@ export function playMatch(levels: BotLevel[], hands: number, seed: number): Matc
       const actor = state.players.find((p) => p.seat === state.toActSeat)!;
       const legal = getLegalActions(state, actor.playerId)!;
       const intent = decide(
-        { level: levels[actor.seat] as BotLevel, view: toGameView(state, actor.playerId), legal, bigBlind: 10 },
+        { level: levels[actor.seat] as BotLevel, view: toGameView(state, actor.playerId), legal, bigBlind: 10, reads },
         createRng(random(2 ** 31)),
       );
       const result = applyAction(state, actor.playerId, intent);
@@ -67,6 +68,7 @@ export function playMatch(levels: BotLevel[], hands: number, seed: number): Matc
       decisions++;
     }
     for (const p of state.players) stacks[p.seat] = p.stack;
+    recordHand(reads, state.players, toGameView(state, '').history);
   }
   return { net: stacks.map((stack, i) => stack - (buyIns[i] as number)), hands, decisions };
 }

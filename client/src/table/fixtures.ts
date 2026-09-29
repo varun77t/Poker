@@ -39,6 +39,8 @@ export function game(over: Partial<GameView> = {}): GameView {
     players: [player(0), player(1), player(2)],
     legalActions: null,
     result: null,
+    history: [],
+    yourHand: null,
     ...over,
   };
 }

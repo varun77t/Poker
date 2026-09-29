@@ -5,6 +5,9 @@ import {
   type FinalResult,
   type GamePlayerView,
   type GameView,
+  type HandCategory,
+  type HandDraw,
+  type HandHint,
   type LegalActions,
   type PlayerId,
   type RoomView,
@@ -257,7 +260,8 @@ export function chipColors(amount: number): ('red' | 'blue' | 'black' | 'green')
 /** How each bot level is named and described wherever it is shown or picked (product-spec §3.7). */
 export const BOT_LEVEL_TEXT: Record<BotLevel, { name: string; blurb: string }> = {
   easy: { name: 'Easy', blurb: 'Calls a lot' },
-  normal: { name: 'Normal', blurb: 'Plays solid poker' },
+  medium: { name: 'Medium', blurb: 'Plays solid poker' },
+  pro: { name: 'Pro', blurb: 'Reads you, bluffs well' },
 };
 
 /**
@@ -288,6 +292,31 @@ export function waitingHint({ room }: TableSnapshot): string {
     parts.push(isHost ? `${invite}, add a bot, or end the game from the top bar.` : `${invite}.`);
   }
   return parts.join(' ');
+}
+
+/** The nine kinds of hand, best first, as the hand hint's ladder shows them (game-rules §8). */
+export const HAND_LADDER: readonly { category: HandCategory; name: string }[] = [
+  { category: 'straightFlush', name: 'Straight flush' },
+  { category: 'quads', name: 'Four of a kind' },
+  { category: 'fullHouse', name: 'Full house' },
+  { category: 'flush', name: 'Flush' },
+  { category: 'straight', name: 'Straight' },
+  { category: 'trips', name: 'Three of a kind' },
+  { category: 'twoPair', name: 'Two pair' },
+  { category: 'pair', name: 'Pair' },
+  { category: 'highCard', name: 'High card' },
+];
+
+/** The kind of hand each draw would make. */
+export const DRAW_TARGET: Record<HandDraw, HandCategory> = { flushDraw: 'flush', straightDraw: 'straight', gutshot: 'straight' };
+
+/** The hint's second line: what the viewer is drawing to, and whether the board alone makes their hand. */
+export function hintNotes(hint: HandHint): string[] {
+  const notes: string[] = [];
+  if (hint.onBoard) notes.push("It's all on the board.");
+  const targets = hint.draws.map((d) => (d === 'flushDraw' ? 'a flush' : d === 'straightDraw' ? 'a straight' : 'an inside straight'));
+  if (targets.length > 0) notes.push(`Drawing to ${targets.join(' or ')}.`);
+  return notes;
 }
 
 export { fmt as formatChips };

@@ -64,9 +64,14 @@ poker/
 │       │   ├── pots.ts          layering, side pots, uncalled chips, odd-chip splits
 │       │   ├── engine.ts        createHand, applyAction, advance, forceFold, showdown
 │       │   ├── types.ts         HandState, HandPlayer, EngineEvent, EngineError
-│       │   └── view.ts          toGameView(state, viewerId): the only hidden-info projection
+│       │   ├── hint.ts          handHint(hole, board): the viewer's made hand, draws, board-only flag
+│       │   └── view.ts          toGameView(state, viewerId): the only hidden-info projection (+ history, yourHand)
 │       ├── bots/                PURE like engine/ (no timers, I/O or Math.random; lint-enforced):
-│       │   ├── strategy.ts      decide({ level, view, legal, bigBlind }, rng) → a legal intent; easy/normal play
+│       │   ├── strategy.ts      decide({ level, view, legal, bigBlind, reads? }, rng) → a legal intent; Easy and Medium
+│       │   ├── pro.ts           the Pro level: positional pre-flop, range-based post-flop, value bets, bluffs, folds
+│       │   ├── ranges.ts        opponent ranges from their public line and tendencies; range-weighted equity
+│       │   ├── reads.ts         per-player tendencies (VPIP, PFR, aggression, fold-to-bet) from public actions
+│       │   ├── spot.ts          the bot's read of its turn, bet sizing helpers shared by every level
 │       │   ├── handStrength.ts  preflopScore (Chen formula), estimateEquity (Monte Carlo run-outs)
 │       │   ├── fastRank.ts      integer 7-card ranker for the run-outs; matches the evaluator's rankValue
 │       │   ├── rng.ts           createRng(seed): seeded mulberry32; the controller seeds it from crypto
@@ -108,7 +113,7 @@ bots   → engine (evaluator, view and legal-action types), shared
 ```
 The engine never imports `socket/`, `rooms/`, `table/`, or anything from Node except types. `crypto` is injected through the RNG parameter.
 
-Bots get the same treatment. When a bot is to act, the table controller sets a `'bot'` timer (a think time of 0.8–2.5 s) instead of the turn timer. When it fires, it calls `decide({ level, view: toGameView(state, botId), legal: getLegalActions(state, botId), bigBlind }, rng)`, so a bot only ever sees what a player in its seat would see. Its action then goes through the same `handId` + `seq` + engine validation path as a human's. If `decide` throws or returns something illegal, the error is logged and the bot checks if it can, otherwise folds.
+Bots get the same treatment. When a bot is to act, the table controller sets a `'bot'` timer (a think time of 0.8–2.5 s) instead of the turn timer. When it fires, it calls `decide({ level, view: toGameView(state, botId), legal: getLegalActions(state, botId), bigBlind, reads }, rng)`, so a bot only ever sees what a player in its seat would see. `reads` is the table's memory of how each player plays, built after every hand from the public action history (`recordHand`), never from hidden cards; the Pro level uses it. Its action then goes through the same `handId` + `seq` + engine validation path as a human's. If `decide` throws or returns something illegal, the error is logged and the bot checks if it can, otherwise folds.
 
 Bots have a seat (`Seat.bot` is their level) but no session and no socket. Their ids look like `bot:3`, which can never be a session's UUID, so nobody can act as a bot. They are not in the player → room index, the broadcaster skips them, they are always `connected`, and they never become host.
 
@@ -264,7 +269,7 @@ type ErrorCode =
 | Event | Payload | Who / when | Result |
 |---|---|---|---|
 | `room:create` | `{ settings: RoomSettings, bots?: BotLevel[] }` | anyone | `{ code }` |
-| `room:addBot` | `{ level: 'easy'\|'normal', seat?: number }` | host | `{ seat }` |
+| `room:addBot` | `{ level: 'easy'\|'medium'\|'pro', seat?: number }` | host | `{ seat }` |
 | `room:removeBot` | `{ seat: number }` | host | — |
 | `room:join` | `{ code: string }` | anyone | `{ code }` |
 | `room:leave` | `{}` | member | — |
@@ -314,7 +319,7 @@ interface Seat {
   leaving: boolean;                 // left while dealt in; not a member; freed before the next hand
   missedHands: number;              // hands started in a row while disconnected (R-9.3)
   played: boolean;                  // dealt into at least one hand of the current game (has a result)
-  bot: 'easy' | 'normal' | null;    // a server-run bot (no session or socket); null for people
+  bot: 'easy' | 'medium' | 'pro' | null; // a server-run bot (no session or socket); null for people
 }
 
 // engine/types.ts
@@ -535,7 +540,7 @@ Only results are written, and only at key moments: room created, hand finished, 
 | Rooms / sessions | Vitest + fake timers | Codes, join/leave, host migration, TTL, grace windows |
 | Table controller | Vitest + fake `Clock` | Hand sequencing, timers, pacing, rebuys, busts, removals, game end (`test/table/lifecycle.test.ts`: whole games from start to finished screen and restart) |
 | Room-level simulation | Vitest + fast-check | Random joins, leaves, disconnects, actions, rebuys, bots added and removed, host ends and restarts, with rebuys on and off: a zero-sum chip ledger (seated + departed players), finished results that sum to zero, no stuck table, no leaked cards |
-| Bots | Vitest + fast-check | `test/bots/`: every decision is legal (property), decisions depend only on what the bot may see, fast ranker = evaluator, Normal beats Easy over seeded matches, < 50 ms per decision; room rules, pauses, rebuys and leaves with bots (`botTable.test.ts`), fallback on a failing strategy |
+| Bots | Vitest + fast-check | `test/bots/`: every decision is legal (property), decisions depend only on what the bot may see, fast ranker = evaluator, Medium beats Easy and Pro beats Medium over seeded matches, Pro reads ranges (folds to a tight player's barrels, bluffs players who fold, not calling stations), < 50 ms per decision; room rules, pauses, rebuys and leaves with bots (`botTable.test.ts`), fallback on a failing strategy |
 | Socket integration | Vitest + in-process server + `socket.io-client` | Multi-client flows, all error codes, **no hole-card leakage in any emitted payload**, reconnect restores the view; 50 hands of one person against three bots (`botSync.test.ts`) |
 | E2E | Playwright (3 browser contexts) | Create → invite link join → play hands → disconnect/reconnect → finish |
 | Client display logic | Vitest | `table/model.ts` and `table/motionPlan.ts` (seat rotation, tags, bet-size shortcuts, result wording, final standings, animation choreography) |

@@ -16,7 +16,7 @@ vi.mock('../../src/bots/strategy', async (importOriginal) => {
 /** Alice and one bot, heads-up; alice (button, small blind) acts first. */
 function botToAct(call: boolean) {
   const h = createTableHarness(['alice']);
-  h.rooms.addBot('alice', 'normal');
+  h.rooms.addBot('alice', 'medium');
   h.start();
   if (call) h.act('alice', 'call');
   else h.act('alice', 'raise', 40);

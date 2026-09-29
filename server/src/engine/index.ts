@@ -6,4 +6,5 @@ export { evaluateHand } from './evaluator';
 export { buildPots, splitPot } from './pots';
 export { firstButtonSeat, nextButtonSeat } from './seats';
 export type * from './types';
+export { handHint } from './hint';
 export { toGameView } from './view';

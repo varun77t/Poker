@@ -13,7 +13,7 @@ import { cx } from '../lib/cx';
 import { request } from '../socket/connection';
 import { setState, useAppState } from '../state/store';
 import room from '../styles/cardRoom.module.css';
-import { buildStandings, buildTableModel, formatChips, formatNet, summarizeGame, type Standing } from '../table/model';
+import { BOT_LEVEL_TEXT, buildStandings, buildTableModel, formatChips, formatNet, summarizeGame, type Standing } from '../table/model';
 import styles from './FinishedPage.module.css';
 
 const SETTINGS_NOTE_MS = 8000;
@@ -100,12 +100,13 @@ function Standings({ standings }: { standings: Standing[] }) {
               style={{ '--i': i } as CSSProperties}
             >
               <span className={styles.rank}>{s.rank}</span>
-              <span className={styles.avatar} aria-hidden="true">
+              <span className={cx(styles.avatar, s.botLevel && styles.botAvatar)} aria-hidden="true">
                 {([...s.displayName][0] ?? '?').toLocaleUpperCase()}
               </span>
               <span className={styles.who}>
                 <span className={styles.name}>
                   <span className={styles.nameText}>{s.isYou ? 'You' : s.displayName}</span>
+                  {s.botLevel && <span className={styles.botMark}>{BOT_LEVEL_TEXT[s.botLevel].name} bot</span>}
                   {s.left && <span className={styles.tag}>Left</span>}
                 </span>
                 <span className={styles.detail}>

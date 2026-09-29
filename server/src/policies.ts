@@ -16,6 +16,9 @@ export interface Timings {
   showdownPauseMs: number;
   /** Results pause after a hand won by everyone else folding. */
   foldWinPauseMs: number;
+  /** A bot waits a random time in this range before acting, so the table feels natural (§3.7). */
+  botThinkMinMs: number;
+  botThinkMaxMs: number;
 }
 
 export const DEFAULT_TIMINGS: Timings = {
@@ -27,6 +30,8 @@ export const DEFAULT_TIMINGS: Timings = {
   runOutDelayMs: 1500,
   showdownPauseMs: 5000,
   foldWinPauseMs: 3000,
+  botThinkMinMs: 800,
+  botThinkMaxMs: 2500,
 };
 
 /** R-9.3: a player still disconnected when this many hands in a row have started is removed between hands. */

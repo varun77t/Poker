@@ -1,7 +1,8 @@
 import type { Card } from '@poker/shared';
 import type { CSSProperties } from 'react';
-import { formatChips, SLOTS, type SeatModel, type SeatTag } from '../../table/model';
+import { BOT_LEVEL_TEXT, formatChips, SLOTS, type SeatModel, type SeatTag } from '../../table/model';
 import { cx } from '../../lib/cx';
+import { AddBotSeat, RemoveBot } from './BotControls';
 import { PlayingCard } from './PlayingCard';
 import styles from './Seat.module.css';
 
@@ -30,10 +31,13 @@ interface Props {
   /** The finished hand's winning cards; everything else shown dims while the result is up. */
   highlight: Set<Card> | null;
   clock: TurnClock | null;
+  /** The viewer is the host and this seat is a bot they can take off the table. */
+  removable?: boolean;
 }
 
-export function Seat({ model, highlight, clock }: Props) {
+export function Seat({ model, highlight, clock, removable = false }: Props) {
   const { seat, slot, view, player, isYou, isTurn, isWinner, folded, sittingOut, tag, stack } = model;
+  const botText = view.botLevel ? `${BOT_LEVEL_TEXT[view.botLevel].name} bot` : null;
   const [x, y] = SLOTS[slot]?.seat ?? [0.5, 0.5];
   const tone = (card: Card) => (highlight ? (highlight.has(card) ? 'lift' : 'dim') : undefined);
 
@@ -43,6 +47,7 @@ export function Seat({ model, highlight, clock }: Props) {
 
   const describe = [
     isYou ? `${view.displayName} (you)` : view.displayName,
+    botText,
     `${formatChips(stack)} chips`,
     tag && tagText(tag),
     isTurn && 'to act',
@@ -54,6 +59,7 @@ export function Seat({ model, highlight, clock }: Props) {
     <div
       className={cx(styles.seat, isYou && styles.you, folded && styles.folded, isTurn && styles.turn, isWinner && styles.winner, sittingOut && styles.out)}
       data-winner={isWinner || undefined}
+      data-seat={seat}
       style={{ left: `${x * 100}%`, top: `${y * 100}%` } as CSSProperties}
     >
       <div className={styles.hole}>
@@ -68,12 +74,15 @@ export function Seat({ model, highlight, clock }: Props) {
         ))}
       </div>
       <div className={styles.plaque} data-anchor={`plaque-${seat}`} aria-label={describe} role="group">
-        <span className={styles.avatar} aria-hidden="true">
+        <span className={cx(styles.avatar, botText && styles.botAvatar)} aria-hidden="true">
           {([...view.displayName][0] ?? '?').toLocaleUpperCase()}
           {clock && <TurnRing clock={clock} />}
         </span>
         <span className={styles.who} aria-hidden="true">
-          <span className={styles.name}>{isYou ? 'You' : view.displayName}</span>
+          <span className={styles.nameRow}>
+            <span className={styles.name}>{isYou ? 'You' : view.displayName}</span>
+            {botText && <span className={styles.botMark}>{botText}</span>}
+          </span>
           <span className={styles.stack}>{formatChips(stack)}</span>
         </span>
         {tag && (
@@ -82,6 +91,7 @@ export function Seat({ model, highlight, clock }: Props) {
           </span>
         )}
       </div>
+      {removable && <RemoveBot seat={seat} name={view.displayName} inHand={!!player && !folded && !model.view.leaving} />}
     </div>
   );
 }
@@ -100,11 +110,12 @@ function TurnRing({ clock }: { clock: TurnClock }) {
   );
 }
 
-export function EmptySeat({ slot }: { slot: number }) {
+/** An open seat. The host can seat a bot in it (§3.7); everyone else just sees it is free. */
+export function EmptySeat({ seat, slot, canAddBot = false }: { seat: number; slot: number; canAddBot?: boolean }) {
   const [x, y] = SLOTS[slot]?.seat ?? [0.5, 0.5];
   return (
     <div className={cx(styles.seat, styles.empty)} style={{ left: `${x * 100}%`, top: `${y * 100}%` }}>
-      <div className={styles.emptyPlaque}>Open seat</div>
+      {canAddBot ? <AddBotSeat seat={seat} /> : <div className={styles.emptyPlaque}>Open seat</div>}
     </div>
   );
 }

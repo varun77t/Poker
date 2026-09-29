@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-29T13:39:51.208Z",
+  "generatedAt": "2026-09-29T18:02:15.000Z",
   "title": "Design System: Private Hold'em",
   "extensions": {
     "colorMeta": {
@@ -566,11 +566,11 @@
       },
       "label": {
         "displayName": "Label",
-        "purpose": "Bet presets."
+        "purpose": "Bet presets, the host's bot Remove control and the \"Add a bot\" line on an open seat."
       },
       "tag": {
         "displayName": "Tag",
-        "purpose": "State tags on seat and standings plaques."
+        "purpose": "State tags on seat and standings plaques, and the outlined bot mark (Easy bot, Normal bot)."
       },
       "card-rank": {
         "displayName": "Card Rank",
@@ -599,7 +599,7 @@
       {
         "name": "panel-float",
         "value": "0 20px 40px -12px rgb(0 0 0 / 0.7)",
-        "purpose": "The docked action panel."
+        "purpose": "The docked action panel, the next-game panel and the host's bot panels."
       },
       {
         "name": "plaque-rest",
@@ -697,6 +697,11 @@
         "name": "standings-settle",
         "value": "440ms",
         "purpose": "Each standings plaque rises 10px into place, in rank order from 260ms, 80ms apart."
+      },
+      {
+        "name": "plate-in",
+        "value": "180ms",
+        "purpose": "The host's bot panels (Add a bot, Remove confirm) fade in with a 4px drop."
       },
       {
         "name": "reduced-motion",
@@ -807,6 +812,14 @@
       "description": "Finished screen: the action panel's material holding the settings sentence, a brass Start and a ghost Change settings.",
       "html": "<div class=\"ds-bg\"><div class=\"ds-next\"><p>Next game: <b>1,000</b> chips, blinds <b>5/10</b>, <b>30s</b> turns, rebuys <b>on</b>.</p><div class=\"ds-hr\"><button class=\"ds-start\">Start next game</button><button class=\"ds-gh\">Change settings</button></div></div></div>",
       "css": ".ds-bg{padding:16px;background:#1f0d12}.ds-next{width:400px;box-sizing:border-box;padding:14px;border:1px solid #4a2a1d;border-radius:16px;background:rgb(24 10 12 / .92);box-shadow:0 20px 40px -12px rgb(0 0 0 / .7);color:#c5b49c;font:500 16px/1.35 'Barlow Semi Condensed', system-ui, sans-serif}.ds-next p{margin:0 0 12px}.ds-next b{color:#f3ecdf;font-weight:600}.ds-hr{display:grid;grid-template-columns:1fr auto;gap:8px}.ds-start{height:48px;border:1px solid #e7c16e;border-radius:10px;background:#d2a54c;color:#2a1407;font:700 18px/1.1 'Barlow Semi Condensed', system-ui, sans-serif;box-shadow:inset 0 1px 0 rgb(255 255 255 / .35);cursor:pointer;transition:transform 90ms,background-color 150ms}.ds-start:hover{background:#dfb35a}.ds-start:active{transform:translateY(1px)}.ds-gh{padding:7px 14px;border:1px solid #4a2a1d;border-radius:8px;background:transparent;color:#c5b49c;font:600 16px 'Barlow Semi Condensed', system-ui, sans-serif;cursor:pointer}.ds-gh:hover{border-color:#a88444;color:#f3ecdf}.ds-start:focus-visible,.ds-gh:focus-visible{outline:2px solid #d2a54c;outline-offset:3px}"
+    },
+    {
+      "name": "Bot Seat",
+      "kind": "custom",
+      "refersTo": "bot-mark",
+      "description": "A bot's plaque: the outlined bot mark and the dashed chip-stripe ring on its disc say who the seat is; the host's hanging Remove control and the Add a bot panel in the action panel's material.",
+      "html": "<div class=\"ds-bots\"><div class=\"ds-bseat\"><div class=\"ds-bplq\"><span class=\"ds-bav\">N</span><span class=\"ds-bwho\"><span class=\"ds-bname\"><b>Nora</b><span class=\"ds-bmark\">Normal bot</span></span><span class=\"ds-bstk\">1,120</span></span></div><button class=\"ds-brm\">Remove</button></div><div class=\"ds-bpanel\"><div class=\"ds-bhead\"><span>Add a bot</span><button class=\"ds-bgh\">Cancel</button></div><div class=\"ds-blv\"><button class=\"ds-bact\">Easy<small>Calls a lot</small></button><button class=\"ds-bact\">Normal<small>Plays solid poker</small></button></div></div></div>",
+      "css": ".ds-bots{display:flex;gap:24px;align-items:flex-start;padding:16px 16px 28px;background:#1f0d12;color:#f3ecdf;font:500 16px/1.15 'Barlow Semi Condensed', system-ui, sans-serif;font-variant-numeric:tabular-nums}.ds-bseat{position:relative}.ds-bplq{display:inline-grid;grid-template-columns:auto 1fr;align-items:center;gap:10px;min-width:176px;padding:7px 16px 7px 7px;border:1.5px solid #4a2a1d;border-radius:999px;background:#24110f;box-shadow:0 8px 18px -6px rgb(0 0 0 / .6)}.ds-bav{position:relative;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#5a2e22;font:20px/1 'Marcellus', Georgia, serif}.ds-bav::after{position:absolute;inset:3px;border:1.5px dashed rgb(255 255 255 / .35);border-radius:50%;content:''}.ds-bwho{display:flex;flex-direction:column}.ds-bname{display:flex;align-items:center;gap:7px}.ds-bname b{font-weight:600}.ds-bmark{padding:0 7px;border:1px solid color-mix(in srgb,#c5b49c 45%,transparent);border-radius:999px;color:#c5b49c;font-size:13px;font-weight:700;line-height:1.35;letter-spacing:.04em;white-space:nowrap}.ds-bstk{color:#c5b49c}.ds-brm{position:absolute;top:calc(100% - 11px);left:50%;translate:-50% 0;padding:2px 10px;border:1px solid #4a2a1d;border-radius:7px;background:#24110f;color:#c5b49c;font:600 14px/1.35 'Barlow Semi Condensed', system-ui, sans-serif;cursor:pointer;transition:border-color 150ms,color 150ms}.ds-brm:hover{border-color:#a88444;color:#f3ecdf}.ds-brm:focus-visible,.ds-bgh:focus-visible,.ds-bact:focus-visible{outline:2px solid #d2a54c;outline-offset:3px}.ds-bpanel{display:grid;gap:10px;width:268px;padding:12px;border:1px solid #4a2a1d;border-radius:16px;background:rgb(24 10 12 / .96);box-shadow:0 20px 40px -12px rgb(0 0 0 / .7)}.ds-bhead{display:flex;align-items:center;justify-content:space-between;gap:12px}.ds-bhead span{font-weight:600}.ds-bgh{padding:3px 10px;border:1px solid #4a2a1d;border-radius:8px;background:transparent;color:#c5b49c;font:600 14px 'Barlow Semi Condensed', system-ui, sans-serif;cursor:pointer}.ds-bgh:hover{border-color:#a88444;color:#f3ecdf}.ds-blv{display:grid;grid-template-columns:1fr 1fr;gap:8px}.ds-bact{display:grid;place-content:center;height:48px;border:1px solid #4a2a1d;border-radius:10px;background:#33191a;color:#f3ecdf;font:700 18px/1.1 'Barlow Semi Condensed', system-ui, sans-serif;cursor:pointer;transition:transform 90ms,background-color 150ms}.ds-bact small{font-size:13px;font-weight:600;opacity:.85}.ds-bact:hover{background:#43211f}.ds-bact:active{transform:translateY(1px)}"
     }
   ],
   "narrative": {
@@ -854,6 +867,11 @@
         "name": "The Sitting-Out Rule",
         "body": "A seat that is out of the hand but still at the table (out of chips, joining next hand, left) dims its cards, avatar and name to 50% and quiets its plaque (edge at 60%, fill at 55%, no shadow), while its state tag stays at full contrast. The reason a seat is out must always be readable even when the seat is not.",
         "section": "components"
+      },
+      {
+        "name": "The Mark-Versus-Tag Rule",
+        "body": "An outlined pill says who a seat is (a bot, and how it plays); a filled tag says what the seat is doing (All-in, Away, Left). A mark never fills and never takes brass, and a state never goes outlined.",
+        "section": "components"
       }
     ],
     "dos": [
@@ -866,6 +884,7 @@
       "**Do** make motion physical and quick with the shared ease-out curve, and drop it entirely under reduced motion.",
       "**Do** pair every colour signal with text or shape (tags, timer ring, suit symbols, the sign on a net).",
       "**Do** keep a sitting-out seat's state tag at full contrast while the rest of the seat dims.",
+      "**Do** mark a bot as who the seat is, with the outlined bot mark and the dashed ring on its disc; keep filled tags for states.",
       "**Do** dress shared forms for the card room by remapping their tokens onto card-room tokens, with no browser-default steppers or arrows."
     ],
     "donts": [
@@ -875,6 +894,7 @@
       "**Don't** use brass as decoration; decorative brass is brass-trim.",
       "**Don't** put brass on a status such as \"Last hand\", \"Out of chips\" or \"Left\"; statuses are cream or quiet plaque-edge tags.",
       "**Don't** use payout green or fold blush without a signed figure beside them.",
+      "**Don't** use a dashed border for anything but an empty place, except the chip-stripe rings on chips and a bot's avatar disc.",
       "**Don't** use money language (deposit, cash, jackpot, win big); chips are virtual and never bought.",
       "**Don't** treat the green/gold tokens in `src/styles/global.css` as the system; they belong to the unmigrated placeholder screens."
     ]

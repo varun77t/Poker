@@ -43,6 +43,7 @@ const line = (playerId: string, finalStack: number, totalBuyIn: number = DEFAULT
   totalBuyIn,
   rebuys: totalBuyIn / DEFAULT_ROOM_SETTINGS.startingStack - 1,
   net: finalStack - totalBuyIn,
+  botLevel: null,
 });
 
 /**
@@ -370,7 +371,7 @@ describe('leaving and coming back during a game (no fresh stack)', () => {
     // Rebuys off and two players still have chips (alice, carol): the game goes on without bob.
     expect(h.game().players.map((p) => p.playerId)).toEqual(['alice', 'carol']);
     h.rooms.leave('bob');
-    expect(h.room.departed.get('bob')).toEqual({ displayName: 'bob', stack: 0, totalBuyIn: 1000 });
+    expect(h.room.departed.get('bob')).toEqual({ displayName: 'bob', stack: 0, totalBuyIn: 1000, botLevel: null });
     h.rooms.endGame('alice');
     h.act(h.toAct(), 'fold');
     h.clock.advance(TIMINGS.foldWinPauseMs);

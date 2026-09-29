@@ -1,3 +1,4 @@
+import type { BotLevel } from './constants';
 import type { GameView } from './game';
 import type { RoomSettings } from './schemas';
 
@@ -33,6 +34,10 @@ export interface SeatView {
   busted: boolean;
   /** Left the room during the current hand (folded); the seat is freed before the next hand. */
   leaving: boolean;
+  /** A computer player the host added (§3.7). Always connected; never the host. */
+  isBot: boolean;
+  /** The bot's level; null for people. */
+  botLevel: BotLevel | null;
 }
 
 /** The running game (room status `playing`). */
@@ -40,8 +45,9 @@ export interface TableView {
   /** Server time (epoch ms) when the next hand is dealt, during the pause after a hand; else null. */
   nextHandAt: number | null;
   /**
-   * Fewer than 2 players have chips, so no hand can be dealt until someone joins or rebuys, or the
-   * host ends the game (R-10.4). Only with rebuys on: with rebuys off the game ends instead.
+   * No hand can be dealt until someone joins, rebuys or reconnects, or the host ends the game: fewer
+   * than 2 players have chips (R-10.4), or bots would play without a connected person who has chips
+   * (R-10.6). With rebuys off a game nobody can play on ends instead.
    */
   waitingForPlayers: boolean;
   /** The host ended the game: it finishes once the current hand (and its results pause) is over. */
@@ -59,6 +65,8 @@ export interface FinalResult {
   rebuys: number;
   /** finalStack − totalBuyIn. Across all lines this sums to zero. */
   net: number;
+  /** The bot's level; null for people. */
+  botLevel: BotLevel | null;
 }
 
 export interface RoomView {

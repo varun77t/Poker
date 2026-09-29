@@ -1,4 +1,4 @@
-import type { FinalResult, PlayerId, RoomSettings, RoomStatus, RoomView, SeatView, TableSnapshot } from '@poker/shared';
+import type { BotLevel, FinalResult, PlayerId, RoomSettings, RoomStatus, RoomView, SeatView, TableSnapshot } from '@poker/shared';
 import type { TableController } from '../table/tableController';
 
 /** Server-internal room state. Never sent as-is; clients get `toRoomView`. */
@@ -31,6 +31,7 @@ export interface DepartedPlayer {
   displayName: string;
   stack: number;
   totalBuyIn: number;
+  botLevel: BotLevel | null;
 }
 
 export interface Seat {
@@ -52,6 +53,11 @@ export interface Seat {
   played: boolean;
   /** Global join order; used to decide which duplicate name gets a " (2)" suffix. */
   joinSeq: number;
+  /**
+   * A computer player (§3.7) and its level; null for people. Bots have no session or socket, are
+   * always connected, never host, and get no snapshots. The table plays their turns.
+   */
+  bot: BotLevel | null;
 }
 
 /** Every occupied seat, including players who left mid-hand. */
@@ -59,21 +65,26 @@ export function seatedPlayers(room: Room): Seat[] {
   return room.seats.filter((s): s is Seat => s !== null);
 }
 
-/** Current members: occupied seats minus players who left mid-hand. Only members get snapshots. */
+/** Current members: occupied seats minus players who left mid-hand. Bots included. */
 export function members(room: Room): Seat[] {
   return seatedPlayers(room).filter((s) => !s.leaving);
+}
+
+/** Members who are people, not bots. A room with none left closes (its bots go too). */
+export function humans(room: Room): Seat[] {
+  return members(room).filter((s) => !s.bot);
 }
 
 export function seatIndexOf(room: Room, playerId: PlayerId): number {
   return room.seats.findIndex((s) => s?.playerId === playerId);
 }
 
-/** The first member's seat clockwise after `fromIndex` (wrapping), excluding `fromIndex` itself. */
-export function nextMemberSeat(room: Room, fromIndex: number): Seat | null {
+/** The first person's seat clockwise after `fromIndex` (wrapping), excluding `fromIndex` itself. Skips bots. */
+export function nextHumanSeat(room: Room, fromIndex: number): Seat | null {
   const n = room.seats.length;
   for (let step = 1; step < n; step++) {
     const seat = room.seats[(fromIndex + step) % n];
-    if (seat && !seat.leaving) return seat;
+    if (seat && !seat.leaving && !seat.bot) return seat;
   }
   return null;
 }
@@ -112,6 +123,8 @@ export function toRoomView(room: Room, viewerId: PlayerId): RoomView {
         waitingForNextHand: seat.waitingForNextHand,
         busted: room.status === 'playing' && live === null && seat.stack === 0,
         leaving: seat.leaving,
+        isBot: seat.bot !== null,
+        botLevel: seat.bot,
       };
     }),
     table: table?.tableView() ?? null,
@@ -126,18 +139,19 @@ export function toRoomView(room: Room, viewerId: PlayerId): RoomView {
 export function buildFinalResults(room: Room): FinalResult[] {
   const names = displayNames(room);
   const start = room.settings.startingStack;
-  const line = (playerId: PlayerId, displayName: string, finalStack: number, totalBuyIn: number): FinalResult => ({
+  const line = (playerId: PlayerId, displayName: string, finalStack: number, totalBuyIn: number, botLevel: BotLevel | null): FinalResult => ({
     playerId,
     displayName,
     finalStack,
     totalBuyIn,
     rebuys: Math.max(0, Math.round(totalBuyIn / start) - 1),
     net: finalStack - totalBuyIn,
+    botLevel,
   });
   const seated = members(room)
     .filter((s) => s.played)
-    .map((s) => line(s.playerId, names.get(s.playerId) ?? s.displayName, s.stack, s.totalBuyIn));
-  const gone = [...room.departed].map(([id, d]) => line(id, d.displayName, d.stack, d.totalBuyIn));
+    .map((s) => line(s.playerId, names.get(s.playerId) ?? s.displayName, s.stack, s.totalBuyIn, s.bot));
+  const gone = [...room.departed].map(([id, d]) => line(id, d.displayName, d.stack, d.totalBuyIn, d.botLevel));
   return [...seated, ...gone].sort(
     (a, b) => b.net - a.net || b.finalStack - a.finalStack || a.displayName.localeCompare(b.displayName),
   );

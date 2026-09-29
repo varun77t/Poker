@@ -1,0 +1,149 @@
+/* Host controls for bots at the table (DESIGN.md: Seat Plaque, Buttons). */
+
+.anchor {
+  position: relative;
+  display: grid;
+  justify-items: center;
+}
+
+/* The host's open seat: the dashed "empty" pill, pressable. */
+.openSeat {
+  display: grid;
+  place-content: center;
+  gap: 1px;
+  min-width: 150px;
+  height: 58px;
+  padding: 0 22px;
+  border: 1.5px dashed rgb(236 226 200 / 0.22);
+  border-radius: 999px;
+  background: rgb(36 17 15 / 0.72);
+  color: var(--ink-muted);
+  font: 500 16px / 1.15 var(--font-ui);
+  cursor: pointer;
+  transition:
+    border-color 150ms,
+    color 150ms;
+}
+
+.openHint {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.openSeat:hover,
+.openSeat[aria-expanded='true'] {
+  border-color: var(--brass-soft);
+  color: var(--ink);
+}
+
+/* A floating plate under the seat, in the action panel's material. */
+.panel {
+  position: absolute;
+  z-index: 6;
+  top: calc(100% + 10px);
+  left: 50%;
+  display: grid;
+  gap: 10px;
+  width: 268px;
+  padding: 12px;
+  border: 1px solid var(--plaque-edge);
+  border-radius: 16px;
+  background: rgb(24 10 12 / 0.96);
+  box-shadow: 0 20px 40px -12px rgb(0 0 0 / 0.7);
+  text-align: left;
+  translate: -50% 0;
+  animation: plate-in 180ms var(--ease-out) both;
+}
+
+@keyframes plate-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.title {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.small {
+  padding: 3px 10px;
+  font-size: 14px;
+}
+
+.levels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.error {
+  margin: 0;
+  color: var(--danger);
+  font-size: 16px;
+}
+
+/* The host's Remove control, hanging from the bottom edge of a bot's plaque while the seat is hovered or focused.
+   A small ghost button, not a pill: pills are state tags in this world. */
+.removeTab {
+  position: absolute;
+  z-index: 4;
+  top: calc(100% - 11px);
+  left: 50%;
+  padding: 2px 10px;
+  border: 1px solid var(--plaque-edge);
+  border-radius: 7px;
+  background: var(--plaque);
+  color: var(--ink-muted);
+  font: 600 14px / 1.35 var(--font-ui);
+  opacity: 0;
+  cursor: pointer;
+  translate: -50% 0;
+  transition:
+    opacity 150ms,
+    border-color 150ms,
+    color 150ms;
+}
+
+:global([data-seat]:hover) .removeTab,
+.removeTab:focus-visible {
+  opacity: 1;
+}
+
+.removeTab:hover {
+  border-color: var(--brass-soft);
+  color: var(--ink);
+}
+
+.confirm {
+  width: 232px;
+  gap: 6px;
+}
+
+.note {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 16px;
+}
+
+.confirmRow {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+}

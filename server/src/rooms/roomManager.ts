@@ -4,16 +4,18 @@ import {
   changedSettingKeys,
   isValidRoomCode,
   normalizeRoomCode,
+  type BotLevel,
   type GameActionPayload,
   type PlayerId,
   type RoomSettings,
 } from '@poker/shared';
+import { pickBotName } from '../bots';
 import type { Cancel, Clock } from '../clock';
 import { DomainError } from '../errors';
 import { silentLogger, type Logger } from '../logger';
 import { MAX_MISSED_HANDS, type Timings } from '../policies';
 import { TableController, type NewDeck, type TableTimings } from '../table/tableController';
-import { buildFinalResults, members, nextMemberSeat, seatIndexOf, type Room } from './room';
+import { buildFinalResults, humans, members, nextHumanSeat, seatIndexOf, seatedPlayers, type Room } from './room';
 import { generateUniqueRoomCode, secureRandomInt, type RandomInt } from './roomCode';
 
 export interface PlayerRef {
@@ -40,6 +42,9 @@ export interface RoomManagerDeps {
  *
  * Room lifecycle: `waiting` (lobby) → `playing` (host starts) → `finished` (host ends it, or rebuys are
  * off and one player is left with chips) → `playing` again on restart, with fresh stacks.
+ *
+ * Bots (§3.7) sit in seats like players but have no session: they are not in the player→room
+ * index, never host, and leave with the last person.
  */
 export class RoomManager {
   private readonly rooms = new Map<string, Room>();
@@ -47,6 +52,7 @@ export class RoomManager {
   private readonly graceTimers = new Map<PlayerId, Cancel>();
   private readonly emptyRoomTimers = new Map<string, Cancel>();
   private joinSeq = 0;
+  private botSeq = 0;
 
   constructor(private readonly deps: RoomManagerDeps) {}
 
@@ -63,7 +69,8 @@ export class RoomManager {
     return code === undefined ? undefined : this.rooms.get(code);
   }
 
-  create(player: PlayerRef, settings: RoomSettings): Room {
+  /** Creates a room with the player as host, plus any bots they asked for ("Play against bots"). */
+  create(player: PlayerRef, settings: RoomSettings, bots: readonly BotLevel[] = []): Room {
     this.removeFromCurrentRoom(player.playerId);
     const code = generateUniqueRoomCode((c) => this.rooms.has(c), this.deps.randomInt ?? secureRandomInt);
     const room: Room = {
@@ -82,6 +89,7 @@ export class RoomManager {
     };
     this.rooms.set(code, room);
     this.seatPlayer(room, player, 0);
+    for (const level of bots) this.seatBot(room, level);
     this.changed(room);
     return room;
   }
@@ -187,6 +195,29 @@ export class RoomManager {
     room.table.requestEnd(); // sends the snapshot itself: "ending after this hand", or the results
   }
 
+  /**
+   * Host only (§3.7): seats a bot in the open seat the host picked (or the lowest open seat) and
+   * returns it. Allowed whenever a seat is open; during a game the bot is dealt in from the next
+   * hand, like a late joiner.
+   */
+  addBot(playerId: PlayerId, level: BotLevel, seatIndex?: number): number {
+    const room = this.requireRoomOf(playerId);
+    if (room.hostId !== playerId) throw new DomainError('NOT_HOST', 'Only the host can add bots.');
+    const seat = this.seatBot(room, level, seatIndex);
+    room.table?.seatsChanged(); // a table waiting for players deals now
+    this.changed(room);
+    return seat;
+  }
+
+  /** Host only. A bot dealt into the current hand folds now and its seat is freed after the hand. */
+  removeBot(playerId: PlayerId, seatIndex: number): void {
+    const room = this.requireRoomOf(playerId);
+    if (room.hostId !== playerId) throw new DomainError('NOT_HOST', 'Only the host can remove bots.');
+    const seat = room.seats[seatIndex];
+    if (!seat?.bot || seat.leaving) throw new DomainError('INVALID_STATE', 'There is no bot in that seat.');
+    this.removeFromRoom(room, seat.playerId);
+  }
+
   /** A player's game action (§6.3). Identity comes from the socket; the table checks handId/seq and legality. */
   act(playerId: PlayerId, action: GameActionPayload): void {
     const room = this.requireRoomOf(playerId);
@@ -232,6 +263,8 @@ export class RoomManager {
 
     if (seat.connected === connected) return false;
     seat.connected = connected;
+    // Back at a table that paused because no person with chips was here (R-10.6): deal again.
+    if (connected) room.table?.seatsChanged();
     this.changed(room);
     return true;
   }
@@ -309,7 +342,7 @@ export class RoomManager {
   }
 
   private seatPlayer(room: Room, player: PlayerRef, seatIndex: number): void {
-    const wasEmpty = members(room).length === 0;
+    const wasEmpty = humans(room).length === 0;
     room.seats[seatIndex] = {
       playerId: player.playerId,
       displayName: player.displayName,
@@ -321,12 +354,35 @@ export class RoomManager {
       missedHands: 0,
       played: false,
       joinSeq: ++this.joinSeq,
+      bot: null,
     };
     this.roomOfPlayer.set(player.playerId, room.code);
     if (wasEmpty) room.hostId = player.playerId;
     room.emptySince = null;
     this.emptyRoomTimers.get(room.code)?.();
     this.emptyRoomTimers.delete(room.code);
+  }
+
+  /** Seats a bot at `wanted` (or the lowest open seat), named uniquely within the room. Returns the seat. */
+  private seatBot(room: Room, level: BotLevel, wanted?: number): number {
+    const index = wanted ?? room.seats.findIndex((s) => s === null);
+    if (index === -1) throw new DomainError('ROOM_FULL', 'The table is full.');
+    if (room.seats[index] !== null) throw new DomainError('INVALID_STATE', 'That seat is taken.');
+    const { startingStack } = room.settings;
+    room.seats[index] = {
+      playerId: `bot:${++this.botSeq}`, // never a session id (those are UUIDs), so no one can act as a bot
+      displayName: pickBotName(seatedPlayers(room).map((s) => s.displayName)),
+      stack: startingStack,
+      totalBuyIn: startingStack,
+      connected: true,
+      waitingForNextHand: room.status === 'playing',
+      leaving: false,
+      missedHands: 0,
+      played: false,
+      joinSeq: ++this.joinSeq,
+      bot: level,
+    };
+    return index;
   }
 
   private removeFromCurrentRoom(playerId: PlayerId): void {
@@ -351,15 +407,17 @@ export class RoomManager {
     else this.freeSeat(room, index);
 
     if (room.hostId === playerId) this.migrateHost(room, index);
-    if (members(room).length === 0) this.closeEmptyRoom(room);
+    if (humans(room).length === 0) this.closeEmptyRoom(room); // bots never stay on without people
     else if (dealtIn) table?.playerLeft(playerId);
+    else table?.seatsChanged(); // a paused table may have nobody left to play on (R-10.4, R-10.6)
     this.changed(room);
   }
 
   /**
    * Between hands (called by the table before it deals): frees seats of players who left during the
    * last hand, and removes players who stayed disconnected for MAX_MISSED_HANDS hands (R-9.3). Their
-   * chips leave with them. No snapshot here: the table sends one once the next hand is dealt.
+   * chips leave with them. Busted bots rebuy, or leave when rebuys are off (§3.7). No snapshot here:
+   * the table sends one once the next hand is dealt.
    */
   private releaseDepartedSeats(room: Room): void {
     const hostIndex = seatIndexOf(room, room.hostId);
@@ -371,9 +429,16 @@ export class RoomManager {
         this.freeSeat(room, index);
         this.roomOfPlayer.delete(seat.playerId);
         this.cancelGraceTimer(seat.playerId);
+      } else if (seat.bot && seat.stack === 0) {
+        if (room.settings.rebuys) {
+          seat.stack = room.settings.startingStack;
+          seat.totalBuyIn += room.settings.startingStack;
+        } else {
+          this.freeSeat(room, index);
+        }
       }
     });
-    if (members(room).length === 0) this.closeEmptyRoom(room);
+    if (humans(room).length === 0) this.closeEmptyRoom(room);
     else if (hostIndex !== -1 && room.seats[hostIndex] === null) this.migrateHost(room, hostIndex);
   }
 
@@ -381,14 +446,19 @@ export class RoomManager {
   private freeSeat(room: Room, index: number): void {
     const seat = room.seats[index];
     if (seat && room.status === 'playing' && seat.played) {
-      room.departed.set(seat.playerId, { displayName: seat.displayName, stack: seat.stack, totalBuyIn: seat.totalBuyIn });
+      room.departed.set(seat.playerId, {
+        displayName: seat.displayName,
+        stack: seat.stack,
+        totalBuyIn: seat.totalBuyIn,
+        botLevel: seat.bot,
+      });
     }
     room.seats[index] = null;
   }
 
-  /** Host passes to the next member clockwise from the old host's seat (skipping players who left). */
+  /** Host passes to the next person clockwise from the old host's seat (skipping bots and players who left). */
   private migrateHost(room: Room, fromIndex: number): void {
-    const next = nextMemberSeat(room, fromIndex);
+    const next = nextHumanSeat(room, fromIndex);
     if (next) room.hostId = next.playerId;
   }
 

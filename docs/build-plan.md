@@ -344,6 +344,12 @@ Tests:
 - Performance: a Normal decision averages under 50 ms.
 ```
 
+**Phase 7 decisions (made during the build):**
+- The host adds and removes bots in the lobby **and at the table** (an open seat opens an "Add a bot" panel; a bot's seat shows "Remove" on hover, with a confirm). `room:addBot` takes an optional `seat` so the bot lands where the host clicked. The finished screen has no bot controls.
+- A bot removed mid-hand folds and its seat is freed after the hand, exactly like a person leaving.
+- New rule R-10.6 in game-rules.md: a hand with bots needs a connected person with chips; with rebuys off, the game ends when no person has chips.
+- Normal's postflop strength uses a fast integer ranker (`bots/fastRank.ts`, checked equal to the engine evaluator by a property test) so 600 run-outs take a few milliseconds.
+
 ---
 
 # PHASE 8 — UI Polish

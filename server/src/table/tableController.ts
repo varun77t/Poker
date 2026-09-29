@@ -7,6 +7,7 @@ import {
   type PlayerId,
   type TableView,
 } from '@poker/shared';
+import { createRng, decide } from '../bots';
 import type { Cancel, Clock } from '../clock';
 import {
   advance,
@@ -29,7 +30,10 @@ import { members, type Room } from '../rooms/room';
 /** Builds the deck for a hand about to be dealt (tests stack decks around the chosen button). */
 export type NewDeck = (hand: { handId: number; buttonSeat: number; seats: number[] }) => Card[];
 
-export type TableTimings = Pick<Timings, 'streetDelayMs' | 'runOutDelayMs' | 'showdownPauseMs' | 'foldWinPauseMs'>;
+export type TableTimings = Pick<
+  Timings,
+  'streetDelayMs' | 'runOutDelayMs' | 'showdownPauseMs' | 'foldWinPauseMs' | 'botThinkMinMs' | 'botThinkMaxMs'
+>;
 
 export interface TableDeps {
   clock: Clock;
@@ -53,8 +57,8 @@ export interface TableDeps {
   onGameOver: () => void;
 }
 
-/** What the single pending timer will do. */
-export type PendingTimer = 'turn' | 'deal' | 'nextHand';
+/** What the single pending timer will do. `bot` is a bot's think time on its turn (instead of the turn timer). */
+export type PendingTimer = 'turn' | 'bot' | 'deal' | 'nextHand';
 
 /**
  * Runs the game for one playing room (docs/architecture.md §4, §6.3–6.5). It holds the only copy of
@@ -63,6 +67,10 @@ export type PendingTimer = 'turn' | 'deal' | 'nextHand';
  *
  * There is at most one timer at a time. Every transition cancels it and schedules the next one, and
  * each callback also checks that the hand is still at the (handId, seq) it was scheduled for.
+ *
+ * Bots (§3.7) are just another source of actions: on a bot's turn the table asks `decide()` with the
+ * bot's own `toGameView` and legal actions, waits a short think time, then submits the action through
+ * `act()`, the same handId/seq and engine checks a person's action goes through.
  */
 export class TableController {
   private hand: HandState | null = null;
@@ -182,13 +190,19 @@ export class TableController {
     const players = this.room.seats.flatMap((seat, index) =>
       seat && !seat.leaving && seat.stack > 0 ? [{ playerId: seat.playerId, seat: index, stack: seat.stack }] : [],
     );
-    // R-10.4: with rebuys off, a game nobody can rejoin with chips is over; with rebuys on, the table waits.
-    if (this.endRequested || (players.length < MIN_PLAYERS_TO_START && !this.room.settings.rebuys)) {
+    const people = players.filter((p) => !this.room.seats[p.seat]?.bot);
+    // R-10.4: with rebuys off, a game nobody can rejoin with chips is over (R-10.6: bots alone don't
+    // count); with rebuys on, the table waits for a rebuy or a joiner.
+    const cannotGoOn = players.length < MIN_PLAYERS_TO_START || people.length === 0;
+    if (this.endRequested || (cannotGoOn && !this.room.settings.rebuys)) {
       this.stopped = true;
       this.deps.onGameOver();
       return;
     }
-    if (players.length < MIN_PLAYERS_TO_START) {
+    // R-10.6: bots never play on their own. A hand with bots in it needs a person here who has chips.
+    const withBots = people.length < players.length;
+    const personHere = people.some((p) => this.room.seats[p.seat]?.connected);
+    if (players.length < MIN_PLAYERS_TO_START || (withBots && !personHere)) {
       this.waitingForPlayers = true;
       this.deps.onChange();
       return;
@@ -231,7 +245,12 @@ export class TableController {
       const deadline =
         keepTurnDeadline && this.turnDeadline !== null ? this.turnDeadline : now + this.room.settings.turnSeconds * 1000;
       this.turnDeadline = deadline;
-      this.setTimer('turn', deadline - now, () => this.timeOut(handId, seq));
+      // A bot always acts after its think time, well inside the turn timer, so it never times out.
+      if (next.toActSeat !== null && this.room.seats[next.toActSeat]?.bot) {
+        this.setTimer('bot', this.thinkTime(), () => this.botTurn(handId, seq));
+      } else {
+        this.setTimer('turn', deadline - now, () => this.timeOut(handId, seq));
+      }
     } else {
       this.turnDeadline = null;
       if (next.awaiting === 'deal') {
@@ -254,6 +273,41 @@ export class TableController {
     const result = applyAction(hand, actor.playerId, { type: legal.canCheck ? 'check' : 'fold' });
     if (!result.ok) throw new Error(`Timeout action rejected: ${result.error.message}`);
     this.update(result.state);
+  }
+
+  /**
+   * A bot's turn (§3.7). It decides from exactly what a player in its seat would see, then acts through
+   * `act()` like a person. A strategy that fails or picks an illegal action (tests say it never does)
+   * is logged and replaced by check, else fold, so the hand can never stall on a bot.
+   */
+  private botTurn(handId: number, seq: number): void {
+    const hand = this.current(handId, seq);
+    if (!hand || hand.awaiting !== 'action') return;
+    const actor = hand.players.find((p) => p.seat === hand.toActSeat);
+    const level = actor ? this.room.seats[actor.seat]?.bot : null;
+    const legal = actor ? getLegalActions(hand, actor.playerId) : null;
+    if (!actor || !level || !legal) throw new Error('Bot timer fired with no bot to act');
+
+    const fallback: ActionIntent = { type: legal.canCheck ? 'check' : 'fold' };
+    let intent = fallback;
+    try {
+      const view = toGameView(hand, actor.playerId);
+      intent = decide({ level, view, legal, bigBlind: hand.bigBlind }, createRng(this.deps.randomInt(2 ** 31)));
+    } catch (err) {
+      this.deps.logger.error(`room ${this.room.code}: bot at seat ${actor.seat} could not decide`, err);
+    }
+    try {
+      this.act(actor.playerId, { handId, seq, ...intent });
+    } catch (err) {
+      this.deps.logger.error(`room ${this.room.code}: bot at seat ${actor.seat} chose ${JSON.stringify(intent)}`, err);
+      this.act(actor.playerId, { handId, seq, ...fallback });
+    }
+  }
+
+  /** A random think time for a bot, so its turns don't all take the same time. */
+  private thinkTime(): number {
+    const { botThinkMinMs, botThinkMaxMs } = this.deps.timings;
+    return botThinkMinMs + this.deps.randomInt(Math.max(1, botThinkMaxMs - botThinkMinMs + 1));
   }
 
   private dealStreet(handId: number, seq: number): void {

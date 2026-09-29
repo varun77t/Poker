@@ -1,8 +1,10 @@
 import type {
+  AddBotPayload,
   CreateRoomPayload,
   EmptyPayload,
   GameActionPayload,
   JoinRoomPayload,
+  RemoveBotPayload,
   UpdateSettingsPayload,
 } from './schemas';
 import type { TableSnapshot } from './views';
@@ -43,6 +45,10 @@ export interface RoomCodeResult {
   code: string;
 }
 
+export interface SeatResult {
+  seat: number;
+}
+
 export interface SyncResult {
   /** The room the player is seated in, if any. A `state` event for it follows. */
   roomCode: string | null;
@@ -55,6 +61,8 @@ export interface ClientToServerEvents {
   'room:join': (payload: JoinRoomPayload, ack: AckCallback<RoomCodeResult>) => void;
   'room:leave': (payload: EmptyPayload, ack: AckCallback) => void;
   'room:updateSettings': (payload: UpdateSettingsPayload, ack: AckCallback) => void;
+  'room:addBot': (payload: AddBotPayload, ack: AckCallback<SeatResult>) => void;
+  'room:removeBot': (payload: RemoveBotPayload, ack: AckCallback) => void;
   'game:start': (payload: EmptyPayload, ack: AckCallback) => void;
   'game:action': (payload: GameActionPayload, ack: AckCallback) => void;
   'game:rebuy': (payload: EmptyPayload, ack: AckCallback) => void;

@@ -1,5 +1,5 @@
 import type { GameView, TableSnapshot } from '@poker/shared';
-import { formatChips, SLOTS, type ResultSummary, type TableModel } from '../../table/model';
+import { formatChips, SLOTS, waitingHint, type ResultSummary, type TableModel } from '../../table/model';
 import { ChipStack } from './ChipStack';
 import { cx } from '../../lib/cx';
 import { PlayingCard } from './PlayingCard';
@@ -23,6 +23,7 @@ export function PokerTable({ snapshot, model, result, clock, resting = false }: 
   const { table, youId, hostId } = snapshot.room;
   const highlight = result && result.highlight.size > 0 ? result.highlight : null;
   const slotOfSeat = (seat: number) => model.seats[seat]?.slot ?? 0;
+  const isHost = youId === hostId;
 
   return (
     <div className={cx(styles.table, resting && styles.resting)}>
@@ -48,10 +49,7 @@ export function PokerTable({ snapshot, model, result, clock, resting = false }: 
         {table?.waitingForPlayers && (
           <div className={styles.waiting} role="status">
             <h2>Waiting for players</h2>
-            <p>
-              A hand needs two players with chips. {waitingHint(snapshot)}
-              {youId === hostId && ' Or end the game from the top bar.'}
-            </p>
+            <p>{waitingHint(snapshot)}</p>
           </div>
         )}
 
@@ -80,25 +78,21 @@ export function PokerTable({ snapshot, model, result, clock, resting = false }: 
           {model.seats.map((s) =>
             'empty' in s ? (
               // A finished table shows only the seats people sat in.
-              !resting && <EmptySeat key={s.seat} slot={s.slot} />
+              !resting && <EmptySeat key={s.seat} seat={s.seat} slot={s.slot} canAddBot={isHost} />
             ) : (
-              <Seat key={s.seat} model={s} highlight={highlight} clock={s.isTurn ? clock : null} />
+              <Seat
+                key={s.seat}
+                model={s}
+                highlight={highlight}
+                clock={s.isTurn ? clock : null}
+                removable={isHost && !resting && s.view.isBot && !s.view.leaving}
+              />
             ),
           )}
         </div>
       </div>
     </div>
   );
-}
-
-/** Who can get the table going again: the busted players by name (if rebuys are on), or a new friend. */
-function waitingHint({ room }: TableSnapshot): string {
-  const invite = `invite a friend with code ${room.code}.`;
-  if (!room.settings.rebuys) return `To keep playing, ${invite}`;
-  const out = room.seats.flatMap((s) => (s?.busted ? [s.playerId === room.youId ? 'You' : s.displayName] : []));
-  if (out.length === 0) return `To keep playing, ${invite}`;
-  const names = out.length === 1 ? out[0] : `${out.slice(0, -1).join(', ')} or ${out.at(-1)}`;
-  return `${names} can rebuy, or ${invite}`;
 }
 
 function Pots({ game }: { game: GameView }) {

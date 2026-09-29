@@ -23,6 +23,13 @@ export const SETTINGS_BOUNDS = {
   turnSeconds: { min: 15, max: 120 },
 } as const;
 
+/** Computer players (docs/product-spec.md §3.7). */
+export const BOT_LEVELS = ['easy', 'normal'] as const;
+export type BotLevel = (typeof BOT_LEVELS)[number];
+
+/** "Play against bots" seats this many Normal bots next to the host. */
+export const SOLO_BOT_COUNT = 3;
+
 export const DEFAULT_ROOM_SETTINGS = {
   startingStack: 1000,
   smallBlind: 5,

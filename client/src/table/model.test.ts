@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { game, player, seat, snapshot } from './fixtures';
 import type { FinalResult } from '@poker/shared';
-import { buildStandings, buildTableModel, chipColors, formatNet, potTotal, sizingPresets, slotOf, summarizeGame, summarizeResult, type SeatModel } from './model';
+import { buildStandings, buildTableModel, chipColors, formatNet, potTotal, sizingPresets, slotOf, summarizeGame, summarizeResult, waitingHint, type SeatModel } from './model';
 
 const seated = (m: ReturnType<typeof buildTableModel>) => m.seats.filter((s): s is SeatModel => !('empty' in s));
 
@@ -146,6 +146,7 @@ describe('final standings (finished screen)', () => {
     totalBuyIn,
     rebuys: totalBuyIn / 1000 - 1,
     net: finalStack - totalBuyIn,
+    botLevel: null,
   });
   const finished = (results: FinalResult[], occupied: number[] = [0, 1, 2]) => {
     const s = snapshot(null, occupied);
@@ -187,5 +188,22 @@ describe('final standings (finished screen)', () => {
 
   it('signs net results so colour is never the only signal', () => {
     expect([1240, -1000, 0].map(formatNet)).toEqual(['+1,240', '\u22121,000', 'Even']);
+  });
+});
+
+describe('waiting message (R-10.4, R-10.6)', () => {
+  const bot = (i: number, name: string) => seat(i, { playerId: `bot:${i}`, displayName: name, isBot: true, botLevel: 'normal' });
+
+  it('names who can rebuy and offers the host a bot when fewer than two have chips', () => {
+    const s = snapshot(null, [seat(0, { stack: 0, busted: true }), seat(1)]);
+    expect(waitingHint(s)).toBe('A hand needs two players with chips. You can rebuy. Invite a friend with code ABC234, add a bot, or end the game from the top bar.');
+    expect(waitingHint(snapshot(null, [seat(0, { stack: 0, busted: true }), seat(1)], 'ben'))).toBe('A hand needs two players with chips. Ana can rebuy. Invite a friend with code ABC234.');
+  });
+
+  it('says the bots will not play alone, and who they are waiting for', () => {
+    const busted = snapshot(null, [seat(0, { stack: 0, busted: true }), bot(1, 'Ace Bot'), bot(2, 'King Bot')]);
+    expect(waitingHint(busted)).toBe("The bots don't play on their own. You can rebuy. Invite a friend with code ABC234, or end the game from the top bar.");
+    const away = snapshot(null, [seat(0, { stack: 0, busted: true }), bot(1, 'Ace Bot'), seat(3, { connected: false })]);
+    expect(waitingHint(away)).toBe("The bot doesn't play on its own. Waiting for Dev to come back. You can rebuy. Invite a friend with code ABC234, or end the game from the top bar.");
   });
 });

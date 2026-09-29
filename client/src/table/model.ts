@@ -1,5 +1,6 @@
 import {
   MAX_SEATS,
+  type BotLevel,
   type Card,
   type FinalResult,
   type GamePlayerView,
@@ -26,10 +27,10 @@ export interface SlotGeometry {
 
 export const SLOTS: readonly SlotGeometry[] = [
   { seat: [0.5, 1.02], bet: [0.5, 0.74], dealer: [0.62, 0.84] }, // you, at the bottom
-  { seat: [0.02, 0.5], bet: [0.17, 0.52], dealer: [0.12, 0.3] }, // left side
+  { seat: [0.02, 0.5], bet: [0.21, 0.52], dealer: [0.12, 0.3] }, // left side: bet clear of a wide plaque (a long name, a bot mark)
   { seat: [0.2, 0.02], bet: [0.28, 0.3], dealer: [0.33, 0.115] }, // top left
   { seat: [0.8, 0.02], bet: [0.72, 0.3], dealer: [0.67, 0.115] }, // top right
-  { seat: [0.98, 0.5], bet: [0.83, 0.52], dealer: [0.88, 0.3] }, // right side
+  { seat: [0.98, 0.5], bet: [0.79, 0.52], dealer: [0.88, 0.3] }, // right side
 ];
 
 /** Seats run clockwise with increasing index, so rotating by the viewer's seat puts them at the bottom. */
@@ -251,6 +252,42 @@ export function chipColors(amount: number): ('red' | 'blue' | 'black' | 'green')
   if (amount >= 100) return ['black', 'blue', 'red'];
   if (amount >= 25) return ['blue', 'red'];
   return ['red'];
+}
+
+/** How each bot level is named and described wherever it is shown or picked (product-spec §3.7). */
+export const BOT_LEVEL_TEXT: Record<BotLevel, { name: string; blurb: string }> = {
+  easy: { name: 'Easy', blurb: 'Calls a lot' },
+  normal: { name: 'Normal', blurb: 'Plays solid poker' },
+};
+
+/**
+ * Why no hand is being dealt, and who can get the table going again (R-10.4, R-10.6): the busted
+ * people by name (if rebuys are on), someone who is away, a new friend, or (for the host) a bot.
+ */
+export function waitingHint({ room }: TableSnapshot): string {
+  const isHost = room.hostId === room.youId;
+  const seats = room.seats.filter((s) => s !== null && !s.leaving);
+  const nameOf = (s: (typeof seats)[number]) => (s?.playerId === room.youId ? 'You' : (s?.displayName ?? ''));
+  const list = (names: string[]) => (names.length === 1 ? names[0] : `${names.slice(0, -1).join(', ')} or ${names.at(-1)}`);
+  const withChips = seats.filter((s) => s && s.stack > 0);
+  const people = withChips.filter((s) => s && !s.isBot);
+  const rebuyers = room.settings.rebuys ? seats.filter((s) => s?.busted && !s.isBot).map(nameOf) : [];
+
+  const invite = `Invite a friend with code ${room.code}`;
+  const parts: string[] = [];
+  if (withChips.length >= 2) {
+    // Enough chips at the table, but no person here to play them with the bots.
+    const bots = withChips.filter((s) => s?.isBot).length;
+    if (bots > 0) parts.push(bots === 1 ? "The bot doesn't play on its own." : "The bots don't play on their own.");
+    if (people.length > 0) parts.push(`Waiting for ${list(people.map(nameOf))} to come back.`);
+    if (rebuyers.length > 0) parts.push(`${list(rebuyers)} can rebuy.`);
+    parts.push(isHost ? `${invite}, or end the game from the top bar.` : `${invite}.`);
+  } else {
+    parts.push('A hand needs two players with chips.');
+    if (rebuyers.length > 0) parts.push(`${list(rebuyers)} can rebuy.`);
+    parts.push(isHost ? `${invite}, add a bot, or end the game from the top bar.` : `${invite}.`);
+  }
+  return parts.join(' ');
 }
 
 export { fmt as formatChips };

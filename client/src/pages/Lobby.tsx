@@ -1,7 +1,9 @@
 import {
+  BOT_LEVELS,
   MAX_SEATS,
   MIN_PLAYERS_TO_START,
   changedSettingKeys,
+  type BotLevel,
   type RoomSettings,
   type SeatView,
   type TableSnapshot,
@@ -13,6 +15,7 @@ import { Brand, Card, Notice, Page } from '../components/Layout';
 import { SettingsForm } from '../components/SettingsForm';
 import { request } from '../socket/connection';
 import { setState, useAppState } from '../state/store';
+import { BOT_LEVEL_TEXT } from '../table/model';
 import styles from './Lobby.module.css';
 
 const isSeat = (s: SeatView | null): s is SeatView => s !== null;
@@ -33,7 +36,7 @@ export function Lobby({ snapshot }: { snapshot: TableSnapshot }) {
   const { room } = snapshot;
   const navigate = useNavigate();
   const connected = useAppState((s) => s.connection === 'connected');
-  const [busy, setBusy] = useState<'start' | 'leave' | null>(null);
+  const [busy, setBusy] = useState<'start' | 'leave' | 'bot' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const editButton = useRef<HTMLButtonElement>(null);
@@ -88,6 +91,23 @@ export function Lobby({ snapshot }: { snapshot: TableSnapshot }) {
     setBusy('start');
     setError(null);
     const res = await request('game:start', {});
+    setBusy(null);
+    if (!res.ok) setError(res.message);
+  }
+
+  /** Host only (§3.7): seat a bot in an open seat, or take one away. The next snapshot shows it. */
+  async function addBot(seat: number, level: BotLevel) {
+    setBusy('bot');
+    setError(null);
+    const res = await request('room:addBot', { level, seat });
+    setBusy(null);
+    if (!res.ok) setError(res.message);
+  }
+
+  async function removeBot(seat: number) {
+    setBusy('bot');
+    setError(null);
+    const res = await request('room:removeBot', { seat });
     setBusy(null);
     if (!res.ok) setError(res.message);
   }
@@ -181,13 +201,42 @@ export function Lobby({ snapshot }: { snapshot: TableSnapshot }) {
                 <span className={styles.badges}>
                   {seat.playerId === room.hostId && <span className={styles.hostBadge}>Host</span>}
                   {seat.playerId === room.youId && <span className={styles.badge}>You</span>}
+                  {seat.botLevel && <span className={styles.botBadge}>{BOT_LEVEL_TEXT[seat.botLevel].name} bot</span>}
                   {seat.waitingForNextHand && <span className={styles.badge}>Next hand</span>}
                   {!seat.connected && <span className={styles.offline}>Reconnecting…</span>}
                 </span>
+                {isHost && seat.isBot && (
+                  <button
+                    type="button"
+                    className={styles.rowButton}
+                    disabled={busy !== null}
+                    onClick={() => void removeBot(index)}
+                    aria-label={`Remove ${seat.displayName}`}
+                  >
+                    Remove
+                  </button>
+                )}
               </li>
             ) : (
               <li key={`open-${index}`} className={styles.openSeat}>
-                Open seat
+                <span className={styles.name}>Open seat</span>
+                {isHost && (
+                  <span className={styles.addBot} role="group" aria-label={`Add a bot to seat ${index + 1}`}>
+                    <span>Add a bot</span>
+                    {BOT_LEVELS.map((level) => (
+                      <button
+                        key={level}
+                        type="button"
+                        className={styles.rowButton}
+                        disabled={busy !== null}
+                        onClick={() => void addBot(index, level)}
+                        title={BOT_LEVEL_TEXT[level].blurb}
+                      >
+                        {BOT_LEVEL_TEXT[level].name}
+                      </button>
+                    ))}
+                  </span>
+                )}
               </li>
             ),
           )}
@@ -210,7 +259,7 @@ export function Lobby({ snapshot }: { snapshot: TableSnapshot }) {
             {showEditor ? (
               <p className={styles.hint}>Save or cancel your settings changes to start.</p>
             ) : (
-              !enoughPlayers && <p className={styles.hint}>Invite at least one more player to start.</p>
+              !enoughPlayers && <p className={styles.hint}>Invite a friend or add a bot to start.</p>
             )}
           </>
         ) : (

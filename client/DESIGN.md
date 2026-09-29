@@ -227,6 +227,30 @@ components:
     textColor: "{colors.win}"
   standings-net-down:
     textColor: "{colors.fold-ink}"
+  bot-mark:
+    backgroundColor: "transparent"
+    textColor: "{colors.ink-muted}"
+    typography: "{typography.tag}"
+    rounded: "{rounded.pill}"
+    padding: "0 7px"
+  open-seat:
+    backgroundColor: "rgb(36 17 15 / 0.72)"
+    textColor: "{colors.ink-muted}"
+    typography: "{typography.body}"
+    rounded: "{rounded.pill}"
+    padding: "0 22px"
+    height: "58px"
+  bot-panel:
+    backgroundColor: "rgb(24 10 12 / 0.96)"
+    rounded: "{rounded.panel}"
+    padding: "{spacing.panel-pad}"
+    width: "268px"
+  bot-remove:
+    backgroundColor: "{colors.plaque}"
+    textColor: "{colors.ink-muted}"
+    typography: "{typography.label}"
+    rounded: "{rounded.preset}"
+    padding: "2px 10px"
   pot-label:
     backgroundColor: "{colors.felt-label}"
     textColor: "{colors.ink}"
@@ -274,7 +298,7 @@ A dim wine-and-mahogany room around a lit green felt, with cream paper and a sin
 - **Lamp-Lit Felt** (felt, felt-lit, felt-edge): The playing surface, always a radial light pool (felt-lit at the centre, felt at 45%, felt-edge at the rim). **Felt Shade** (felt-label) is a translucent dark green used for plates that sit on the felt: pot labels, the result plate, the waiting plate. **Printed Felt Ink** (felt-ink) is the faint cream of lettering printed into the cloth.
 
 ### Tertiary
-- **Card Suits and Chips**: **Suit Red** (suit-red) and **Suit Black** (suit-black) on cream card faces; **Burgundy Card Back** (card-back) under a faint brass crosshatch. Chips come in four flat colours, **Chip Red**, **Chip Blue**, **Chip Black**, **Chip Green**, each with a white dashed edge stripe (**Chip Stripe**, chip-stripe) and a fainter inner ring (**Chip Inlay**, chip-inlay); stacks are built from these by amount, never as free decoration.
+- **Card Suits and Chips**: **Suit Red** (suit-red) and **Suit Black** (suit-black) on cream card faces; **Burgundy Card Back** (card-back) under a faint brass crosshatch. Chips come in four flat colours, **Chip Red**, **Chip Blue**, **Chip Black**, **Chip Green**, each with a white dashed edge stripe (**Chip Stripe**, chip-stripe) and a fainter inner ring (**Chip Inlay**, chip-inlay), which also draws the dashed ring on a bot's avatar disc; stacks are built from these by amount, never as free decoration.
 
 ### Neutral
 - **Wine Room** (room, room-lift): The backdrop, a radial gradient from room-lift at the centre to room at 70%. Also the text colour on paper-coloured tags and the dealer button.
@@ -307,8 +331,8 @@ A dim wine-and-mahogany room around a lit green felt, with cream paper and a sin
 - **Body** (Barlow 500, 16px, 1.35, tabular figures): Default for the page; stacks, meta, status lines.
 - **Body Strong** (Barlow 600, 16px): Player names, bet amounts, the room code, ghost buttons.
 - **Action** (Barlow 700, 18px, 1.1): Action button labels; the amount sits under it at 13px/600. Also the signed net on a standings plaque (line height 1).
-- **Label** (Barlow 600, 14px): Bet presets.
-- **Tag** (Barlow 700, 13px, 0.04em): State tags on plaques (All-in, Away, Left, Out of chips, blind, last action).
+- **Label** (Barlow 600, 14px): Bet presets, the host's bot Remove control and the "Add a bot" line on an open seat.
+- **Tag** (Barlow 700, 13px, 0.04em): State tags on plaques (All-in, Away, Left, Out of chips, blind, last action), and the outlined bot mark ("Easy bot", "Normal bot") in a name row.
 - **Notice** (Barlow 700, 14px, 1.2, 0.02em): The header's status pill ("Last hand").
 - **Card Rank** (Barlow 700, 36% of card width, 1, -0.02em): Card indices, scaled with the card via container units.
 
@@ -321,7 +345,7 @@ A dim wine-and-mahogany room around a lit green felt, with cream paper and a sin
 
 A single fixed, non-scrolling stage. A 52px header strip (24px side gutters, 20px gaps) carries the name, room code, hand number, blinds and Leave table. Below it the oval table is centred and scales with the window: its width is the smallest of (viewport width minus 360px), (viewport height minus 256px) times 2.05, and 1320px, and its height is width / 2.05. Card width is 6.6% of table width, so the whole table, cards and board scale together from a 1280x680 laptop window up to large monitors.
 
-Your seat is always bottom centre, your two cards large (1.3 card widths) and overlapping the rail and your plaque; other seats sit clockwise at left, top-left, top-right and right, their cards at 0.62 card widths. The board of five sits in the felt centre, with the pot or result plate always just above it. The action panel is docked bottom-right, 344px wide, 24px from the edge. Bets sit on the felt in front of each seat; the dealer button travels between seats.
+Your seat is always bottom centre, your two cards large (1.3 card widths) and overlapping the rail and your plaque; other seats sit clockwise at left, top-left, top-right and right, their cards at 0.62 card widths. The board of five sits in the felt centre, with the pot or result plate always just above it. The action panel is docked bottom-right, 344px wide, 24px from the edge. Bets sit on the felt in front of each seat (the side seats' at 21% and 79% of table width, far enough in that a wide plaque, with a long name or a bot mark, clears its bet chip and tag); the dealer button travels between seats. Seats size to their content (max-content), so a seat near the table's edge is never squeezed by its position.
 
 The finished-game screen keeps the same 52px header and splits the stage below it into two columns 24px apart: the resting table on the left, centred in its area (width the smallest of (viewport width minus 622px), (viewport height minus 256px) times 2.05, and 1100px, still at 2.05 : 1), and a 400px column on the right. The column stacks, 22px apart, the "Final standings" heading with its ranked plaques 8px apart, and straight beneath them the next-game panel. Changing settings swaps the panel for the settings form in the same column.
 
@@ -334,7 +358,7 @@ Depth is physical light and material, not glow. The room is a radial gradient, t
 ### Shadow Vocabulary
 - **Table Drop** (`box-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.7), inset 0 2px 0 rgb(255 255 255 / 0.08)`): The table on the floor, with the rail's top highlight.
 - **Felt Well** (`box-shadow: inset 0 0 0 2px var(--brass-soft), inset 0 10px 30px rgb(0 0 0 / 0.35)`): The felt inside the rail: brass trim line plus rail shade.
-- **Panel Float** (`box-shadow: 0 20px 40px -12px rgb(0 0 0 / 0.7)`): The docked action panel.
+- **Panel Float** (`box-shadow: 0 20px 40px -12px rgb(0 0 0 / 0.7)`): The docked action panel, the next-game panel and the host's bot panels.
 - **Plaque Rest** (`box-shadow: 0 8px 18px -6px rgb(0 0 0 / 0.6)`): Name plaques on the rail.
 - **Card Rest** (`box-shadow: 0 2px 4px rgb(0 0 0 / 0.35)`): Cards and the dealer button lying on felt.
 - **Card Lift** (`box-shadow: 0 0 0 2.5px var(--brass), 0 8px 16px rgb(0 0 0 / 0.4)` with an 8px rise): Winning cards at showdown.
@@ -346,7 +370,7 @@ Depth is physical light and material, not glow. The room is a radial gradient, t
 
 ## Shapes
 
-Things that belong to the table are round: the oval table and felt, pill plaques, pill pot labels and tags, circular chips, the avatar disc and the dealer button (fully rounded, 999px or 50%). Things you press are modest rounded rectangles: action buttons (10px), inputs and ghost buttons (8px), presets (7px), the room code (6px). Floating plates and the action panel use 16px. Cards keep true playing-card proportions (5:7) with corners of 11% of their width. Borders are hairlines (1-1.5px) in plaque-edge; dashed borders mean "empty" (open seats, empty board slots) and the white dashed ring on chips is the chip's own edge stripe.
+Things that belong to the table are round: the oval table and felt, pill plaques, pill pot labels and tags, circular chips, the avatar disc and the dealer button (fully rounded, 999px or 50%). Things you press are modest rounded rectangles: action buttons (10px), inputs and ghost buttons (8px), presets and the bot Remove control (7px), the room code (6px). Floating plates and the action panel use 16px. Cards keep true playing-card proportions (5:7) with corners of 11% of their width. Borders are hairlines (1-1.5px) in plaque-edge; dashed borders mean "empty" (open seats, empty board slots) and the white dashed ring on chips is the chip's own edge stripe. The one deliberate exception is a bot's avatar disc: a fainter 1.5px dashed ring in chip-inlay, inset 3px, that reads as a chip's edge stripe (a chip at the table, not a face), never as an empty place.
 
 ## Components
 
@@ -366,7 +390,7 @@ Solid, pressable, and quiet until they are the move.
 
 ### Cards / Containers
 - **Action Panel:** 16px corners, near-opaque oxblood (rgb(24 10 12 / 0.92)), plaque-edge border, 12px padding, Panel Float shadow. A one-line status sits above the buttons.
-- **Felt Plates:** Pot labels (pill), result and waiting plates (16px) in translucent felt-label, so they read as printed on the cloth rather than floating. The same result plate announces the game's winner on the resting table ("Jonas wins the game", with "1,240 chips up" as its brass line).
+- **Felt Plates:** Pot labels (pill), result and waiting plates (16px) in translucent felt-label, so they read as printed on the cloth rather than floating. The same result plate announces the game's winner on the resting table ("Jonas wins the game", with "1,240 chips up" as its brass line). The waiting plate's muted line under "Waiting for players" says why no hand is dealt and who can fix it: with bots holding the only other chips, "The bot doesn't play on its own." (or "The bots don't play on their own."), then who the table is waiting for, who can rebuy, and the invite line with the room code; the host is offered "add a bot" only when fewer than two players have chips.
 - **Next-Game Panel:** The action panel's material (16px corners, rgb(24 10 12 / 0.92), plaque-edge border, Panel Float shadow) at 14px padding: a muted settings sentence with its values in ink, then the host's buttons or a waiting line. A value the host just changed turns paper with an underline.
 - **Out-of-Chips Panel:** In the action panel's place while busted: a status line opening in ink ("You're out of chips.") and, with rebuys on, the full-width brass rebuy button; with rebuys off, the status line alone.
 
@@ -380,15 +404,23 @@ Solid, pressable, and quiet until they are the move.
 The header strip (52px, shared by the table and finished screens) is the only navigation: product name in Marcellus, room code in a small bordered box (600, 0.08em tracking), "Hand 12 / Blinds 5 / 10" (or "Game over") in ink-muted with values in ink, and ghost controls on the right. Leave table, and End game for the host, expand in place to an inline confirm: the question in ink ("End the game after this hand?"), a ghost to back out ("Keep playing"), and the danger button to confirm. While the game is ending, everyone sees a cream **Notice** pill (paper on room, 700 14px, 3px 12px, pill) reading "Last hand". It is a status, like a seat tag, so it is cream and never brass.
 
 ### Seat Plaque (signature)
-A dark leather pill (min 176px, yours 220px) with a 40px initial disc in Marcellus and name over stack. The player to act gets a brass border, the warmer plaque-turn fill, and a brass timer ring around the avatar that drains linearly over the turn. Folded seats drop to 50% opacity as a whole; your own folded cards darken and sink 10px. A small pill tag at the top-right shows state: paper for actions, blinds and All-in; the quiet plaque-edge tag (ink on plaque-edge) for states that take a player out of play: Away, Left, Out of chips. All-in is a status, not something to act on, so it never takes brass. Empty seats are a dashed, translucent pill reading "Open seat".
+A dark leather pill (min 176px, yours 220px) with a 40px initial disc in Marcellus and name over stack. The player to act gets a brass border, the warmer plaque-turn fill, and a brass timer ring around the avatar that drains linearly over the turn. Folded seats dim only their hole cards and plaque to 50% (your own plaque to 55%), never the whole seat, so a bot panel opened on the seat stays at full strength; your own folded cards darken and sink 10px. A small pill tag at the top-right shows state: paper for actions, blinds and All-in; the quiet plaque-edge tag (ink on plaque-edge) for states that take a player out of play: Away, Left, Out of chips. All-in is a status, not something to act on, so it never takes brass. Empty seats are a dashed, translucent pill (58px tall, min 150px, 1.5px dashed cream at 22% on leather at 72%) reading "Open seat". For the host it is a button with a second line, "Add a bot" (600 14px); hover or an open panel moves its dashed edge to brass-trim and its text to ink.
 
 **The Sitting-Out Rule.** A seat that is out of the hand but still at the table (out of chips, joining next hand, left) dims its cards, avatar and name to 50% and quiets its plaque (edge at 60%, fill at 55%, no shadow), while its state tag stays at full contrast. The reason a seat is out must always be readable even when the seat is not.
+
+### Bot Seats
+A bot sits in an ordinary seat plaque with two marks of who it is. In the name row, after the name, an outlined **bot mark** pill reads "Easy bot" or "Normal bot" (Tag type, 1px ink-muted border at 45%, ink-muted text, 0 7px, no fill). Its avatar disc carries the dashed chip-inlay ring described under Shapes.
+- **Add a bot (host):** Pressing the host's open seat opens a panel below it, titled "Add a bot" (ink, 600) with a small ghost Cancel (3px 10px, 14px), over two action-style buttons side by side, "Easy" / "Calls a lot" and "Normal" / "Plays solid poker", each with its small sub-line. No brass: picking a bot is a setup choice, not the move. Errors show as a 16px danger line.
+- **Remove (host):** A small ghost control (plaque fill, plaque-edge border, 7px radius, 2px 10px, 600 14px ink-muted) hangs from the centre of the bot plaque's bottom edge. It is hidden until the seat is hovered or the control has keyboard focus, and its hover border is brass-trim. It is a rectangle, not a pill, because pills are state tags here. Pressing it swaps it for a confirm panel: "Remove Jonas?" in ink, "It folds this hand." in ink-muted when the bot holds cards, then a ghost Keep and the danger Remove, right-aligned, like Leave and End game in the header.
+- **Panels:** Both are floating plates in the action panel's material (16px corners, rgb(24 10 12 / 0.96), plaque-edge border, 12px padding, Panel Float), 268px wide (232px for the confirm), centred 10px below their anchor. They open with a 180ms plate-in (fade and a 4px drop, none under reduced motion) and close on Escape or a press outside, returning focus to the control that opened them. A seat holding an open panel rises to z-index 6, above neighbouring seats, bets and the dealer button.
+
+**The Mark-Versus-Tag Rule.** An outlined pill says who a seat is (a bot, and how it plays); a filled tag says what the seat is doing (All-in, Away, Left). A mark never fills and never takes brass, and a state never goes outlined.
 
 ### Resting Table (finished screen)
 The game-over table: it centres in its area, a dark shade (rgb(14 5 8 / 0.42)) fades over the felt in 700ms, open seats are hidden, and every seat but the game's winner rests at 72% opacity. The winner keeps full strength and its brass plaque edge, and the result plate sits lit above the shade in the middle of the felt. With no winner yet to name (not enough players), the waiting plate reads "Waiting for players" and names who can rebuy.
 
 ### Standings Plaque (finished screen)
-A seat plaque taken off the table and ranked: the same leather pill, 1.5px plaque-edge and Plaque Rest shadow, laid out as rank numeral (700, ink-muted), 40px initial disc, name over "2,240 chips, 1 rebuy" in ink-muted, and the signed net at the right edge (700 18px, per the Signed Net Rule). The winner's plaque takes the brass edge, the plaque-turn fill and a brass rank. A player who left gets a flatter plaque (half-transparent fill, no shadow), a faded avatar (55%), an ink-muted name and the quiet "Left" tag, with every figure still at full contrast.
+A seat plaque taken off the table and ranked: the same leather pill, 1.5px plaque-edge and Plaque Rest shadow, laid out as rank numeral (700, ink-muted), 40px initial disc, name over "2,240 chips, 1 rebuy" in ink-muted, and the signed net at the right edge (700 18px, per the Signed Net Rule). The winner's plaque takes the brass edge, the plaque-turn fill and a brass rank. A bot's line carries the same outlined bot mark after its name and the dashed ring on its disc. A player who left gets a flatter plaque (half-transparent fill, no shadow), a faded avatar (55%), an ink-muted name and the quiet "Left" tag, with every figure still at full contrast.
 
 ### Playing Card (signature)
 Cream paper face, 5:7, 11% corners, rank and small suit top-left and a large authored suit shape bottom-right, all sized in container units so a card reads the same at any size. Backs are burgundy with a faint brass crosshatch inside a 4% margin. Non-winning cards at showdown dim (brightness 0.55, saturation 0.6); winning cards lift 8px with the brass ring.
@@ -397,7 +429,7 @@ Cream paper face, 5:7, 11% corners, rank and small suit top-left and a large aut
 26px flat discs with a 3px white dashed edge stripe and an inner ring, stacked 4px apart. The colour mix is chosen by amount (red alone for small bets up to black, black, green, blue, red at 1,000 and above), so a taller, darker stack means more.
 
 ### Table Motion
-Motion uses one ease-out curve (cubic-bezier(0.16, 1, 0.3, 1)). Cards and chips fly between table anchors in 360ms; deals start 300ms in and stagger 70ms per card, board cards 150ms apart; cards turn over in 220ms; bets sweep to the pot 420ms after the closing call; winnings leave the pot at 1100ms with a "+amount" float in payout green. Only the landing settle uses a slight overshoot (cubic-bezier(0.34, 1.56, 0.64, 1), 240ms). The result plate rises into place in 400ms. When a game ends, the felt shade and resting seats fade in over 700ms and the standings plaques settle up 10px into place in rank order (440ms each, starting at 260ms, 80ms apart). Under prefers-reduced-motion nothing flies, fades or settles; the screen simply shows the new state.
+Motion uses one ease-out curve (cubic-bezier(0.16, 1, 0.3, 1)). Cards and chips fly between table anchors in 360ms; deals start 300ms in and stagger 70ms per card, board cards 150ms apart; cards turn over in 220ms; bets sweep to the pot 420ms after the closing call; winnings leave the pot at 1100ms with a "+amount" float in payout green. The host's bot panels drop into place in 180ms. Only the landing settle uses a slight overshoot (cubic-bezier(0.34, 1.56, 0.64, 1), 240ms). The result plate rises into place in 400ms. When a game ends, the felt shade and resting seats fade in over 700ms and the standings plaques settle up 10px into place in rank order (440ms each, starting at 260ms, 80ms apart). Under prefers-reduced-motion nothing flies, fades or settles; the screen simply shows the new state.
 
 ## Do's and Don'ts
 
@@ -411,6 +443,7 @@ Motion uses one ease-out curve (cubic-bezier(0.16, 1, 0.3, 1)). Cards and chips 
 - **Do** make motion physical and quick with the shared ease-out curve, and drop it entirely under reduced motion.
 - **Do** pair every colour signal with text or shape (tags, timer ring, suit symbols, the sign on a net).
 - **Do** keep a sitting-out seat's state tag at full contrast while the rest of the seat dims.
+- **Do** mark a bot as who the seat is, with the outlined bot mark and the dashed ring on its disc; keep filled tags for states.
 - **Do** dress shared forms for the card room by remapping their tokens onto card-room tokens, with no browser-default steppers or arrows.
 
 ### Don't:
@@ -420,5 +453,6 @@ Motion uses one ease-out curve (cubic-bezier(0.16, 1, 0.3, 1)). Cards and chips 
 - **Don't** use brass as decoration; decorative brass is brass-trim.
 - **Don't** put brass on a status such as "Last hand", "Out of chips" or "Left"; statuses are cream or quiet plaque-edge tags.
 - **Don't** use payout green or fold blush without a signed figure beside them.
+- **Don't** use a dashed border for anything but an empty place, except the chip-stripe rings on chips and a bot's avatar disc.
 - **Don't** use money language (deposit, cash, jackpot, win big); chips are virtual and never bought.
 - **Don't** treat the green/gold tokens in `src/styles/global.css` as the system; they belong to the unmigrated placeholder screens.

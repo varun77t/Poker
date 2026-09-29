@@ -2,7 +2,7 @@
 
 This is the live reference for everything the client and server exchange. The types in [`shared/src/events.ts`](../shared/src/events.ts), [`shared/src/views.ts`](../shared/src/views.ts) and [`shared/src/schemas.ts`](../shared/src/schemas.ts) are the source of truth, and this page must stay in sync with them.
 
-**Status:** Phase 6 (a whole game: hands in real time, rebuys, game end, results and restart). Bots arrive in Phase 7.
+**Status:** Phase 7 (a whole game: hands in real time, rebuys, game end, results and restart; bots the host adds and removes).
 
 ---
 
@@ -59,11 +59,13 @@ This is the live reference for everything the client and server exchange. The ty
 |---|---|---|---|
 | `sys:ping` | `{}` | `{ serverTime: number }` | Latency check |
 | `sync:request` | `{}` | `{ roomCode: string \| null }` | Reports the player's room. If they have one, the server also re-sends `state`. The client sends this on every (re)connect. |
-| `room:create` | `{ settings: RoomSettings }` | `{ code }` | Leaves any current room first. Creator takes seat 0 and is host. |
+| `room:create` | `{ settings: RoomSettings; bots?: BotLevel[] }` | `{ code }` | Leaves any current room first. Creator takes seat 0 and is host. `bots` (at most 4; `'easy'` or `'normal'`) are seated in seats 1, 2, … ("Play against bots" sends three `'normal'`). |
 | `room:join` | `{ code: string }` (≤16 chars) | `{ code }` | See below |
 | `room:leave` | `{}` | `{}` | See below. Host passes to the next member clockwise. When the last member leaves, any game stops, the room goes back to an empty lobby and is deleted after 10 minutes. `NOT_IN_ROOM` if not seated. |
 | `room:updateSettings` | `{ settings: RoomSettings }` | `{}` | Host only (`NOT_HOST`); not while `playing` (`INVALID_STATE`). In `waiting`, every seated player's stack is reset to the new `startingStack`. In `finished`, only the settings change; they apply on restart. Identical settings are a no-op (no new snapshot). |
 | `game:start` | `{}` | `{}` | Host only (`NOT_HOST`); status `waiting` or `finished` (`INVALID_STATE` while playing); ≥ 2 seated (`NOT_ENOUGH_PLAYERS`). Sets status `playing`, gives every seated player a fresh `startingStack` (this is also the restart from the finished screen), clears `finalResults`, and deals the first hand straight away (the first button is a random seat, R-2.2). Hand ids keep counting across games. |
+| `room:addBot` | `{ level: BotLevel; seat?: number }` | `{ seat }` | See §3.5 |
+| `room:removeBot` | `{ seat: number }` | `{}` | See §3.5 |
 | `game:action` | `{ handId, seq, type, amount? }` | `{}` | See §3.1 |
 | `game:rebuy` | `{}` | `{}` | See §3.3 |
 | `game:end` | `{}` | `{}` | See §3.4 |
@@ -110,6 +112,14 @@ The host ends the game (R-10.4). Payload `{}`.
 - Otherwise the current hand is played out and its results pause runs as usual; then, instead of the next hand, the game ends. Until then every snapshot has `table.endingAfterHand: true`. Asking again changes nothing.
 - **Errors:** `NOT_IN_ROOM`, `NOT_HOST`, `INVALID_STATE` (no game running).
 
+### 3.5 Bots: `room:addBot`, `room:removeBot`
+
+Bots are server-run players (product-spec §3.7). Both events are host only (`NOT_HOST`) and work in any room status.
+- `room:addBot { level, seat? }`: `level` is `'easy'` or `'normal'`. `seat` (0–4) is the open seat to use; without it the lowest open seat is used. The bot gets the starting stack and the first free name from a fixed list (Ace Bot, King Bot, Queen Bot, Jack Bot, Ten Bot). Added during a game, it is `waitingForNextHand` and dealt in from the next hand. A table waiting for players (§4.2) deals at once if it now can. The ack returns the seat used.
+- `room:removeBot { seat }`: behaves like `room:leave` for that bot. Not dealt into the current hand: the seat is freed now. Dealt in: its hand is folded at once and the seat is marked `leaving` and freed after the hand.
+- Bots are never host, have no session or socket, receive no `state`, and never time out or disconnect. When the last person leaves a room, every bot goes with them.
+- **Errors:** `NOT_IN_ROOM`, `NOT_HOST`, `ROOM_FULL` ("The table is full."), `INVALID_STATE` ("That seat is taken." / "There is no bot in that seat.").
+
 ### 3.2 `RoomSettings`
 
 | Field | Type | Rule | Default |
@@ -155,6 +165,7 @@ interface FinalResult {     // everyone dealt into at least one hand of the game
   totalBuyIn: number;       // starting stack + every rebuy
   rebuys: number;
   net: number;              // finalStack - totalBuyIn; the nets of a game sum to zero
+  botLevel: 'easy' | 'normal' | null; // the bot's level; null for people
 }
 interface SeatView {
   seat: number;
@@ -165,10 +176,12 @@ interface SeatView {
   waitingForNextHand: boolean; // joined during a game; dealt in from the next hand
   busted: boolean;          // 0 chips and not in a hand being played (R-10.1): not dealt in; may rebuy if rebuys are on
   leaving: boolean;         // left during this hand; the seat is freed before the next one
+  isBot: boolean;           // a server-run bot (always connected)
+  botLevel: 'easy' | 'normal' | null; // null for people
 }
 interface TableView {
   nextHandAt: number | null;   // server time the next hand is dealt, during the results pause
-  waitingForPlayers: boolean;  // rebuys on and fewer than 2 players have chips: no hand until someone joins or rebuys (R-10.4)
+  waitingForPlayers: boolean;  // no hand until someone joins, rebuys or comes back: rebuys on and fewer than 2 players have chips (R-10.4), or bots would be dealt in with no connected person who has chips (R-10.6)
   endingAfterHand: boolean;    // the host ended the game; it finishes after the current hand's results
 }
 ```
@@ -212,7 +225,10 @@ Players waiting for the next hand also get the `game` (without anyone's hole car
 - **Results:** the finished hand stays in `game` with its `result` for 5 s after a showdown or 3 s after a hand won by folds (`table.nextHandAt`), then the next hand is dealt with the button moved (R-2.2).
 - **Between hands:** seats of players who left are freed (their chips are remembered for the rest of the game, see `room:join`); late joiners are dealt in; busted players (0 chips) are skipped. Then:
   - If the host ended the game (`table.endingAfterHand`), the game ends.
-  - If fewer than 2 players have chips: with rebuys **off** the game ends (R-10.4); with rebuys **on**, `game` becomes null and `table.waitingForPlayers` is true until someone joins or rebuys, or the host ends the game.
+  - If fewer than 2 players have chips, or no person (not a bot) has chips: with rebuys **off** the game ends (R-10.4, R-10.6); with rebuys **on**, `game` becomes null and `table.waitingForPlayers` is true until someone joins or rebuys, or the host ends the game.
+  - If bots would be dealt in but no connected person has chips, the table also waits (R-10.6) until that person comes back.
+  - Busted bots rebuy automatically when rebuys are on and leave their seat when they are off.
+- **Bots** act after a think time of 0.8–2.5 s instead of the turn timer.
 - **Game end:** status becomes `finished`, `table` and `game` become null, and `finalResults` lists everyone who was dealt a hand in the game (seated or not), ranked by net result. Seated players stay seated. Disconnected players get the lobby's 60 s grace window from here on. The host can change settings (`room:updateSettings`) and restart (`game:start`); anyone can leave or join.
 - **Disconnects:** a disconnected player keeps their seat and is dealt in; their turns time out. Someone still disconnected when 3 hands in a row have started is removed before the next hand, and their chips leave with them (R-9.3). Reconnecting resets the count and immediately sends the full snapshot, including their cards and, if it's their turn, their options and the running deadline.
 

@@ -53,6 +53,8 @@ export function seat(index: number, over: Partial<SeatView> = {}): SeatView {
     waitingForNextHand: false,
     busted: false,
     leaving: false,
+    isBot: false,
+    botLevel: null,
     ...over,
   };
 }

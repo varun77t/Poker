@@ -1,22 +1,24 @@
-import { ACTION_TYPES, DEFAULT_ROOM_SETTINGS, type ActionIntent, type LegalActions, type PlayerId } from '@poker/shared';
+import { ACTION_TYPES, BOT_LEVELS, DEFAULT_ROOM_SETTINGS, type ActionIntent, type LegalActions, type PlayerId } from '@poker/shared';
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import type { HandState } from '../../src/engine';
 import { DomainError } from '../../src/errors';
-import { members, toSnapshot, type Room } from '../../src/rooms/room';
+import { humans, members, toSnapshot, type Room } from '../../src/rooms/room';
 import { createTableHarness, type TableHarness } from '../helpers/table';
 
 /**
  * Random play at the room level: actions (legal and junk), timeouts, pauses, joins, leaves,
- * disconnects, rebuys, the host ending the game and restarting it, with rebuys on or off, and
- * invariants checked after every room change:
+ * disconnects, rebuys, bots coming and going (and playing their own turns), the host ending the game
+ * and restarting it, with rebuys on or off, and invariants checked after every room change:
  * - chips are a zero-sum ledger: during a game, every seat's and every departed player's chips minus
  *   what they bought in sum to zero; a finished game's net results sum to zero; the lobby holds
  *   exactly one starting stack per seat; no seat vanishes during a live hand;
  * - hands deal exactly the members with chips, and pay out to the seats;
  * - the seat/room index and the host stay consistent; leaving seats only exist for the current hand;
+ *   bots are never indexed, never host, and never stay without a person;
  * - the table is never stuck: it always has a timer pending or is legitimately waiting for players
- *   (only with rebuys on: with them off, a table without two players with chips ends the game);
+ *   (fewer than two with chips, rebuys on; or bots would play without a person here, R-10.6);
+ *   a bot's turn always has its think timer running;
  * - the version goes up by one per change, and no snapshot shows a card its viewer may not see.
  */
 
@@ -105,11 +107,16 @@ function createChecker(getHarness: () => TableHarness | undefined) {
     for (const seat of room.seats) {
       if (!seat) continue;
       const indexed = h.rooms.getRoomOf(seat.playerId) === room;
-      if (seat.leaving === indexed) fail(`${seat.playerId}: leaving=${seat.leaving} but indexed=${indexed}`);
+      if (seat.bot) {
+        if (indexed) fail(`bot ${seat.playerId} is in the player index`);
+        if (!seat.connected) fail(`bot ${seat.playerId} is disconnected`);
+      } else if (seat.leaving === indexed) fail(`${seat.playerId}: leaving=${seat.leaving} but indexed=${indexed}`);
       if (seat.leaving && !room.table?.isDealtIn(seat.playerId)) fail(`${seat.playerId} is leaving but not in the hand`);
     }
     const memberIds = members(room).map((s) => s.playerId);
     if (memberIds.length > 0 && !memberIds.includes(room.hostId)) fail(`host ${room.hostId} is not a member`);
+    if (room.seats.find((s) => s?.playerId === room.hostId)?.bot) fail('a bot is host');
+    if (humans(room).length === 0 && room.seats.some((s) => s !== null)) fail('bots stayed without a person');
 
     // Table state.
     const table = room.table;
@@ -118,9 +125,16 @@ function createChecker(getHarness: () => TableHarness | undefined) {
     if (table) {
       const view = table.tableView();
       if (table.pendingTimer === null && !view.waitingForPlayers) fail('table is stuck: no timer and not waiting');
-      const withChips = members(room).filter((s) => s.stack > 0).length;
-      if (view.waitingForPlayers && withChips >= 2) fail(`waiting for players with ${withChips} able to play`);
-      if (view.waitingForPlayers && !room.settings.rebuys) fail('waiting for players with rebuys off: the game should have ended');
+      const withChips = members(room).filter((s) => s.stack > 0);
+      const people = withChips.filter((s) => !s.bot);
+      const noOneHere = withChips.some((s) => s.bot) && !people.some((s) => s.connected);
+      if (view.waitingForPlayers && withChips.length >= 2 && !noOneHere) fail(`waiting for players with ${withChips.length} able to play`);
+      if (view.waitingForPlayers && !room.settings.rebuys && !(noOneHere && people.length > 0)) {
+        fail('waiting for players with rebuys off: the game should have ended');
+      }
+      if (hand?.awaiting === 'action' && room.seats[hand.toActSeat as number]?.bot && table.pendingTimer !== 'bot') {
+        fail(`bot to act at seat ${hand.toActSeat} without its think timer (${table.pendingTimer})`);
+      }
       if (view.waitingForPlayers && view.endingAfterHand) fail('an ended game is still waiting for players');
       if (view.waitingForPlayers !== (hand === null)) fail('waitingForPlayers must match having no hand');
     }
@@ -177,15 +191,17 @@ function randomIntent(legal: LegalActions, rnd: (n: number) => number): ActionIn
 function simulate(
   tape: number[],
   initialPlayers: number,
+  initialBots: number,
   seed: number,
   rebuys: boolean,
-): { hands: number; games: number; violations: string[]; errors: unknown[] } {
+): { hands: number; games: number; botActions: number; violations: string[]; errors: unknown[] } {
   let t = 0;
   const rnd = (n: number) => ((tape[t++ % tape.length] as number) + t * 7919) % n;
   const ready: { harness?: TableHarness } = {}; // checks start once all first players are seated
   const checker = createChecker(() => ready.harness);
   const harness = createTableHarness(POOL.slice(0, initialPlayers), { seed, settings: { rebuys }, onChange: (r) => checker.check(r) });
   const { rooms, room, clock } = harness;
+  for (let i = 0; i < initialBots; i++) rooms.addBot(room.hostId, BOT_LEVELS[i % 2] as (typeof BOT_LEVELS)[number]);
   ready.harness = harness;
   checker.check(room); // baseline
   checker.violations.length = 0;
@@ -197,13 +213,16 @@ function simulate(
     }
   };
 
-  harness.start(rnd(initialPlayers));
+  harness.start(rnd(initialPlayers + initialBots));
   let games = 0;
+  let botActions = 0;
   for (let step = 0; step < STEPS && checker.violations.length === 0; step++) {
     if (room.status === 'finished' && room.finalResults) games += 1;
     const op = rnd(100);
-    const memberIds = members(room).map((s) => s.playerId);
+    // People only: bots have no session, so nobody can act, leave or rebuy as one (tried below as junk).
+    const memberIds = humans(room).map((s) => s.playerId);
     const anyMember = () => memberIds[rnd(memberIds.length)] as PlayerId;
+    const anySeated = () => room.seats[rnd(room.seats.length)]?.playerId ?? 'nobody';
     const hand = handOf(room);
 
     // Only run timers while a game is on: an empty room would otherwise hit its deletion TTL at once.
@@ -217,11 +236,14 @@ function simulate(
       const actor = hand.players.find((p) => p.seat === hand.toActSeat) as HandState['players'][number];
       const seat = room.seats[actor.seat];
       if (rnd(8) === 0 && memberIds.length > 0) {
-        // Junk: a random member, a random action, maybe a stale seq.
+        // Junk: a random member (or a bot's id), a random action, maybe a stale seq.
         const type = ACTION_TYPES[rnd(ACTION_TYPES.length)] as ActionIntent['type'];
-        tolerate(() =>
-          rooms.act(anyMember(), { handId: hand.handId, seq: hand.seq - rnd(2), type, ...(rnd(2) ? { amount: rnd(3000) } : {}) }),
-        );
+        const who = rnd(4) === 0 ? anySeated() : anyMember();
+        tolerate(() => rooms.act(who, { handId: hand.handId, seq: hand.seq - rnd(2), type, ...(rnd(2) ? { amount: rnd(3000) } : {}) }));
+      } else if (seat?.bot) {
+        const seq = hand.seq;
+        runNext(); // the bot's think time
+        if ((handOf(room)?.seq ?? 0) > seq) botActions += 1;
       } else if (seat && !seat.leaving && seat.connected) {
         const legal = room.table?.gameView(actor.playerId)?.legalActions as LegalActions;
         rooms.act(actor.playerId, { handId: hand.handId, seq: hand.seq, ...randomIntent(legal, rnd) });
@@ -236,13 +258,24 @@ function simulate(
       const id = anyMember();
       rooms.setConnected(id, !room.seats.find((s) => s?.playerId === id)?.connected);
     } else if (op < 84) {
-      if (memberIds.length > 0) rooms.leave(anyMember());
-    } else if (op < 92) {
+      if (rnd(10) === 0) tolerate(() => rooms.leave(anySeated())); // a bot's id is not a player
+      else if (memberIds.length > 0) rooms.leave(anyMember());
+    } else if (op < 88) {
       const id = POOL[rnd(POOL.length)] as PlayerId;
       if (rooms.getRoomOf(id) === undefined || rooms.getRoomOf(id) === room) tolerate(() => harness.join(id));
+    } else if (op < 92) {
+      // Bots come and go: usually the host, sometimes someone else (refused); any seat may be named.
+      if (memberIds.length === 0) continue;
+      const who = rnd(5) === 0 ? anyMember() : room.hostId;
+      if (rnd(2) === 0) tolerate(() => rooms.addBot(who, BOT_LEVELS[rnd(2)] as (typeof BOT_LEVELS)[number]));
+      else {
+        const bots = room.seats.flatMap((s, i) => (s?.bot && !s.leaving ? [i] : []));
+        const seatIndex = bots.length > 0 && rnd(4) > 0 ? (bots[rnd(bots.length)] as number) : rnd(room.seats.length);
+        tolerate(() => rooms.removeBot(who, seatIndex));
+      }
     } else if (op < 96) {
       // Rebuys: usually from a busted member, sometimes from anyone (must be refused cleanly).
-      const busted = members(room).filter((s) => s.stack === 0 && !room.table?.isPlayingHand(s.playerId));
+      const busted = humans(room).filter((s) => s.stack === 0 && !room.table?.isPlayingHand(s.playerId));
       const id = busted.length > 0 && rnd(3) > 0 ? (busted[rnd(busted.length)]?.playerId as PlayerId) : memberIds.length > 0 ? anyMember() : null;
       if (id) tolerate(() => rooms.rebuy(id));
     } else if (op < 97) {
@@ -254,23 +287,27 @@ function simulate(
     }
   }
   rooms.dispose();
-  return { hands: room.lastHandId, games, violations: checker.violations, errors: harness.errors };
+  return { hands: room.lastHandId, games, botActions, violations: checker.violations, errors: harness.errors };
 }
 
 describe('table simulation', () => {
   it('keeps chips, seats, turns and views consistent under random play', () => {
     let totalHands = 0;
     let finishedSteps = 0;
+    let totalBotActions = 0;
     fc.assert(
       fc.property(
         fc.array(fc.nat(), { minLength: 64, maxLength: 64 }),
-        fc.integer({ min: 2, max: 5 }),
+        fc.integer({ min: 1, max: 5 }),
+        fc.integer({ min: 0, max: 3 }),
         fc.nat(),
         fc.boolean(),
-        (tape, players, seed, rebuys) => {
-          const { hands, games, violations, errors } = simulate(tape, players, seed, rebuys);
+        (tape, players, bots, seed, rebuys) => {
+          const botCount = Math.min(5 - players, Math.max(bots, 2 - players)); // at least two seated to start
+          const { hands, games, botActions, violations, errors } = simulate(tape, players, botCount, seed, rebuys);
           totalHands += hands;
           finishedSteps += games;
+          totalBotActions += botActions;
           expect(violations).toEqual([]);
           expect(errors).toEqual([]);
         },
@@ -280,5 +317,6 @@ describe('table simulation', () => {
     // The runs should actually play poker, not just shuffle people around, and reach the finished screen.
     expect(totalHands).toBeGreaterThan(RUNS * 2);
     expect(finishedSteps).toBeGreaterThan(0);
+    expect(totalBotActions).toBeGreaterThan(RUNS);
   }, 120_000 + RUNS * 100);
 });

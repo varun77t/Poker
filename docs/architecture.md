@@ -65,7 +65,12 @@ poker/
 │       │   ├── engine.ts        createHand, applyAction, advance, forceFold, showdown
 │       │   ├── types.ts         HandState, HandPlayer, EngineEvent, EngineError
 │       │   └── view.ts          toGameView(state, viewerId): the only hidden-info projection
-│       ├── bots/                (Phase 7) PURE like engine/: strategy.ts decide(view, legal, rng), bot names
+│       ├── bots/                PURE like engine/ (no timers, I/O or Math.random; lint-enforced):
+│       │   ├── strategy.ts      decide({ level, view, legal, bigBlind }, rng) → a legal intent; easy/normal play
+│       │   ├── handStrength.ts  preflopScore (Chen formula), estimateEquity (Monte Carlo run-outs)
+│       │   ├── fastRank.ts      integer 7-card ranker for the run-outs; matches the evaluator's rankValue
+│       │   ├── rng.ts           createRng(seed): seeded mulberry32; the controller seeds it from crypto
+│       │   └── names.ts         BOT_NAMES, pickBotName (first name not taken in the room)
 │       ├── socket/
 │       │   ├── index.ts         connection lifecycle: single socket per player, reconnect, disconnect
 │       │   ├── middleware.ts    handshake auth (token → socket.data.playerId)
@@ -85,7 +90,8 @@ poker/
 │       ├── pages/               Landing, CreateRoom, Room (renders Lobby | TablePage | FinishedPage),
 │       │                        TablePage, FinishedPage (results + next game), DevTable
 │       ├── components/          Layout, Button, TextField, SettingsForm, ConnectionOverlay
-│       │   └── table/           PokerTable, Seat, PlayingCard, ChipStack, ActionPanel, RoomBar (+ .module.css)
+│       │   └── table/           PokerTable, Seat, PlayingCard, ChipStack, ActionPanel, RoomBar,
+│       │                        BotControls (host's add-bot panel and remove confirm) (+ .module.css)
 │       ├── table/               model.ts (display derivations), motionPlan.ts (what moves between
 │       │                        two snapshots), useTableMotion.ts (plays it); unit tested with Vitest
 │       └── styles/              global.css (placeholder screens); cardRoom.module.css (the in-game world's
@@ -102,7 +108,9 @@ bots   → engine (evaluator, view and legal-action types), shared
 ```
 The engine never imports `socket/`, `rooms/`, `table/`, or anything from Node except types. `crypto` is injected through the RNG parameter.
 
-Bots get the same treatment. The table controller calls `decide(toGameView(state, botId), getLegalActions(state, botId), rng)`, so a bot only ever sees what a player in its seat would see. Its action then goes through the same `handId` + `seq` + engine validation path as a human's.
+Bots get the same treatment. When a bot is to act, the table controller sets a `'bot'` timer (a think time of 0.8–2.5 s) instead of the turn timer. When it fires, it calls `decide({ level, view: toGameView(state, botId), legal: getLegalActions(state, botId), bigBlind }, rng)`, so a bot only ever sees what a player in its seat would see. Its action then goes through the same `handId` + `seq` + engine validation path as a human's. If `decide` throws or returns something illegal, the error is logged and the bot checks if it can, otherwise folds.
+
+Bots have a seat (`Seat.bot` is their level) but no session and no socket. Their ids look like `bot:3`, which can never be a session's UUID, so nobody can act as a bot. They are not in the player → room index, the broadcaster skips them, they are always `connected`, and they never become host.
 
 ---
 
@@ -255,7 +263,9 @@ type ErrorCode =
 ### Client → Server
 | Event | Payload | Who / when | Result |
 |---|---|---|---|
-| `room:create` | `{ settings: RoomSettings }` | anyone | `{ code }` |
+| `room:create` | `{ settings: RoomSettings, bots?: BotLevel[] }` | anyone | `{ code }` |
+| `room:addBot` | `{ level: 'easy'\|'normal', seat?: number }` | host | `{ seat }` |
+| `room:removeBot` | `{ seat: number }` | host | — |
 | `room:join` | `{ code: string }` | anyone | `{ code }` |
 | `room:leave` | `{}` | member | — |
 | `room:updateSettings` | `{ settings: RoomSettings }` | host; status `waiting` or `finished` | — |
@@ -291,7 +301,7 @@ interface Room {
   emptySince: number | null;
   table: TableController | null;    // while status == 'playing'
   lastHandId: number;               // hand ids never repeat within a room (they keep counting across games)
-  departed: Map<PlayerId, { displayName; stack; totalBuyIn }>; // played this game, then left: chips come back on rejoin
+  departed: Map<PlayerId, { displayName; stack; totalBuyIn; botLevel }>; // played this game, then left: chips come back on rejoin
   finalResults: FinalResult[] | null; // while status == 'finished'
 }
 interface Seat {
@@ -304,6 +314,7 @@ interface Seat {
   leaving: boolean;                 // left while dealt in; not a member; freed before the next hand
   missedHands: number;              // hands started in a row while disconnected (R-9.3)
   played: boolean;                  // dealt into at least one hand of the current game (has a result)
+  bot: 'easy' | 'normal' | null;    // a server-run bot (no session or socket); null for people
 }
 
 // engine/types.ts
@@ -430,6 +441,7 @@ Every client→server event passes through `guard()`:
 | Timer | Default | Notes |
 |---|---|---|
 | Turn timer | room setting (30 s) | `turnDeadline` sent to clients; stale-guarded by `(handId, seq)` |
+| Bot think time | 800–2500 ms | replaces the turn timer on a bot's turn; stale-guarded the same way |
 | Street delay | 800 ms | between the end of a betting round and dealing the next street |
 | Run-out card delay | 1500 ms | each street dealt during an all-in run-out |
 | Showdown / results pause | 5000 ms (3000 ms if won by folds) | before the next hand; `table.nextHandAt` |
@@ -501,6 +513,13 @@ Only results are written, and only at key moments: room created, hand finished, 
 - A turn timer fires just as the player acts (the `seq` guard stops the stale timer).
 - Double-clicked or replayed actions (`STALE_ACTION`). Any action while `awaiting == 'deal'` (`INVALID_STATE`).
 
+**Bots**
+- The last person leaves a room with bots in it (the bots go too; the room closes as an empty room).
+- A bot is removed mid-hand (it folds; the seat is freed after the hand), or on its turn.
+- Only bots have chips, or the only person with chips is disconnected (the table waits, R-10.6; with rebuys off and no person holding chips, the game ends).
+- A bot busts (rebuys automatically with rebuys on; leaves with rebuys off).
+- A bot's strategy throws or returns an illegal action (check, else fold).
+
 **Security**
 - Spoofed identity fields, negative/float/NaN/huge amounts, extra payload keys, event floods, oversized payloads, non-host start or end, actions from a folded, all-in, or removed player.
 
@@ -515,11 +534,12 @@ Only results are written, and only at key moments: room created, hand finished, 
 | Evaluator | Vitest | Category table, kickers, wheel, board plays, plus a few thousand random 7-card hands checked against a slow brute-force reference |
 | Rooms / sessions | Vitest + fake timers | Codes, join/leave, host migration, TTL, grace windows |
 | Table controller | Vitest + fake `Clock` | Hand sequencing, timers, pacing, rebuys, busts, removals, game end (`test/table/lifecycle.test.ts`: whole games from start to finished screen and restart) |
-| Room-level simulation | Vitest + fast-check | Random joins, leaves, disconnects, actions, rebuys, host ends and restarts, with rebuys on and off: a zero-sum chip ledger (seated + departed players), finished results that sum to zero, no stuck table, no leaked cards |
-| Socket integration | Vitest + in-process server + `socket.io-client` | Multi-client flows, all error codes, **no hole-card leakage in any emitted payload**, reconnect restores the view |
+| Room-level simulation | Vitest + fast-check | Random joins, leaves, disconnects, actions, rebuys, bots added and removed, host ends and restarts, with rebuys on and off: a zero-sum chip ledger (seated + departed players), finished results that sum to zero, no stuck table, no leaked cards |
+| Bots | Vitest + fast-check | `test/bots/`: every decision is legal (property), decisions depend only on what the bot may see, fast ranker = evaluator, Normal beats Easy over seeded matches, < 50 ms per decision; room rules, pauses, rebuys and leaves with bots (`botTable.test.ts`), fallback on a failing strategy |
+| Socket integration | Vitest + in-process server + `socket.io-client` | Multi-client flows, all error codes, **no hole-card leakage in any emitted payload**, reconnect restores the view; 50 hands of one person against three bots (`botSync.test.ts`) |
 | E2E | Playwright (3 browser contexts) | Create → invite link join → play hands → disconnect/reconnect → finish |
 | Client display logic | Vitest | `table/model.ts` and `table/motionPlan.ts` (seat rotation, tags, bet-size shortcuts, result wording, final standings, animation choreography) |
-| Manual | 3 browser profiles on a laptop/desktop screen (the app is desktop-only); `/dev/table?state=...` renders the in-game screens from sample data (turn, flop, showdown, waiting, busted, busted-off, ending, finished, finished-guest) | Feel, layout, timing |
+| Manual | 3 browser profiles on a laptop/desktop screen (the app is desktop-only); `/dev/table?state=...` renders the in-game screens from sample data (turn, flop, showdown, waiting, busted, busted-off, ending, finished, finished-guest, bots, bots-waiting, bots-finished) | Feel, layout, timing |
 
 **CI gate** (local script until CI exists): `npm run typecheck && npm run lint && npm test && npm run build`.
 

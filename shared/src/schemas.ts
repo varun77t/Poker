@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { DISPLAY_NAME_MAX_LENGTH, MAX_CHIP_AMOUNT, SETTINGS_BOUNDS } from './constants';
+import { BOT_LEVELS, DISPLAY_NAME_MAX_LENGTH, MAX_CHIP_AMOUNT, MAX_SEATS, SETTINGS_BOUNDS } from './constants';
 import { ACTION_TYPES } from './game';
 
 /**
@@ -42,8 +42,22 @@ export type RoomSettings = z.infer<typeof RoomSettingsSchema>;
 export const EmptyPayloadSchema = z.strictObject({});
 export type EmptyPayload = z.infer<typeof EmptyPayloadSchema>;
 
-export const CreateRoomPayloadSchema = z.strictObject({ settings: RoomSettingsSchema });
+/** `bots` seats computer players next to the creator straight away ("Play against bots"). */
+export const CreateRoomPayloadSchema = z.strictObject({
+  settings: RoomSettingsSchema,
+  bots: z.array(z.enum(BOT_LEVELS)).max(MAX_SEATS - 1).optional(),
+});
 export type CreateRoomPayload = z.infer<typeof CreateRoomPayloadSchema>;
+
+/** `seat` is the open seat the host picked; without it the bot takes the lowest open seat. */
+export const AddBotPayloadSchema = z.strictObject({
+  level: z.enum(BOT_LEVELS),
+  seat: z.int().min(0).max(MAX_SEATS - 1).optional(),
+});
+export type AddBotPayload = z.infer<typeof AddBotPayloadSchema>;
+
+export const RemoveBotPayloadSchema = z.strictObject({ seat: z.int().min(0).max(MAX_SEATS - 1) });
+export type RemoveBotPayload = z.infer<typeof RemoveBotPayloadSchema>;
 
 export const UpdateSettingsPayloadSchema = z.strictObject({ settings: RoomSettingsSchema });
 export type UpdateSettingsPayload = z.infer<typeof UpdateSettingsPayloadSchema>;

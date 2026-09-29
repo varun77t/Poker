@@ -59,16 +59,16 @@ Blinds do not increase over time (no tournament structure in the MVP).
 - All rooms are lost if the server restarts. This is an accepted MVP limitation, and players see a "Room no longer exists" message.
 
 ### 3.7 Bots (Phase 7)
-- **Adding:** the host adds a bot to an open seat, choosing **Easy** or **Normal**, and can remove it again. A bot added during a game is dealt in from the next hand, like a late joiner.
+- **Adding:** the host adds a bot to an open seat, choosing **Easy** or **Normal**, and can remove it again, both in the lobby and at the table (an open seat at the table offers "Add a bot"; hovering a bot's seat shows "Remove", which asks to confirm). A bot added during a game is dealt in from the next hand, like a late joiner. A bot removed during a hand folds it and leaves after the hand. The finished screen has no bot controls.
 - **Solo play:** bots count toward the 2-player minimum, so one person plus one bot can play. The landing page has **Play against bots**, which creates a room with default settings and 3 Normal bots, then opens the lobby so the host can adjust before starting.
 - **Fair play:** a bot sees only what a player in its seat would see (never hidden cards) and follows exactly the same rules and turn order. It waits a second or two before acting, so the game feels natural.
 - **Levels:**
   - **Easy** plays loosely and predictably: many hands, lots of calling, few raises.
   - **Normal** plays by hand strength and pot odds, sizes its bets sensibly, and bluffs occasionally, with enough randomness that it has no fixed pattern.
 - **Never in charge:** bots are never the host. When the last human leaves, the bots are removed too.
-- **Never alone:** a new hand starts only if at least one human is connected and has chips. Otherwise the table pauses.
+- **Never alone:** a new hand with bots in it starts only if at least one human is connected and has chips. Otherwise the table pauses and says why (R-10.6).
 - **Busting:** a busted bot rebuys automatically when rebuys are on. With rebuys off, it leaves the table.
-- **Display:** bots are named from a fixed list (e.g. "Ace Bot") and shown with a "Bot" badge and their level.
+- **Display:** bots are named from a fixed list (Ace Bot, King Bot, Queen Bot, Jack Bot, Ten Bot; the first one not taken in the room) and shown with a badge naming their level ("Normal bot") in the lobby, at the table and in the final standings. At the table a bot's avatar has a dashed ring.
 
 ## 4. Gameplay
 - The full rules are in [game-rules.md](game-rules.md).

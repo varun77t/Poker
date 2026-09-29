@@ -178,6 +178,10 @@ Pots are built from each player's `contributed` for the whole hand, including fo
   - With rebuys on, the table waits instead (no hand is dealt) until ≥ 2 players have chips or the host ends the game.
   - The host can end the game at any time. A hand in progress is played out and its result shown first.
 - **R-10.5** A player who leaves during a game and comes back before it ends returns with the chips they left with, not a fresh stack (so leaving never resets a busted stack).
+- **R-10.6** **Bots never play on their own** (product-spec §3.7):
+  - A hand that would deal in any bot also needs at least one **person** (not a bot) who has chips and is connected. Otherwise the table waits (no hand is dealt) until such a person comes back, someone joins, or the host ends the game.
+  - With rebuys off, the game ends when no person has chips, even if two or more bots still do (R-10.4).
+  - A busted bot rebuys automatically between hands when rebuys are on, and leaves its seat when they are off.
 
 ---
 

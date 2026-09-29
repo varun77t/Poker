@@ -7,14 +7,20 @@ import { TablePage } from './TablePage';
 /**
  * Development only: the real in-game screens fed with sample snapshots, for design review and
  * screenshots without a running game. Not in production builds.
- * /dev/table?state=turn|flop|showdown|waiting|busted|busted-off|ending|finished|finished-guest (&edit=1 opens the settings editor)
+ * /dev/table?state=turn|flop|showdown|waiting|busted|busted-off|ending|finished|finished-guest|bots|bots-waiting|bots-finished
+ * (&edit=1 opens the settings editor)
  */
 
 const NAMES = ['Sam', 'Maya', 'Ravi', 'Jonas', 'Priya'];
 const id = (seat: number) => `p${seat}`;
 
 function seat(i: number, over: Partial<SeatView> = {}): SeatView {
-  return { seat: i, playerId: id(i), displayName: NAMES[i] as string, stack: 1000, connected: true, waitingForNextHand: false, busted: false, leaving: false, ...over };
+  return { seat: i, playerId: id(i), displayName: NAMES[i] as string, stack: 1000, connected: true, waitingForNextHand: false, busted: false, leaving: false, isBot: false, botLevel: null, ...over };
+}
+
+/** A bot in seat `i` (§3.7). */
+function bot(i: number, name: string, level: 'easy' | 'normal', over: Partial<SeatView> = {}): SeatView {
+  return seat(i, { playerId: `bot:${i}`, displayName: name, isBot: true, botLevel: level, ...over });
 }
 
 function hp(i: number, over: Partial<GamePlayerView> = {}): GamePlayerView {
@@ -105,10 +111,10 @@ function build(state: string): TableSnapshot {
 
   if (state === 'finished' || state === 'finished-guest') {
     const results: FinalResult[] = [
-      { playerId: id(3), displayName: 'Jonas', finalStack: 2240, totalBuyIn: 1000, rebuys: 0, net: 1240 },
-      { playerId: id(0), displayName: 'Sam', finalStack: 1310, totalBuyIn: 1000, rebuys: 0, net: 310 },
-      { playerId: id(4), displayName: 'Priya', finalStack: 1450, totalBuyIn: 2000, rebuys: 1, net: -550 },
-      { playerId: id(2), displayName: 'Ravi', finalStack: 0, totalBuyIn: 1000, rebuys: 0, net: -1000 },
+      { playerId: id(3), displayName: 'Jonas', finalStack: 2240, totalBuyIn: 1000, rebuys: 0, net: 1240, botLevel: null },
+      { playerId: id(0), displayName: 'Sam', finalStack: 1310, totalBuyIn: 1000, rebuys: 0, net: 310, botLevel: null },
+      { playerId: id(4), displayName: 'Priya', finalStack: 1450, totalBuyIn: 2000, rebuys: 1, net: -550, botLevel: null },
+      { playerId: id(2), displayName: 'Ravi', finalStack: 0, totalBuyIn: 1000, rebuys: 0, net: -1000, botLevel: null },
     ];
     const s = snap(
       [seat(0, { stack: 1310 }), seat(1, { stack: 1000 }), null, seat(3, { stack: 2240 }), seat(4, { stack: 1450 })],
@@ -117,6 +123,40 @@ function build(state: string): TableSnapshot {
     );
     // Ravi played and left; Maya (seat 1) joined after the game and waits for the next one.
     s.room = { ...s.room, status: 'finished', finalResults: results, youId: state === 'finished' ? id(0) : id(4) };
+    return s;
+  }
+
+  if (state === 'bots') {
+    // You host two bots; Ace Bot is deciding. Two seats are open for more.
+    const players = [
+      hp(0, { stack: 950, committed: 40, holeCards: ['Jh', 'Td'], lastAction: { type: 'raise', amount: 40, allIn: false } }),
+      hp(1, { playerId: 'bot:1', stack: 990, committed: 10 }),
+      hp(3, { playerId: 'bot:3', stack: 1070, committed: 0, status: 'folded', lastAction: { type: 'fold', allIn: false } }),
+    ];
+    return snap(
+      [seat(0, { stack: 950 }), bot(1, 'Ace Bot', 'normal', { stack: 990 }), null, bot(3, 'King Bot', 'easy', { stack: 1070 })],
+      { ...base, handId: 7, buttonSeat: 0, sbSeat: 1, bbSeat: 3, toActSeat: 1, players },
+      { nextHandAt: null, waitingForPlayers: false, endingAfterHand: false },
+    );
+  }
+
+  if (state === 'bots-waiting') {
+    // You busted with rebuys on: the bots have chips but don't play on their own (R-10.6).
+    return snap(
+      [seat(0, { stack: 0, busted: true }), bot(1, 'Ace Bot', 'normal', { stack: 1840 }), bot(2, 'King Bot', 'normal', { stack: 1160 })],
+      null,
+      { nextHandAt: null, waitingForPlayers: true, endingAfterHand: false },
+    );
+  }
+
+  if (state === 'bots-finished') {
+    const results: FinalResult[] = [
+      { playerId: 'bot:1', displayName: 'Ace Bot', finalStack: 1720, totalBuyIn: 1000, rebuys: 0, net: 720, botLevel: 'normal' },
+      { playerId: id(0), displayName: 'Sam', finalStack: 1180, totalBuyIn: 1000, rebuys: 0, net: 180, botLevel: null },
+      { playerId: 'bot:2', displayName: 'King Bot', finalStack: 1100, totalBuyIn: 2000, rebuys: 1, net: -900, botLevel: 'easy' },
+    ];
+    const s = snap([seat(0, { stack: 1180 }), bot(1, 'Ace Bot', 'normal', { stack: 1720 }), bot(2, 'King Bot', 'easy', { stack: 1100 })], null, null);
+    s.room = { ...s.room, status: 'finished', finalResults: results };
     return s;
   }
 

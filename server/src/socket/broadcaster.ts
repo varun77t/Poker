@@ -14,7 +14,8 @@ export class Broadcaster {
   ) {}
 
   roomChanged(room: Room): void {
-    for (const seat of members(room)) this.sendTo(seat.playerId, room);
+    // Bots have no socket: the table plays their turns from their own toGameView.
+    for (const seat of members(room)) if (!seat.bot) this.sendTo(seat.playerId, room);
   }
 
   sendTo(playerId: PlayerId, room: Room): void {

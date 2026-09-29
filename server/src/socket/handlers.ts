@@ -1,8 +1,10 @@
 import {
+  AddBotPayloadSchema,
   CreateRoomPayloadSchema,
   EmptyPayloadSchema,
   GameActionPayloadSchema,
   JoinRoomPayloadSchema,
+  RemoveBotPayloadSchema,
   UpdateSettingsPayloadSchema,
   type PlayerId,
 } from '@poker/shared';
@@ -43,8 +45,8 @@ export function registerHandlers(socket: IoSocket, deps: HandlerDeps): void {
     return { roomCode: room?.code ?? null };
   });
 
-  on('room:create', CreateRoomPayloadSchema, ({ playerId }, { settings }) => {
-    const room = rooms.create(playerRef(playerId), settings);
+  on('room:create', CreateRoomPayloadSchema, ({ playerId }, { settings, bots }) => {
+    const room = rooms.create(playerRef(playerId), settings, bots);
     return { code: room.code };
   });
 
@@ -63,6 +65,13 @@ export function registerHandlers(socket: IoSocket, deps: HandlerDeps): void {
 
   on('room:updateSettings', UpdateSettingsPayloadSchema, ({ playerId }, { settings }) => {
     rooms.updateSettings(playerId, settings);
+    return {};
+  });
+
+  on('room:addBot', AddBotPayloadSchema, ({ playerId }, { level, seat }) => ({ seat: rooms.addBot(playerId, level, seat) }));
+
+  on('room:removeBot', RemoveBotPayloadSchema, ({ playerId }, { seat }) => {
+    rooms.removeBot(playerId, seat);
     return {};
   });
 

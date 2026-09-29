@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { game, player, seat, snapshot } from './fixtures';
-import { buildTableModel, chipColors, potTotal, sizingPresets, slotOf, summarizeResult, type SeatModel } from './model';
+import type { FinalResult } from '@poker/shared';
+import { buildStandings, buildTableModel, chipColors, formatNet, potTotal, sizingPresets, slotOf, summarizeGame, summarizeResult, type SeatModel } from './model';
 
 const seated = (m: ReturnType<typeof buildTableModel>) => m.seats.filter((s): s is SeatModel => !('empty' in s));
 
@@ -134,5 +135,57 @@ describe('result text', () => {
       },
     });
     expect(summarizeResult(sides, names)).toMatchObject({ title: 'You win 300, Cleo wins 150', subtitle: 'Flush, ace high / Two pair, fours and threes' });
+  });
+});
+
+describe('final standings (finished screen)', () => {
+  const line = (playerId: string, finalStack: number, totalBuyIn = 1000): FinalResult => ({
+    playerId,
+    displayName: playerId.replace(/^./, (c) => c.toUpperCase()),
+    finalStack,
+    totalBuyIn,
+    rebuys: totalBuyIn / 1000 - 1,
+    net: finalStack - totalBuyIn,
+  });
+  const finished = (results: FinalResult[], occupied: number[] = [0, 1, 2]) => {
+    const s = snapshot(null, occupied);
+    return { ...s.room, status: 'finished' as const, table: null, finalResults: results };
+  };
+
+  it('ranks by the server order, shares ranks on ties, and flags you, the winner and who left', () => {
+    const room = finished([line('ben', 2200), line('ana', 1400, 2000), line('cleo', 300), line('dev', 0)]);
+    expect(buildStandings(room).map((s) => [s.playerId, s.rank, s.isTop, s.isYou, s.left])).toEqual([
+      ['ben', 1, true, false, false],
+      ['ana', 2, false, true, false],
+      ['cleo', 3, false, false, false],
+      ['dev', 4, false, false, true],
+    ]);
+    const tied = buildStandings(finished([line('ana', 1500), line('ben', 1500), line('cleo', 0)]));
+    expect(tied.map((s) => [s.rank, s.isTop])).toEqual([
+      [1, true],
+      [1, true],
+      [3, false],
+    ]);
+  });
+
+  it('writes the headline for a winner, a shared top, and nobody ahead', () => {
+    const nameOf = (s: { isYou: boolean; displayName: string }) => (s.isYou ? 'You' : s.displayName);
+    expect(summarizeGame(buildStandings(finished([line('ben', 1800), line('ana', 200)])), nameOf)).toEqual({
+      title: 'Ben wins the game',
+      subtitle: '800 chips up',
+    });
+    expect(summarizeGame(buildStandings(finished([line('ana', 1800), line('ben', 200)])), nameOf).title).toBe('You win the game');
+    expect(summarizeGame(buildStandings(finished([line('ana', 1500), line('ben', 1500), line('cleo', 0)])), nameOf)).toEqual({
+      title: 'You and Ben share the top',
+      subtitle: '500 chips up each',
+    });
+    expect(summarizeGame(buildStandings(finished([line('ana', 1000), line('ben', 1000)])), nameOf)).toEqual({
+      title: 'Game over',
+      subtitle: 'Everyone finished even',
+    });
+  });
+
+  it('signs net results so colour is never the only signal', () => {
+    expect([1240, -1000, 0].map(formatNet)).toEqual(['+1,240', '\u22121,000', 'Even']);
   });
 });

@@ -8,6 +8,7 @@ import {
 } from '@poker/shared';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { DEFAULT_TIMINGS } from '../src/policies';
+import { stackDeck } from './engine/helpers';
 import { controlledRandomInt, seededRandomInt } from './helpers/random';
 import { request, startTestServer, type TestPlayer, type TestServer } from './helpers/testServer';
 
@@ -307,5 +308,77 @@ describe('disconnect and reconnect mid-hand', () => {
     expect(view).toMatchObject({ toActSeat: 0, turnDeadline: deadline });
     expect(view.legalActions).toMatchObject({ canCall: true, callAmount: 10 });
     expect(await act(back, 'call')).toEqual({ ok: true, data: {} });
+  });
+});
+
+describe('game lifecycle over Socket.IO (Phase 6)', () => {
+  it('bust, rebuy, the host ends the game, everyone sees the results, and the host restarts', async () => {
+    // Every hand: seat 0 (Alice) holds aces against seat 1's kings.
+    await t.close();
+    rng = controlledRandomInt(7);
+    t = await startTestServer({
+      randomInt: rng,
+      newDeck: ({ seats, buttonSeat }) =>
+        stackDeck({ seats, buttonSeat, hole: { 0: ['Ah', 'Ad'], 1: ['Kc', 'Kd'] }, board: ['2c', '7d', '9h', 'Js', '3s'] }),
+    });
+    const alice = await t.player('Alice');
+    const bob = await t.player('Bob');
+    const created = await request(alice.socket, 'room:create', { settings: DEFAULT_ROOM_SETTINGS });
+    if (!created.ok) throw new Error(created.message);
+    await request(bob.socket, 'room:join', { code: created.data.code });
+    rng.force(0);
+    await request(alice.socket, 'game:start', {});
+    const both = [alice, bob];
+    await Promise.all(both.map((p) => p.stateWhere((s) => s.game?.handId === 1)));
+
+    // Hand 1, heads-up (Alice is the button and small blind): all-in, Bob busts.
+    const myTurn = (p: TestPlayer) => p.stateWhere((s) => !!s.game?.legalActions);
+    await myTurn(alice);
+    expect(await act(alice, 'allIn')).toEqual({ ok: true, data: {} });
+    await myTurn(bob);
+    expect(await act(bob, 'call')).toEqual({ ok: true, data: {} });
+    while (!gameOf(bob.latest()).result) {
+      const dealt = gameOf(bob.latest()).board.length;
+      t.clock.runNext(); // the run-out, one street at a time
+      await bob.stateWhere((s) => !!s.game && (s.game.board.length > dealt || !!s.game.result));
+    }
+    t.clock.advance(T.showdownPauseMs);
+    const waiting = await bob.stateWhere((s) => s.room.table?.waitingForPlayers === true);
+    expect(waiting.game).toBeNull();
+    expect(waiting.room.seats[1]).toMatchObject({ stack: 0, busted: true });
+
+    // Rebuy: strict payload, only for the busted player.
+    expect(await request(bob.socket, 'game:rebuy', { amount: 5000 } as never)).toMatchObject({ ok: false, error: 'INVALID_PAYLOAD' });
+    expect(await request(alice.socket, 'game:rebuy', {})).toMatchObject({ ok: false, error: 'REBUY_NOT_ALLOWED' });
+    expect(await request(bob.socket, 'game:rebuy', {})).toEqual({ ok: true, data: {} });
+    await Promise.all(both.map((p) => p.stateWhere((s) => s.game?.handId === 2)));
+
+    // Ending: host only; everyone is told the game ends after this hand.
+    expect(await request(bob.socket, 'game:end', {})).toMatchObject({ ok: false, error: 'NOT_HOST' });
+    expect(await request(alice.socket, 'game:end', {})).toEqual({ ok: true, data: {} });
+    await bob.stateWhere((s) => s.room.table?.endingAfterHand === true);
+    const toAct = byId(both, bob.latest()?.room.seats[gameOf(bob.latest()).toActSeat as number]?.playerId as string);
+    await myTurn(toAct);
+    expect(await act(toAct, 'fold')).toEqual({ ok: true, data: {} });
+    t.clock.advance(T.foldWinPauseMs);
+
+    const finished = await Promise.all(both.map((p) => p.stateWhere((s) => s.room.status === 'finished')));
+    for (const snap of finished) {
+      expect(snap.game).toBeNull();
+      expect(snap.room.table).toBeNull();
+      expect(snap.room.finalResults?.map((r) => [r.displayName, r.finalStack, r.rebuys])).toEqual([
+        ['Alice', toAct === bob ? 2005 : 1995, 0],
+        ['Bob', toAct === bob ? 995 : 1005, 1],
+      ]);
+      expect(snap.room.finalResults?.reduce((acc, r) => acc + r.net, 0)).toBe(0);
+    }
+    expect(await request(alice.socket, 'game:end', {})).toMatchObject({ ok: false, error: 'INVALID_STATE' });
+
+    // Restart: fresh stacks for everyone, results gone.
+    rng.force(1);
+    expect(await request(alice.socket, 'game:start', {})).toEqual({ ok: true, data: {} });
+    const restarted = await bob.stateWhere((s) => s.room.status === 'playing' && s.game?.handId === 3);
+    expect(restarted.room.finalResults).toBeNull();
+    expect(restarted.game?.players.map((p) => p.stack + p.committed)).toEqual([1000, 1000]);
   });
 });

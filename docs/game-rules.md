@@ -171,11 +171,13 @@ Pots are built from each player's `contributed` for the whole hand, including fo
 ## 10. Between hands
 
 - **R-10.1** A player with `stack == 0` after a hand is **busted** and is not eligible for the next hand.
-- **R-10.2** **Rebuy:** if the room allows rebuys, a busted player may rebuy between hands. Their stack becomes the starting stack and they are eligible for the next hand.
+- **R-10.2** **Rebuy:** if the room allows rebuys, a busted player may rebuy whenever they are not in a hand being played (sitting out, or during the results of the hand they busted in). Their stack becomes the starting stack and they are eligible for the next hand. Rebuys are only possible at 0 chips.
 - **R-10.3** Players who joined during a hand become eligible at the next hand start.
 - **R-10.4** **Game end:**
   - With rebuys off, the game ends when fewer than 2 players have chips.
   - With rebuys on, the table waits instead (no hand is dealt) until ≥ 2 players have chips or the host ends the game.
+  - The host can end the game at any time. A hand in progress is played out and its result shown first.
+- **R-10.5** A player who leaves during a game and comes back before it ends returns with the chips they left with, not a fresh stack (so leaving never resets a busted stack).
 
 ---
 

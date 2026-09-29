@@ -34,53 +34,14 @@
   gap: 8px;
 }
 
-.act {
-  display: grid;
-  place-content: center;
-  height: 48px;
-  border: 1px solid var(--plaque-edge);
-  border-radius: 10px;
-  background: var(--button);
-  color: var(--ink);
-  font: 700 18px / 1.1 var(--font-ui);
-  cursor: pointer;
-  transition:
-    transform 90ms,
-    background-color 150ms,
-    opacity 150ms;
+/* The buttons themselves (act, primary) are shared with the finished screen: styles/cardRoom.module.css. */
+
+/* The busted player's one move: rebuy, full width under the status line. */
+.rebuy {
+  width: 100%;
 }
 
-.act small {
-  font-size: 13px;
-  font-weight: 600;
-  opacity: 0.85;
-}
-
-.act:hover:not(:disabled) {
-  background: var(--button-hover);
-}
-
-.act:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-.act:disabled {
-  cursor: default;
-  opacity: 0.4;
-}
-
-.primary {
-  border-color: var(--brass-hi);
-  background: var(--brass);
-  color: var(--brass-ink);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35);
-}
-
-.primary:hover:not(:disabled) {
-  background: var(--brass-hover);
-}
-
-.fold {
+.row .fold {
   color: var(--fold-ink);
 }
 
@@ -156,7 +117,7 @@
 }
 
 /* Brass means "now": nothing is actionable here, so the ghost of the primary stays neutral. */
-.ghostAct.primary {
+.ghostAct.ghostPrimary {
   border-color: var(--plaque-edge);
   background: var(--button);
   color: var(--ink);

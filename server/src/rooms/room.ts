@@ -1,4 +1,4 @@
-import type { PlayerId, RoomSettings, RoomStatus, RoomView, SeatView, TableSnapshot } from '@poker/shared';
+import type { FinalResult, PlayerId, RoomSettings, RoomStatus, RoomView, SeatView, TableSnapshot } from '@poker/shared';
 import type { TableController } from '../table/tableController';
 
 /** Server-internal room state. Never sent as-is; clients get `toRoomView`. */
@@ -17,6 +17,20 @@ export interface Room {
   table: TableController | null;
   /** The last hand id used here. Hand ids never repeat within a room, so stale actions can't match a later hand. */
   lastHandId: number;
+  /**
+   * Players who played in the current game and then left it, with the chips they left with. Coming
+   * back during the same game restores those chips instead of a fresh stack (a busted player can't
+   * rejoin to reset), and they still appear in the final results. Cleared when a game starts or ends.
+   */
+  departed: Map<PlayerId, DepartedPlayer>;
+  /** The finished screen's results, while `finished`; null otherwise. */
+  finalResults: FinalResult[] | null;
+}
+
+export interface DepartedPlayer {
+  displayName: string;
+  stack: number;
+  totalBuyIn: number;
 }
 
 export interface Seat {
@@ -34,6 +48,8 @@ export interface Seat {
   leaving: boolean;
   /** Hands started in a row while this player was disconnected (R-9.3). Reset on reconnect. */
   missedHands: number;
+  /** Dealt into at least one hand of the current game (so they have a result in it). */
+  played: boolean;
   /** Global join order; used to decide which duplicate name gets a " (2)" suffix. */
   joinSeq: number;
 }
@@ -99,8 +115,32 @@ export function toRoomView(room: Room, viewerId: PlayerId): RoomView {
       };
     }),
     table: table?.tableView() ?? null,
-    finalResults: null,
+    finalResults: room.finalResults?.map((r) => ({ ...r })) ?? null,
   };
+}
+
+/**
+ * Everyone dealt into at least one hand of the game that just ended, seated or departed, ranked by
+ * net result (then final stack, then name). Call between hands, when seat stacks are final.
+ */
+export function buildFinalResults(room: Room): FinalResult[] {
+  const names = displayNames(room);
+  const start = room.settings.startingStack;
+  const line = (playerId: PlayerId, displayName: string, finalStack: number, totalBuyIn: number): FinalResult => ({
+    playerId,
+    displayName,
+    finalStack,
+    totalBuyIn,
+    rebuys: Math.max(0, Math.round(totalBuyIn / start) - 1),
+    net: finalStack - totalBuyIn,
+  });
+  const seated = members(room)
+    .filter((s) => s.played)
+    .map((s) => line(s.playerId, names.get(s.playerId) ?? s.displayName, s.stack, s.totalBuyIn));
+  const gone = [...room.departed].map(([id, d]) => line(id, d.displayName, d.stack, d.totalBuyIn));
+  return [...seated, ...gone].sort(
+    (a, b) => b.net - a.net || b.finalStack - a.finalStack || a.displayName.localeCompare(b.displayName),
+  );
 }
 
 /** The `state` payload for one player. The game part comes only from the table's `toGameView` projection. */

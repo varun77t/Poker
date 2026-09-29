@@ -8,11 +8,15 @@ import { createTableHarness, type TableHarness } from '../helpers/table';
 
 /**
  * Random play at the room level: actions (legal and junk), timeouts, pauses, joins, leaves,
- * disconnects and restarts, with invariants checked after every room change:
- * - chips only enter with a new seat (starting stack) and only leave with a departing seat, never mid-hand;
+ * disconnects, rebuys, the host ending the game and restarting it, with rebuys on or off, and
+ * invariants checked after every room change:
+ * - chips are a zero-sum ledger: during a game, every seat's and every departed player's chips minus
+ *   what they bought in sum to zero; a finished game's net results sum to zero; the lobby holds
+ *   exactly one starting stack per seat; no seat vanishes during a live hand;
  * - hands deal exactly the members with chips, and pay out to the seats;
  * - the seat/room index and the host stay consistent; leaving seats only exist for the current hand;
- * - the table is never stuck: it always has a timer pending or is legitimately waiting for players;
+ * - the table is never stuck: it always has a timer pending or is legitimately waiting for players
+ *   (only with rebuys on: with them off, a table without two players with chips ends the game);
  * - the version goes up by one per change, and no snapshot shows a card its viewer may not see.
  */
 
@@ -28,6 +32,7 @@ const live = (hand: HandState | null): hand is HandState => hand !== null && han
 interface SeatRecord {
   playerId: PlayerId;
   chips: number;
+  totalBuyIn: number;
   inLiveHand: boolean;
 }
 
@@ -38,12 +43,17 @@ function seatRecords(room: Room): Map<number, SeatRecord> {
   for (const seat of room.seats) {
     if (!seat) continue;
     const p = live(hand) ? hand.players.find((x) => x.playerId === seat.playerId && room.seats[x.seat] === seat) : undefined;
-    records.set(seat.joinSeq, { playerId: seat.playerId, chips: p ? p.stack + p.contributed : seat.stack, inLiveHand: !!p });
+    records.set(seat.joinSeq, {
+      playerId: seat.playerId,
+      chips: p ? p.stack + p.contributed : seat.stack,
+      totalBuyIn: seat.totalBuyIn,
+      inLiveHand: !!p,
+    });
   }
   return records;
 }
 
-const total = (records: Map<number, SeatRecord>) => [...records.values()].reduce((acc, r) => acc + r.chips, 0);
+const sum = (values: number[]) => values.reduce((acc, v) => acc + v, 0);
 
 function createChecker(getHarness: () => TableHarness | undefined) {
   const violations: string[] = [];
@@ -58,18 +68,36 @@ function createChecker(getHarness: () => TableHarness | undefined) {
     if (lastVersion !== -1 && room.version !== lastVersion + 1) fail(`version jumped ${lastVersion} → ${room.version}`);
     lastVersion = room.version;
 
-    // Chip accounting across the change.
+    // Chip accounting: a zero-sum ledger of what each player has against what they bought in.
     const records = seatRecords(room);
     const emptied = records.size === 0;
-    let expected = total(lastRecords);
     for (const [key, prev] of lastRecords) {
-      if (records.has(key)) continue;
-      if (prev.inLiveHand && !emptied) fail(`seat of ${prev.playerId} vanished during a live hand`);
-      expected -= prev.chips;
+      if (!records.has(key) && prev.inLiveHand && !emptied) fail(`seat of ${prev.playerId} vanished during a live hand`);
     }
-    for (const [key] of records) if (!lastRecords.has(key)) expected += STACK;
-    if (total(records) !== expected) fail(`chips ${total(records)}, expected ${expected}`);
     lastRecords = records;
+    if (room.status === 'playing') {
+      const seated = sum([...records.values()].map((r) => r.chips - r.totalBuyIn));
+      const departed = sum([...room.departed.values()].map((d) => d.stack - d.totalBuyIn));
+      if (seated + departed !== 0) fail(`ledger off by ${seated + departed} (seated ${seated}, departed ${departed})`);
+      for (const seat of room.seats) {
+        if (seat && !seat.played && seat.stack !== seat.totalBuyIn) fail(`${seat.playerId} has chips without playing`);
+      }
+    } else if (room.status === 'waiting') {
+      for (const r of records.values()) if (r.chips !== STACK || r.totalBuyIn !== STACK) fail(`lobby seat of ${r.playerId} is not a fresh stack`);
+      if (room.departed.size > 0 || room.finalResults !== null) fail('lobby remembers a game');
+    } else {
+      const results = room.finalResults;
+      if (!results) fail('finished without results');
+      else {
+        if (sum(results.map((r) => r.net)) !== 0) fail(`final results do not sum to zero: ${JSON.stringify(results)}`);
+        const sorted = [...results].sort((a, b) => b.net - a.net);
+        if (sorted.some((r, i) => r.net !== results[i]?.net)) fail('final results are not ranked by net');
+        for (const r of results) {
+          const seat = room.seats.find((x) => x?.playerId === r.playerId);
+          if (seat?.played && seat.stack !== r.finalStack) fail(`${r.playerId} finished with ${r.finalStack} but has ${seat.stack}`);
+        }
+      }
+    }
 
     // Index, host and leaving seats.
     const ids = room.seats.flatMap((s) => (s ? [s.playerId] : []));
@@ -92,6 +120,8 @@ function createChecker(getHarness: () => TableHarness | undefined) {
       if (table.pendingTimer === null && !view.waitingForPlayers) fail('table is stuck: no timer and not waiting');
       const withChips = members(room).filter((s) => s.stack > 0).length;
       if (view.waitingForPlayers && withChips >= 2) fail(`waiting for players with ${withChips} able to play`);
+      if (view.waitingForPlayers && !room.settings.rebuys) fail('waiting for players with rebuys off: the game should have ended');
+      if (view.waitingForPlayers && view.endingAfterHand) fail('an ended game is still waiting for players');
       if (view.waitingForPlayers !== (hand === null)) fail('waitingForPlayers must match having no hand');
     }
     if (hand && hand.handId !== lastHandId) {
@@ -106,7 +136,9 @@ function createChecker(getHarness: () => TableHarness | undefined) {
     if (hand?.awaiting === 'none') {
       for (const p of hand.players) {
         const seat = room.seats[p.seat];
-        if (seat?.playerId === p.playerId && seat.stack !== p.stack) fail(`seat ${p.seat} not paid: ${seat.stack} vs ${p.stack}`);
+        // Paid out, or busted and already rebought during the results pause.
+        const rebought = p.stack === 0 && seat?.stack === STACK;
+        if (seat?.playerId === p.playerId && seat.stack !== p.stack && !rebought) fail(`seat ${p.seat} not paid: ${seat.stack} vs ${p.stack}`);
       }
     }
 
@@ -142,12 +174,17 @@ function randomIntent(legal: LegalActions, rnd: (n: number) => number): ActionIn
   return options[rnd(options.length)] as ActionIntent;
 }
 
-function simulate(tape: number[], initialPlayers: number, seed: number): { hands: number; violations: string[]; errors: unknown[] } {
+function simulate(
+  tape: number[],
+  initialPlayers: number,
+  seed: number,
+  rebuys: boolean,
+): { hands: number; games: number; violations: string[]; errors: unknown[] } {
   let t = 0;
   const rnd = (n: number) => ((tape[t++ % tape.length] as number) + t * 7919) % n;
   const ready: { harness?: TableHarness } = {}; // checks start once all first players are seated
   const checker = createChecker(() => ready.harness);
-  const harness = createTableHarness(POOL.slice(0, initialPlayers), { seed, onChange: (r) => checker.check(r) });
+  const harness = createTableHarness(POOL.slice(0, initialPlayers), { seed, settings: { rebuys }, onChange: (r) => checker.check(r) });
   const { rooms, room, clock } = harness;
   ready.harness = harness;
   checker.check(room); // baseline
@@ -161,7 +198,9 @@ function simulate(tape: number[], initialPlayers: number, seed: number): { hands
   };
 
   harness.start(rnd(initialPlayers));
+  let games = 0;
   for (let step = 0; step < STEPS && checker.violations.length === 0; step++) {
+    if (room.status === 'finished' && room.finalResults) games += 1;
     const op = rnd(100);
     const memberIds = members(room).map((s) => s.playerId);
     const anyMember = () => memberIds[rnd(memberIds.length)] as PlayerId;
@@ -198,37 +237,48 @@ function simulate(tape: number[], initialPlayers: number, seed: number): { hands
       rooms.setConnected(id, !room.seats.find((s) => s?.playerId === id)?.connected);
     } else if (op < 84) {
       if (memberIds.length > 0) rooms.leave(anyMember());
-    } else if (op < 95) {
+    } else if (op < 92) {
       const id = POOL[rnd(POOL.length)] as PlayerId;
       if (rooms.getRoomOf(id) === undefined || rooms.getRoomOf(id) === room) tolerate(() => harness.join(id));
-    } else if (room.status === 'waiting' && memberIds.length >= 2) {
+    } else if (op < 96) {
+      // Rebuys: usually from a busted member, sometimes from anyone (must be refused cleanly).
+      const busted = members(room).filter((s) => s.stack === 0 && !room.table?.isPlayingHand(s.playerId));
+      const id = busted.length > 0 && rnd(3) > 0 ? (busted[rnd(busted.length)]?.playerId as PlayerId) : memberIds.length > 0 ? anyMember() : null;
+      if (id) tolerate(() => rooms.rebuy(id));
+    } else if (op < 97) {
+      if (memberIds.length > 0) tolerate(() => rooms.endGame(rnd(4) === 0 ? anyMember() : room.hostId));
+    } else if (room.status !== 'playing' && memberIds.length >= 2) {
       rooms.start(room.hostId);
     } else {
       runNext();
     }
   }
   rooms.dispose();
-  return { hands: room.lastHandId, violations: checker.violations, errors: harness.errors };
+  return { hands: room.lastHandId, games, violations: checker.violations, errors: harness.errors };
 }
 
 describe('table simulation', () => {
   it('keeps chips, seats, turns and views consistent under random play', () => {
     let totalHands = 0;
+    let finishedSteps = 0;
     fc.assert(
       fc.property(
         fc.array(fc.nat(), { minLength: 64, maxLength: 64 }),
         fc.integer({ min: 2, max: 5 }),
         fc.nat(),
-        (tape, players, seed) => {
-          const { hands, violations, errors } = simulate(tape, players, seed);
+        fc.boolean(),
+        (tape, players, seed, rebuys) => {
+          const { hands, games, violations, errors } = simulate(tape, players, seed, rebuys);
           totalHands += hands;
+          finishedSteps += games;
           expect(violations).toEqual([]);
           expect(errors).toEqual([]);
         },
       ),
       { numRuns: RUNS },
     );
-    // The runs should actually play poker, not just shuffle people around.
+    // The runs should actually play poker, not just shuffle people around, and reach the finished screen.
     expect(totalHands).toBeGreaterThan(RUNS * 2);
+    expect(finishedSteps).toBeGreaterThan(0);
   }, 120_000 + RUNS * 100);
 });

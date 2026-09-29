@@ -1,0 +1,62 @@
+.bar {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 6;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  height: 52px;
+  padding: 0 24px;
+}
+
+.mark {
+  font: 19px / 1 var(--font-display);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.code {
+  padding: 4px 10px;
+  border: 1px solid var(--plaque-edge);
+  border-radius: 6px;
+  color: var(--ink-muted);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.meta {
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+.meta b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.confirm {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+.confirm > span {
+  color: var(--ink);
+}
+
+/* A status, not an action: cream like the seat tags, never brass. */
+.notice {
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--room);
+  font: 700 14px / 1.2 var(--font-ui);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}

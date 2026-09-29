@@ -57,6 +57,8 @@ export interface ClientToServerEvents {
   'room:updateSettings': (payload: UpdateSettingsPayload, ack: AckCallback) => void;
   'game:start': (payload: EmptyPayload, ack: AckCallback) => void;
   'game:action': (payload: GameActionPayload, ack: AckCallback) => void;
+  'game:rebuy': (payload: EmptyPayload, ack: AckCallback) => void;
+  'game:end': (payload: EmptyPayload, ack: AckCallback) => void;
 }
 
 export interface ServerToClientEvents {

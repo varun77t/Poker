@@ -1,10 +1,12 @@
 import {
   MAX_SEATS,
   type Card,
+  type FinalResult,
   type GamePlayerView,
   type GameView,
   type LegalActions,
   type PlayerId,
+  type RoomView,
   type SeatView,
   type TableSnapshot,
 } from '@poker/shared';
@@ -198,6 +200,48 @@ export function summarizeResult(game: GameView, nameOf: (playerId: PlayerId) => 
     title = totals.map(([id, amount]) => `${nameOf(id)} ${verb(id)} ${fmt(amount)}`).join(', ');
   }
   return { title, subtitle: labels.join(' / '), highlight };
+}
+
+/** A net result with its sign: "+240", "−1,000" (a true minus sign), or "Even". */
+export function formatNet(net: number): string {
+  if (net === 0) return 'Even';
+  return `${net > 0 ? '+' : '−'}${fmt(Math.abs(net))}`;
+}
+
+export interface Standing extends FinalResult {
+  /** 1-based; players with the same net share a rank. */
+  rank: number;
+  /** Had the best net result (ties included), when anyone came out ahead. */
+  isTop: boolean;
+  isYou: boolean;
+  /** No longer seated in the room (left during or after the game). */
+  left: boolean;
+}
+
+/** The server's final results (already ranked by net) with display ranks and flags. */
+export function buildStandings(room: RoomView): Standing[] {
+  const results = room.finalResults ?? [];
+  const seated = new Set(room.seats.flatMap((s) => (s ? [s.playerId] : [])));
+  const best = results[0]?.net ?? 0;
+  return results.map((r) => ({
+    ...r,
+    rank: results.findIndex((x) => x.net === r.net) + 1,
+    isTop: best > 0 && r.net === best,
+    isYou: r.playerId === room.youId,
+    left: !seated.has(r.playerId),
+  }));
+}
+
+/** The game's headline on the felt. `nameOf` returns "You" for the viewer. */
+export function summarizeGame(standings: Standing[], nameOf: (s: Standing) => string): { title: string; subtitle: string } {
+  const top = standings.filter((s) => s.isTop);
+  if (top.length === 0) return { title: 'Game over', subtitle: standings.length > 0 ? 'Everyone finished even' : '' };
+  const names = top.map(nameOf);
+  const up = fmt(top[0]?.net ?? 0);
+  if (top.length === 1) {
+    return { title: `${names[0]} ${names[0] === 'You' ? 'win' : 'wins'} the game`, subtitle: `${up} chips up` };
+  }
+  return { title: `${joinNames(names)} share the top`, subtitle: `${up} chips up each` };
 }
 
 /** Chip colours for a stack of `amount`, bottom first. Purely decorative. */

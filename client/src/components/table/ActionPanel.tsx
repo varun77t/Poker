@@ -3,7 +3,13 @@ import { useState, type FormEvent } from 'react';
 import { request } from '../../socket/connection';
 import { formatChips, sizingPresets } from '../../table/model';
 import { cx } from '../../lib/cx';
+import room from '../../styles/cardRoom.module.css';
 import styles from './ActionPanel.module.css';
+
+/** The viewer is out of chips (R-10.1). With rebuys on they can buy back in for `rebuyFor` chips; null when rebuys are off. */
+export interface OutOfChips {
+  rebuyFor: number | null;
+}
 
 interface Props {
   game: GameView | null;
@@ -11,14 +17,17 @@ interface Props {
   status: string;
   /** Seconds left on the viewer's turn, shown once time gets short. */
   secondsLeft: number | null;
+  /** Set while the viewer is busted; replaces the idle controls with the rebuy prompt. */
+  outOfChips: OutOfChips | null;
 }
 
 /**
  * The viewer's controls. Every button and bound comes from the server's `legalActions`; the panel
  * only sends intents (with the handId/seq it was drawn from) and locks itself until the next snapshot.
  */
-export function ActionPanel({ game, status, secondsLeft }: Props) {
+export function ActionPanel({ game, status, secondsLeft, outOfChips }: Props) {
   const legal = game?.legalActions ?? null;
+  if (outOfChips && !legal) return <OutOfChipsPanel rebuyFor={outOfChips.rebuyFor} />;
   if (!game || !legal) {
     return (
       <section className={cx(styles.panel, styles.idle)} aria-label="Your actions">
@@ -79,22 +88,22 @@ function Turn({ game, secondsLeft }: { game: GameView; secondsLeft: number | nul
         {secondsLeft !== null && secondsLeft <= 10 && <span className={styles.hurry}> {secondsLeft}s left</span>}
       </p>
       <div className={styles.row}>
-        <button type="button" className={cx(styles.act, styles.fold)} disabled={busy} onClick={() => void send('fold')}>
+        <button type="button" className={cx(room.act, styles.fold)} disabled={busy} onClick={() => void send('fold')}>
           Fold
         </button>
         {legal.canCheck ? (
-          <button type="button" className={styles.act} disabled={busy} onClick={() => void send('check')}>
+          <button type="button" className={room.act} disabled={busy} onClick={() => void send('check')}>
             Check
           </button>
         ) : (
-          <button type="button" className={styles.act} disabled={busy || !legal.canCall} onClick={() => void send('call')}>
+          <button type="button" className={room.act} disabled={busy || !legal.canCall} onClick={() => void send('call')}>
             {callAllIn ? 'Call all-in' : 'Call'}
             <small>{formatChips(legal.callAmount)}</small>
           </button>
         )}
         <button
           type="button"
-          className={cx(styles.act, styles.primary)}
+          className={cx(room.act, room.primary)}
           disabled={busy || !canSize}
           onClick={() => void send(legal.canBet ? 'bet' : 'raise', amount)}
         >
@@ -152,14 +161,56 @@ function Turn({ game, secondsLeft }: { game: GameView; secondsLeft: number | nul
   );
 }
 
+/** Busted: rebuy (the one thing to do now, so it is brass) or, with rebuys off, watch. */
+function OutOfChipsPanel({ rebuyFor }: { rebuyFor: number | null }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function rebuy() {
+    setBusy(true);
+    setError(null);
+    const res = await request('game:rebuy', {});
+    // On success the next snapshot has chips on the seat and this panel goes away.
+    if (!res.ok) {
+      setBusy(false);
+      setError(res.message);
+    }
+  }
+
+  if (rebuyFor === null) {
+    return (
+      <section className={cx(styles.panel, styles.idle)} aria-label="Your actions">
+        <p className={styles.status} role="status">
+          <b>You're out of chips.</b> Rebuys are off, so you can watch until the game ends, or leave the table.
+        </p>
+      </section>
+    );
+  }
+  return (
+    <section className={styles.panel} aria-label="Your actions">
+      <p className={styles.status} role="status">
+        <b>You're out of chips.</b> Rebuy to play from the next hand.
+      </p>
+      <button type="button" className={cx(room.act, room.primary, styles.rebuy)} disabled={busy} onClick={() => void rebuy()}>
+        Rebuy for {formatChips(rebuyFor)}
+      </button>
+      {error && (
+        <p className={styles.error} role="alert">
+          {error}
+        </p>
+      )}
+    </section>
+  );
+}
+
 /** Greyed-out controls, so the panel keeps its shape between turns. */
 function IdleControls() {
   return (
     <div aria-hidden="true">
       <div className={styles.row}>
-        <span className={cx(styles.act, styles.fold, styles.ghostAct)}>Fold</span>
-        <span className={cx(styles.act, styles.ghostAct)}>Call</span>
-        <span className={cx(styles.act, styles.primary, styles.ghostAct)}>Raise</span>
+        <span className={cx(room.act, styles.fold, styles.ghostAct)}>Fold</span>
+        <span className={cx(room.act, styles.ghostAct)}>Call</span>
+        <span className={cx(room.act, room.primary, styles.ghostAct, styles.ghostPrimary)}>Raise</span>
       </div>
       <div className={cx(styles.sizer, styles.ghostRow)}>
         <span className={styles.track} />

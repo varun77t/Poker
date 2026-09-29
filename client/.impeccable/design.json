@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-29T03:51:05.468Z",
+  "generatedAt": "2026-09-29T13:39:51.208Z",
   "title": "Design System: Private Hold'em",
   "extensions": {
     "colorMeta": {
@@ -542,7 +542,7 @@
       },
       "headline": {
         "displayName": "Headline",
-        "purpose": "Table-level status plates (Waiting for players)."
+        "purpose": "Table-level status plates (Waiting for players) and the Final standings heading."
       },
       "title": {
         "displayName": "Title",
@@ -562,7 +562,7 @@
       },
       "action": {
         "displayName": "Action",
-        "purpose": "Action button labels."
+        "purpose": "Action button labels; the signed net on a standings plaque."
       },
       "label": {
         "displayName": "Label",
@@ -570,7 +570,7 @@
       },
       "tag": {
         "displayName": "Tag",
-        "purpose": "State tags on seat plaques."
+        "purpose": "State tags on seat and standings plaques."
       },
       "card-rank": {
         "displayName": "Card Rank",
@@ -579,6 +579,10 @@
       "figure": {
         "displayName": "Figure",
         "purpose": "Pot amounts and the winning hand line on the felt."
+      },
+      "notice": {
+        "displayName": "Notice",
+        "purpose": "The header's cream status pill (Last hand)."
       }
     },
     "shadows": [
@@ -680,9 +684,24 @@
         "purpose": "Button fill change."
       },
       {
+        "name": "result-in",
+        "value": "400ms",
+        "purpose": "The result plate rises 6px into place."
+      },
+      {
+        "name": "rest",
+        "value": "700ms",
+        "purpose": "Game over: the felt shade and resting seats fade in."
+      },
+      {
+        "name": "standings-settle",
+        "value": "440ms",
+        "purpose": "Each standings plaque rises 10px into place, in rank order from 260ms, 80ms apart."
+      },
+      {
         "name": "reduced-motion",
         "value": "prefers-reduced-motion: reduce",
-        "purpose": "No flights or flips; the new state simply renders."
+        "purpose": "No flights, flips, fades or settles; the new state simply renders."
       }
     ],
     "breakpoints": [
@@ -693,6 +712,10 @@
       {
         "name": "table-max-width",
         "value": "1320px"
+      },
+      {
+        "name": "finished-side-column",
+        "value": "400px"
       }
     ]
   },
@@ -714,12 +737,12 @@
       "css": ".ds-wrap2{display:flex;gap:8px;padding:16px;background:#180a0c}.ds-act2{display:grid;place-content:center;width:120px;height:48px;border:1px solid #4a2a1d;border-radius:10px;background:#33191a;color:#f3ecdf;font:700 18px/1.1 'Barlow Semi Condensed', system-ui, sans-serif;cursor:pointer;transition:transform 90ms,background-color 150ms}.ds-act2 small{font-size:13px;font-weight:600;opacity:.85}.ds-act2:hover{background:#43211f}.ds-act2:active{transform:translateY(1px)}.ds-act2:focus-visible{outline:2px solid #d2a54c;outline-offset:3px}.ds-fold{color:#f0b7b3}"
     },
     {
-      "name": "Ghost Button",
+      "name": "Ghost and Danger Buttons",
       "kind": "button",
       "refersTo": "button-ghost",
-      "description": "Quiet header controls such as Leave table.",
-      "html": "<div class=\"ds-wrap3\"><button class=\"ds-ghost\">Leave table</button></div>",
-      "css": ".ds-wrap3{padding:16px;background:#1f0d12}.ds-ghost{padding:7px 14px;border:1px solid #4a2a1d;border-radius:8px;background:transparent;color:#c5b49c;font:600 16px 'Barlow Semi Condensed', system-ui, sans-serif;cursor:pointer}.ds-ghost:hover{border-color:#a88444;color:#f3ecdf}.ds-ghost:focus-visible{outline:2px solid #d2a54c;outline-offset:3px}"
+      "description": "Quiet header controls; danger is only the confirming button of a destructive inline confirm.",
+      "html": "<div class=\"ds-wrap3\"><span class=\"ds-q\">End the game now?</span><button class=\"ds-ghost\">Keep playing</button><button class=\"ds-ghost ds-danger\">End game</button></div>",
+      "css": ".ds-wrap3{display:flex;gap:10px;align-items:center;padding:16px;background:#1f0d12;font:500 16px 'Barlow Semi Condensed', system-ui, sans-serif}.ds-q{color:#f3ecdf}.ds-ghost{padding:7px 14px;border:1px solid #4a2a1d;border-radius:8px;background:transparent;color:#c5b49c;font:600 16px 'Barlow Semi Condensed', system-ui, sans-serif;cursor:pointer}.ds-ghost:hover{border-color:#a88444;color:#f3ecdf}.ds-ghost:focus-visible{outline:2px solid #d2a54c;outline-offset:3px}.ds-danger{border-color:color-mix(in srgb,#e0645f 50%,transparent);color:#f0b7b3}.ds-danger:hover{border-color:color-mix(in srgb,#e0645f 50%,transparent);background:color-mix(in srgb,#e0645f 12%,transparent);color:#f0b7b3}"
     },
     {
       "name": "Bet Presets",
@@ -741,17 +764,17 @@
       "name": "Header Strip",
       "kind": "nav",
       "refersTo": "header",
-      "description": "The 52px strip: name, room code, hand number and blinds.",
-      "html": "<header class=\"ds-bar\"><span class=\"ds-mark\">Private Hold'em</span><span class=\"ds-code\">RW8W7B</span><span class=\"ds-meta\">Hand <b>12</b></span><span class=\"ds-meta\">Blinds <b>5 / 10</b></span></header>",
-      "css": ".ds-bar{display:flex;gap:20px;align-items:center;height:52px;padding:0 24px;background:#1f0d12;color:#f3ecdf;font:500 16px/1.35 'Barlow Semi Condensed', system-ui, sans-serif;font-variant-numeric:tabular-nums}.ds-mark{font:19px/1 'Marcellus', Georgia, serif;letter-spacing:.02em}.ds-code{padding:4px 10px;border:1px solid #4a2a1d;border-radius:6px;color:#c5b49c;font-weight:600;letter-spacing:.08em}.ds-meta{color:#c5b49c}.ds-meta b{color:#f3ecdf;font-weight:600}"
+      "description": "The shared 52px strip: name, room code, meta, and the cream Last hand notice.",
+      "html": "<header class=\"ds-bar\"><span class=\"ds-mark\">Private Hold'em</span><span class=\"ds-code\">RW8W7B</span><span class=\"ds-meta\">Hand <b>12</b></span><span class=\"ds-meta\">Blinds <b>5 / 10</b></span><span class=\"ds-notice\">Last hand</span></header>",
+      "css": ".ds-bar{display:flex;gap:20px;align-items:center;height:52px;padding:0 24px;background:#1f0d12;color:#f3ecdf;font:500 16px/1.35 'Barlow Semi Condensed', system-ui, sans-serif;font-variant-numeric:tabular-nums}.ds-mark{font:19px/1 'Marcellus', Georgia, serif;letter-spacing:.02em}.ds-code{padding:4px 10px;border:1px solid #4a2a1d;border-radius:6px;color:#c5b49c;font-weight:600;letter-spacing:.08em}.ds-meta{color:#c5b49c}.ds-meta b{color:#f3ecdf;font-weight:600}.ds-notice{padding:3px 12px;border-radius:999px;background:#f7f2e7;color:#1f0d12;font:700 14px/1.2 'Barlow Semi Condensed', system-ui, sans-serif;letter-spacing:.02em}"
     },
     {
       "name": "Seat Plaque",
       "kind": "custom",
       "refersTo": "seat-plaque",
-      "description": "Leather name pill; the player to act gets a brass border, warmer fill and a draining timer ring.",
-      "html": "<div class=\"ds-seats\"><div class=\"ds-plaque\"><span class=\"ds-av\">J</span><span class=\"ds-who\"><b>Jonas</b><span>1,005</span></span></div><div class=\"ds-plaque ds-turn\"><span class=\"ds-av\">M<svg viewBox=\"0 0 48 48\"><circle cx=\"24\" cy=\"24\" r=\"22\"/></svg></span><span class=\"ds-who\"><b>Maya</b><span>1,200</span></span></div></div>",
-      "css": ".ds-seats{display:flex;gap:16px;padding:16px;background:#1f0d12}.ds-plaque{display:inline-grid;grid-template-columns:auto 1fr;align-items:center;gap:10px;min-width:176px;padding:7px 16px 7px 7px;border:1.5px solid #4a2a1d;border-radius:999px;background:#24110f;box-shadow:0 8px 18px -6px rgb(0 0 0 / .6);color:#f3ecdf;font:500 16px/1.15 'Barlow Semi Condensed', system-ui, sans-serif;font-variant-numeric:tabular-nums;transition:border-color 200ms,background-color 200ms}.ds-turn{border-color:#d2a54c;background:#33190f}.ds-av{position:relative;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#5a2e22;font:20px/1 'Marcellus', Georgia, serif}.ds-av svg{position:absolute;inset:-4px;width:48px;height:48px;transform:rotate(-90deg)}.ds-av circle{fill:none;stroke:#d2a54c;stroke-width:3;stroke-linecap:round;stroke-dasharray:138.2;stroke-dashoffset:40}.ds-who{display:flex;flex-direction:column}.ds-who b{font-weight:600}.ds-who span{color:#c5b49c}"
+      "description": "Leather name pill; the player to act gets a brass border, warmer fill and a draining timer ring; a sitting-out seat dims and quiets its plaque but keeps its tag at full contrast.",
+      "html": "<div class=\"ds-seats\"><div class=\"ds-plaque\"><span class=\"ds-av\">J</span><span class=\"ds-who\"><b>Jonas</b><span>1,005</span></span></div><div class=\"ds-plaque ds-turn\"><span class=\"ds-av\">M<svg viewBox=\"0 0 48 48\"><circle cx=\"24\" cy=\"24\" r=\"22\"/></svg></span><span class=\"ds-who\"><b>Maya</b><span>1,200</span></span></div><div class=\"ds-plaque ds-out\"><span class=\"ds-tagq\">Out of chips</span><span class=\"ds-av\">R</span><span class=\"ds-who\"><b>Ravi</b><span>0</span></span></div></div>",
+      "css": ".ds-seats{display:flex;gap:16px;padding:16px;background:#1f0d12}.ds-plaque{display:inline-grid;grid-template-columns:auto 1fr;align-items:center;gap:10px;min-width:176px;padding:7px 16px 7px 7px;border:1.5px solid #4a2a1d;border-radius:999px;background:#24110f;box-shadow:0 8px 18px -6px rgb(0 0 0 / .6);color:#f3ecdf;font:500 16px/1.15 'Barlow Semi Condensed', system-ui, sans-serif;font-variant-numeric:tabular-nums;transition:border-color 200ms,background-color 200ms}.ds-turn{border-color:#d2a54c;background:#33190f}.ds-av{position:relative;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#5a2e22;font:20px/1 'Marcellus', Georgia, serif}.ds-av svg{position:absolute;inset:-4px;width:48px;height:48px;transform:rotate(-90deg)}.ds-av circle{fill:none;stroke:#d2a54c;stroke-width:3;stroke-linecap:round;stroke-dasharray:138.2;stroke-dashoffset:40}.ds-who{display:flex;flex-direction:column}.ds-who b{font-weight:600}.ds-who span{color:#c5b49c}.ds-plaque{position:relative}.ds-out{border-color:color-mix(in srgb,#4a2a1d 60%,transparent);background:color-mix(in srgb,#24110f 55%,transparent);box-shadow:none}.ds-out>:not(.ds-tagq){opacity:.5}.ds-tagq{position:absolute;top:-10px;right:-8px;padding:1px 8px;border-radius:999px;background:#4a2a1d;color:#f3ecdf;font:700 13px 'Barlow Semi Condensed', system-ui, sans-serif;letter-spacing:.04em;white-space:nowrap}"
     },
     {
       "name": "Playing Card",
@@ -768,11 +791,27 @@
       "description": "Flat striped chips stacked by amount beside a felt-shade pot pill.",
       "html": "<div class=\"ds-felt\"><span class=\"ds-stack\"><i class=\"ds-chip\" style=\"top:0;background:#26262b\"></i><i class=\"ds-chip\" style=\"top:-4px;background:#2f5fb3\"></i><i class=\"ds-chip\" style=\"top:-8px;background:#c62f3b\"></i></span><span class=\"ds-pot\"><span>Pot</span>280</span></div>",
       "css": ".ds-felt{display:flex;gap:8px;align-items:center;padding:24px 16px 16px;background:#1c6445;color:#f3ecdf;font:600 17px 'Barlow Semi Condensed', system-ui, sans-serif;font-variant-numeric:tabular-nums}.ds-stack{position:relative;display:inline-block;width:26px;height:26px}.ds-chip{position:absolute;left:0;width:26px;height:26px;box-sizing:border-box;border:3px dashed rgb(255 255 255 / .85);border-radius:50%;box-shadow:0 1px 0 rgb(0 0 0 / .45)}.ds-pot{padding:3px 12px;border-radius:999px;background:rgb(8 26 17 / .62)}.ds-pot span{margin-right:6px;color:#c5b49c;font-weight:500}"
+    },
+    {
+      "name": "Standings Plaque",
+      "kind": "custom",
+      "refersTo": "standings-plaque",
+      "description": "Finished screen: a seat plaque ranked, with a signed net; the winner takes brass, a departed player a flatter plaque.",
+      "html": "<ol class=\"ds-stand\"><li class=\"ds-row ds-top\"><span class=\"ds-rk\">1</span><span class=\"ds-av2\">J</span><span class=\"ds-w\"><b>Jonas</b><span>2,240 chips</span></span><span class=\"ds-net ds-up\">+1,240</span></li><li class=\"ds-row\"><span class=\"ds-rk\">2</span><span class=\"ds-av2\">P</span><span class=\"ds-w\"><b>Priya</b><span>1,450 chips, 1 rebuy</span></span><span class=\"ds-net ds-down\">−550</span></li><li class=\"ds-row ds-gone\"><span class=\"ds-rk\">3</span><span class=\"ds-av2\">R</span><span class=\"ds-w\"><b><i>Ravi</i><em>Left</em></b><span>1,000 chips</span></span><span class=\"ds-net\">Even</span></li></ol>",
+      "css": ".ds-stand{display:grid;gap:8px;width:400px;margin:0;padding:16px;list-style:none;background:#1f0d12;color:#f3ecdf;font:500 16px/1.15 'Barlow Semi Condensed', system-ui, sans-serif;font-variant-numeric:tabular-nums}.ds-row{display:grid;grid-template-columns:22px 40px minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 20px 7px 10px;border:1.5px solid #4a2a1d;border-radius:999px;background:#24110f;box-shadow:0 8px 18px -6px rgb(0 0 0 / .6)}.ds-top{border-color:#d2a54c;background:#33190f}.ds-rk{color:#c5b49c;font-weight:700;text-align:center}.ds-top .ds-rk{color:#d2a54c}.ds-av2{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#5a2e22;font:20px/1 'Marcellus', Georgia, serif}.ds-w{display:flex;flex-direction:column}.ds-w b{display:flex;gap:8px;align-items:center;font-weight:600}.ds-w b i{font-style:normal}.ds-w b em{padding:1px 8px;border-radius:999px;background:#4a2a1d;font:normal 700 13px 'Barlow Semi Condensed', system-ui, sans-serif;letter-spacing:.04em}.ds-w>span{color:#c5b49c}.ds-net{color:#c5b49c;font:700 18px/1 'Barlow Semi Condensed', system-ui, sans-serif}.ds-up{color:#7fcf9c}.ds-down{color:#f0b7b3}.ds-gone{background:rgb(36 17 15 / .5);box-shadow:none}.ds-gone .ds-av2{opacity:.55}.ds-gone b i{color:#c5b49c}"
+    },
+    {
+      "name": "Next-Game Panel",
+      "kind": "card",
+      "refersTo": "next-game-panel",
+      "description": "Finished screen: the action panel's material holding the settings sentence, a brass Start and a ghost Change settings.",
+      "html": "<div class=\"ds-bg\"><div class=\"ds-next\"><p>Next game: <b>1,000</b> chips, blinds <b>5/10</b>, <b>30s</b> turns, rebuys <b>on</b>.</p><div class=\"ds-hr\"><button class=\"ds-start\">Start next game</button><button class=\"ds-gh\">Change settings</button></div></div></div>",
+      "css": ".ds-bg{padding:16px;background:#1f0d12}.ds-next{width:400px;box-sizing:border-box;padding:14px;border:1px solid #4a2a1d;border-radius:16px;background:rgb(24 10 12 / .92);box-shadow:0 20px 40px -12px rgb(0 0 0 / .7);color:#c5b49c;font:500 16px/1.35 'Barlow Semi Condensed', system-ui, sans-serif}.ds-next p{margin:0 0 12px}.ds-next b{color:#f3ecdf;font-weight:600}.ds-hr{display:grid;grid-template-columns:1fr auto;gap:8px}.ds-start{height:48px;border:1px solid #e7c16e;border-radius:10px;background:#d2a54c;color:#2a1407;font:700 18px/1.1 'Barlow Semi Condensed', system-ui, sans-serif;box-shadow:inset 0 1px 0 rgb(255 255 255 / .35);cursor:pointer;transition:transform 90ms,background-color 150ms}.ds-start:hover{background:#dfb35a}.ds-start:active{transform:translateY(1px)}.ds-gh{padding:7px 14px;border:1px solid #4a2a1d;border-radius:8px;background:transparent;color:#c5b49c;font:600 16px 'Barlow Semi Condensed', system-ui, sans-serif;cursor:pointer}.ds-gh:hover{border-color:#a88444;color:#f3ecdf}.ds-start:focus-visible,.ds-gh:focus-visible{outline:2px solid #d2a54c;outline-offset:3px}"
     }
   ],
   "narrative": {
     "northStar": "The Table Is the Room",
-    "overview": "A real card-room table seen from your own chair. A deep wine room recedes into shadow, a padded mahogany rail carries a single brass trim line, and the green felt is lit from above so the centre of the table, where the board and pot sit, is the brightest thing on screen. Everything the player needs (whose turn, what a call costs, what is in the pot, who won) lives on or around the felt, not in sidebars.\n\nThe world is warm, calm, and physical. Cards are cream paper with authored suit shapes, chips are flat striped discs, name plaques are dark leather pills. Motion is the table's own: cards slide from the dealer spot and turn over, chips slide to a bet, sweep into the pot when a street closes, and fly to the winner. It explains what happened and then stops. The owner confirmed two rejections: the online-casino look (glow, neon, stat sidebars, chip clutter) and the flat grey software table.\n\nDensity is low and sized for arm's length on a laptop: 16px is the smallest routine text, cards scale with the table, and the whole screen fits a 1280x680 window with no scrolling.\n\n**Scope.** Only the in-game table screen uses this world today. The landing, create-room, lobby and room screens still carry an early placeholder style (green/gold tokens in `src/styles/global.css`) that is not this system; they are due to be restyled to match it in the polish phase. Tokens are currently scoped to the table page root rather than `:root` so the world stays self-contained until then.",
+    "overview": "A real card-room table seen from your own chair. A deep wine room recedes into shadow, a padded mahogany rail carries a single brass trim line, and the green felt is lit from above so the centre of the table, where the board and pot sit, is the brightest thing on screen. Everything the player needs (whose turn, what a call costs, what is in the pot, who won) lives on or around the felt, not in sidebars.\n\nThe world is warm, calm, and physical. Cards are cream paper with authored suit shapes, chips are flat striped discs, name plaques are dark leather pills. Motion is the table's own: cards slide from the dealer spot and turn over, chips slide to a bet, sweep into the pot when a street closes, and fly to the winner. It explains what happened and then stops. The owner confirmed two rejections: the online-casino look (glow, neon, stat sidebars, chip clutter) and the flat grey software table.\n\nDensity is low and sized for arm's length on a laptop: 16px is the smallest routine text, cards scale with the table, and the whole screen fits a 1280x680 window with no scrolling.\n\n**Scope.** Two screens use this world today: the in-game table and the finished-game screen. The landing, create-room, lobby and room screens still carry an early placeholder style (green/gold tokens in `src/styles/global.css`) that is not this system; they are due to be restyled to match it in the polish phase. The tokens live in `src/styles/cardRoom.module.css` on its `.world` class (which both in-game screens put on their root), together with the shared controls (action, primary, ghost and danger buttons, and the bar error line). They are scoped to `.world` rather than `:root` so the world stays self-contained until the other screens move over.",
     "keyCharacteristics": [
       "One accent, brass, and it always means \"now\": the turn, the primary action, the winning cards.",
       "Depth comes from light and material (lit felt, graded rail, soft drop shadows), never from glow.",
@@ -783,12 +822,17 @@
     "rules": [
       {
         "name": "The Brass Means Now Rule",
-        "body": "Brass (brass) marks the one thing that is live right now: whose turn, the action you can take, the cards that won. When nothing is actionable, even the primary button's ghost drops to neutral oxblood. Decorative brass uses brass-trim, never brass.",
+        "body": "Brass (brass) marks the one thing that is live right now: whose turn, the action you can take, the cards that won, and at game end the player who won. Statuses (All-in, Last hand, Out of chips) are never brass. When nothing is actionable, even the primary button's ghost drops to neutral oxblood. Decorative brass uses brass-trim, never brass.",
         "section": "colors"
       },
       {
         "name": "The Lit Centre Rule",
         "body": "The felt is the brightest large surface and the board sits in its light pool. The room and rail stay darker than the felt; nothing outside the table may out-shine it.",
+        "section": "colors"
+      },
+      {
+        "name": "The Signed Net Rule",
+        "body": "Payout green (win) and fold blush (fold-ink) are the only up and down colours, and they only ever colour a signed figure: \"+1,240\" in win, \"−550\" in fold-ink, \"Even\" in ink-muted. The sign carries the meaning; the colour repeats it. Neither colour fills a surface or marks anything that is not a chip change.",
         "section": "colors"
       },
       {
@@ -798,30 +842,39 @@
       },
       {
         "name": "The Lettering Rule",
-        "body": "Marcellus is for things a card room would letter or engrave: the felt, the result, the room's name. It never sets names, numbers, buttons or controls.",
+        "body": "Marcellus is for things a card room would letter or engrave: the felt, the result, the room's name, a table-level heading such as \"Final standings\", and the initial on an avatar disc. It never sets names, numbers, buttons or controls.",
         "section": "typography"
       },
       {
         "name": "The No-Glow Rule",
         "body": "Shadows are dark and fall downward. No coloured blurs, halos or neon, on brass or anything else.",
         "section": "elevation"
+      },
+      {
+        "name": "The Sitting-Out Rule",
+        "body": "A seat that is out of the hand but still at the table (out of chips, joining next hand, left) dims its cards, avatar and name to 50% and quiets its plaque (edge at 60%, fill at 55%, no shadow), while its state tag stays at full contrast. The reason a seat is out must always be readable even when the seat is not.",
+        "section": "components"
       }
     ],
     "dos": [
-      "**Do** reserve brass (#d2a54c) for what is live now: the turn, the primary action, the winning cards; use brass-trim for decoration.",
+      "**Do** reserve brass (#d2a54c) for what is live now: the turn, the primary action, the winning cards and the game's winner; use brass-trim for decoration.",
       "**Do** keep the felt the brightest large surface and put hand state (board, pot, result) in its centre.",
       "**Do** set every name and number in Barlow Semi Condensed with tabular figures, at 16px or larger for routine text.",
       "**Do** use Marcellus only for lettering: the felt, the result, the product name.",
       "**Do** express depth with dark, downward shadows and lit gradients, from the Shadow Vocabulary.",
       "**Do** size table contents from the table width (cards at 6.6%) so the screen fits 1280x680 without scrolling.",
       "**Do** make motion physical and quick with the shared ease-out curve, and drop it entirely under reduced motion.",
-      "**Do** pair every colour signal with text or shape (tags, timer ring, suit symbols)."
+      "**Do** pair every colour signal with text or shape (tags, timer ring, suit symbols, the sign on a net).",
+      "**Do** keep a sitting-out seat's state tag at full contrast while the rest of the seat dims.",
+      "**Do** dress shared forms for the card room by remapping their tokens onto card-room tokens, with no browser-default steppers or arrows."
     ],
     "donts": [
       "**Don't** use glow, neon, coloured halos or casino lighting effects.",
       "**Don't** add stat sidebars, HUDs or chip clutter around the table.",
       "**Don't** fall back to a flat grey software table or generic UI chrome.",
       "**Don't** use brass as decoration; decorative brass is brass-trim.",
+      "**Don't** put brass on a status such as \"Last hand\", \"Out of chips\" or \"Left\"; statuses are cream or quiet plaque-edge tags.",
+      "**Don't** use payout green or fold blush without a signed figure beside them.",
       "**Don't** use money language (deposit, cash, jackpot, win big); chips are virtual and never bought.",
       "**Don't** treat the green/gold tokens in `src/styles/global.css` as the system; they belong to the unmigrated placeholder screens."
     ]

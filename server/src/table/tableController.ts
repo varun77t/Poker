@@ -46,6 +46,11 @@ export interface TableDeps {
    * last hand or have been away too long (R-9.3). It may stop this table if nobody is left.
    */
   beforeHand: () => void;
+  /**
+   * The game is over (R-10.4): the host ended it, or rebuys are off and fewer than 2 players have
+   * chips. Called between hands; the room manager stops this table and shows the results.
+   */
+  onGameOver: () => void;
 }
 
 /** What the single pending timer will do. */
@@ -65,6 +70,7 @@ export class TableController {
   private turnDeadline: number | null = null;
   private nextHandAt: number | null = null;
   private waitingForPlayers = false;
+  private endRequested = false;
   private timer: { kind: PendingTimer; cancel: Cancel } | null = null;
   private stopped = false;
 
@@ -92,7 +98,7 @@ export class TableController {
   }
 
   tableView(): TableView {
-    return { nextHandAt: this.nextHandAt, waitingForPlayers: this.waitingForPlayers };
+    return { nextHandAt: this.nextHandAt, waitingForPlayers: this.waitingForPlayers, endingAfterHand: this.endRequested };
   }
 
   /** A dealt-in player's chips behind while a hand is running; null otherwise (use the seat's stack). */
@@ -104,6 +110,11 @@ export class TableController {
   /** True if the player was dealt into the current hand, including during its results pause. */
   isDealtIn(playerId: PlayerId): boolean {
     return this.hand?.players.some((p) => p.playerId === playerId) ?? false;
+  }
+
+  /** True while the player is in a hand that is still being played (its results pause doesn't count). */
+  isPlayingHand(playerId: PlayerId): boolean {
+    return this.liveStack(playerId) !== null;
   }
 
   /** For tests and diagnostics. */
@@ -138,9 +149,20 @@ export class TableController {
     this.update(state, sameTurn);
   }
 
-  /** Seats changed (someone joined). A table waiting for players tries to deal again. */
+  /** Seats changed (someone joined or rebought). A table waiting for players tries to deal again. */
   seatsChanged(): void {
     if (this.waitingForPlayers && !this.stopped) this.dealNextHand();
+  }
+
+  /**
+   * The host ends the game. With no hand on the table it ends now; otherwise the current hand is
+   * played out and its results shown first, and the game ends instead of dealing the next one.
+   */
+  requestEnd(): void {
+    if (this.stopped || this.endRequested) return;
+    this.endRequested = true;
+    if (this.hand) this.deps.onChange();
+    else this.deps.onGameOver();
   }
 
   // -------------------------------------------------------------- the loop
@@ -160,8 +182,14 @@ export class TableController {
     const players = this.room.seats.flatMap((seat, index) =>
       seat && !seat.leaving && seat.stack > 0 ? [{ playerId: seat.playerId, seat: index, stack: seat.stack }] : [],
     );
+    // R-10.4: with rebuys off, a game nobody can rejoin with chips is over; with rebuys on, the table waits.
+    if (this.endRequested || (players.length < MIN_PLAYERS_TO_START && !this.room.settings.rebuys)) {
+      this.stopped = true;
+      this.deps.onGameOver();
+      return;
+    }
     if (players.length < MIN_PLAYERS_TO_START) {
-      this.waitingForPlayers = true; // R-10.4
+      this.waitingForPlayers = true;
       this.deps.onChange();
       return;
     }
@@ -183,6 +211,10 @@ export class TableController {
 
     // R-9.3: count hands that start while a member is away.
     for (const seat of members(this.room)) if (!seat.connected) seat.missedHands += 1;
+    for (const p of players) {
+      const seat = this.room.seats[p.seat];
+      if (seat) seat.played = true;
+    }
 
     this.deps.logger.debug(`room ${this.room.code}: hand ${state.handId} dealt to ${players.length} players`);
     this.update(state);

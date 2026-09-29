@@ -281,6 +281,12 @@ leave and rejoin to get a fresh starting stack even with rebuys off (remember st
 
 Tests: player folds, player leaves mid-hand, disconnect mid-hand, everyone folds to one,
 everyone all-in, split pot, last player standing, join mid-game, rebuy, restart.
+
+Decided with the owner in Phase 6: after a game the group plays again right away, so Start next game is
+the finished screen's primary action; the Rebuy button replaces the action buttons in the action panel;
+End game sits in the top bar next to Leave, with an inline confirm and a "Last hand" notice for everyone.
+Finished screen layout: the resting table on the left (winner named on the felt), ranked standings and
+the next-game panel on the right. Leavers' chips are remembered for the rest of the game (gap closed).
 ```
 
 ---

@@ -26,7 +26,10 @@ export interface SeatView {
   connected: boolean;
   /** Joined while a game was running; dealt in from the next hand. */
   waitingForNextHand: boolean;
-  /** Out of chips between hands (R-10.1), so not dealt in. */
+  /**
+   * Out of chips and not playing a hand (R-10.1), so not dealt in. With rebuys on, this player may
+   * rebuy now (`game:rebuy`); the chips play from the next hand.
+   */
   busted: boolean;
   /** Left the room during the current hand (folded); the seat is freed before the next hand. */
   leaving: boolean;
@@ -36,8 +39,26 @@ export interface SeatView {
 export interface TableView {
   /** Server time (epoch ms) when the next hand is dealt, during the pause after a hand; else null. */
   nextHandAt: number | null;
-  /** Fewer than 2 players have chips, so no hand can be dealt until someone joins (R-10.4). */
+  /**
+   * Fewer than 2 players have chips, so no hand can be dealt until someone joins or rebuys, or the
+   * host ends the game (R-10.4). Only with rebuys on: with rebuys off the game ends instead.
+   */
   waitingForPlayers: boolean;
+  /** The host ended the game: it finishes once the current hand (and its results pause) is over. */
+  endingAfterHand: boolean;
+}
+
+/** One line of the finished screen: everyone dealt into at least one hand of the game, including players who left. */
+export interface FinalResult {
+  playerId: PlayerId;
+  displayName: string;
+  /** Chips at the end of the game, or when the player left it. */
+  finalStack: number;
+  /** Starting stack plus every rebuy. */
+  totalBuyIn: number;
+  rebuys: number;
+  /** finalStack − totalBuyIn. Across all lines this sums to zero. */
+  net: number;
 }
 
 export interface RoomView {
@@ -51,7 +72,8 @@ export interface RoomView {
   seats: (SeatView | null)[];
   /** Present while the room is `playing`. */
   table: TableView | null;
-  finalResults: null;
+  /** Present while the room is `finished`: ranked by net result, best first. */
+  finalResults: FinalResult[] | null;
 }
 
 /** The `state` event payload. `version` increases on every room change; drop older snapshots. */

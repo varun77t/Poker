@@ -8,6 +8,7 @@ import { loadName } from '../lib/storage';
 import { ensureSession } from '../session/session';
 import { request } from '../socket/connection';
 import { useAppState } from '../state/store';
+import { FinishedPage } from './FinishedPage';
 import { Lobby } from './Lobby';
 import { TablePage } from './TablePage';
 import styles from './Room.module.css';
@@ -74,7 +75,9 @@ function RoomSession({ code }: { code: string }) {
     );
   }
 
-  return snapshot.room.status === 'playing' ? <TablePage snapshot={snapshot} /> : <Lobby snapshot={snapshot} />;
+  if (snapshot.room.status === 'playing') return <TablePage snapshot={snapshot} />;
+  if (snapshot.room.status === 'finished') return <FinishedPage snapshot={snapshot} />;
+  return <Lobby snapshot={snapshot} />;
 }
 
 function NamePrompt({ code }: { code: string }) {

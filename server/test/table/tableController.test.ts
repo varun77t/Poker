@@ -62,7 +62,7 @@ describe('dealing', () => {
     // Seats show what each player has left behind during the hand.
     const room = h.snapshot('alice').room;
     expect(room.seats.map((s) => s?.stack ?? null)).toEqual([1000, 995, 990, null, null]);
-    expect(room.table).toEqual({ nextHandAt: null, waitingForPlayers: false });
+    expect(room.table).toEqual({ nextHandAt: null, waitingForPlayers: false, endingAfterHand: false });
     expect(h.room.table?.pendingTimer).toBe('turn');
   });
 
@@ -273,7 +273,7 @@ describe('between hands', () => {
     h.clock.advance(TIMINGS.showdownPauseMs);
 
     expect(h.room.table?.gameView('alice')).toBeNull();
-    expect(h.snapshot('alice').room.table).toEqual({ nextHandAt: null, waitingForPlayers: true }); // R-10.4
+    expect(h.snapshot('alice').room.table).toEqual({ nextHandAt: null, waitingForPlayers: true, endingAfterHand: false }); // R-10.4 (rebuys on)
     expect(h.room.table?.pendingTimer).toBeNull();
     expect(h.snapshot('alice').room.seats[1]).toMatchObject({ stack: 0, busted: true });
 

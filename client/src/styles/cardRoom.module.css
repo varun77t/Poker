@@ -1,0 +1,152 @@
+/*
+ * The card-room world (client/DESIGN.md): tokens, and the controls shared by the in-game screens
+ * (table and finished). Scoped to `.world` rather than :root until the other screens are restyled (Phase 8).
+ */
+.world {
+  --room: #1f0d12;
+  --room-2: #2b1219;
+  --felt: #1c6445;
+  --felt-hi: #22744f;
+  --felt-edge: #124530;
+  --felt-ink: rgb(236 226 200 / 0.16);
+  --felt-label: rgb(8 26 17 / 0.62);
+  --rail: #3a1c14;
+  --rail-hi: #57301f;
+  --rail-lo: #2a130d;
+  --brass: #d2a54c;
+  --brass-hi: #e7c16e;
+  --brass-hover: #dfb35a;
+  --brass-soft: #a88444;
+  --brass-ink: #2a1407;
+  --paper: #f7f2e7;
+  --ink: #f3ecdf;
+  --ink-muted: #c5b49c;
+  --ink-faint: #8e7b67;
+  --suit-red: #c62f3b;
+  --suit-black: #1b1b1f;
+  --card-back: #7b1d2a;
+  --plaque: #24110f;
+  --plaque-turn: #33190f;
+  --plaque-edge: #4a2a1d;
+  --avatar: #5a2e22;
+  --button: #33191a;
+  --button-hover: #43211f;
+  --field: #1a0b0c;
+  --fold-ink: #f0b7b3;
+  --danger: #e0645f;
+  --win: #7fcf9c;
+  --chip-red: #c62f3b;
+  --chip-blue: #2f5fb3;
+  --chip-black: #26262b;
+  --chip-green: #1f8a56;
+  --chip-stripe: rgb(255 255 255 / 0.85);
+  --chip-inlay: rgb(255 255 255 / 0.35);
+  --font-ui: 'Barlow Semi Condensed', system-ui, sans-serif;
+  --font-display: 'Marcellus', Georgia, serif;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: radial-gradient(ellipse 80% 70% at 50% 45%, var(--room-2), var(--room) 70%);
+  color: var(--ink);
+  font: 500 16px / 1.35 var(--font-ui);
+  font-variant-numeric: tabular-nums;
+}
+
+.world ::selection {
+  background: var(--brass);
+  color: var(--room);
+}
+
+.world :focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 3px;
+}
+
+/* Pressable action buttons (the action panel's row, the finished screen's Start). */
+.act {
+  display: grid;
+  place-content: center;
+  height: 48px;
+  border: 1px solid var(--plaque-edge);
+  border-radius: 10px;
+  background: var(--button);
+  color: var(--ink);
+  font: 700 18px / 1.1 var(--font-ui);
+  cursor: pointer;
+  transition:
+    transform 90ms,
+    background-color 150ms,
+    opacity 150ms;
+}
+
+.act small {
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+button.act:hover:not(:disabled) {
+  background: var(--button-hover);
+}
+
+button.act:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.act:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+/* Brass means "now": the one action to take. */
+.primary {
+  border-color: var(--brass-hi);
+  background: var(--brass);
+  color: var(--brass-ink);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35);
+}
+
+button.primary:hover:not(:disabled) {
+  background: var(--brass-hover);
+}
+
+/* Quiet bordered buttons (header, secondary panel actions). */
+.ghost,
+.danger {
+  padding: 7px 14px;
+  border: 1px solid var(--plaque-edge);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink-muted);
+  font: 600 16px var(--font-ui);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.ghost:hover:not(:disabled) {
+  border-color: var(--brass-soft);
+  color: var(--ink);
+}
+
+.danger {
+  border-color: color-mix(in srgb, var(--danger) 50%, transparent);
+  color: var(--fold-ink);
+}
+
+.danger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+
+.ghost:disabled,
+.danger:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+/* A request from the bar that failed, said next to the control that sent it. */
+.barError {
+  color: var(--danger);
+  white-space: nowrap;
+}

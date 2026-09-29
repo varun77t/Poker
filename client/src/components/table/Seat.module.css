@@ -9,9 +9,20 @@
   transition: opacity 300ms var(--ease-out);
 }
 
-.folded,
-.out {
+.folded {
   opacity: 0.5;
+}
+
+/* Sitting out (busted, joined late, left): the seat dims but its state tag stays at full contrast. */
+.out .hole,
+.out .plaque > :not(.tag) {
+  opacity: 0.5;
+}
+
+.out .plaque {
+  border-color: color-mix(in srgb, var(--plaque-edge) 60%, transparent);
+  background: color-mix(in srgb, var(--plaque) 55%, transparent);
+  box-shadow: none;
 }
 
 .hole {

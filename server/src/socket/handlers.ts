@@ -75,4 +75,14 @@ export function registerHandlers(socket: IoSocket, deps: HandlerDeps): void {
     rooms.act(playerId, action);
     return {};
   });
+
+  on('game:rebuy', EmptyPayloadSchema, ({ playerId }) => {
+    rooms.rebuy(playerId);
+    return {};
+  });
+
+  on('game:end', EmptyPayloadSchema, ({ playerId }) => {
+    rooms.endGame(playerId);
+    return {};
+  });
 }

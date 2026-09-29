@@ -21,7 +21,7 @@ Open http://localhost:5173. The Vite dev server proxies `/api`, `/health` and `/
 `PORT` always means "the port you open in the browser": Vite's port in development, the Node server's port in production. See `.env.example`.
 
 ### Looking at the table without a game (development only)
-`http://localhost:5173/dev/table?state=turn` renders the real table from sample data. Other states: `flop` (side pot, all-in, away and left seats), `showdown`, `waiting`. The approved design prototype is `client/prototypes/table-prototype.html`.
+`http://localhost:5173/dev/table?state=turn` renders the real table from sample data. Other states: `flop` (side pot, all-in, away and left seats), `showdown`, `waiting`, `busted` (rebuy prompt), `busted-off`, `ending` (host ended the game), `finished` and `finished-guest` (the game-over screen; add `&edit=1` for the settings editor). The approved design prototype is `client/prototypes/table-prototype.html`.
 
 ### Testing several players in one browser (development only)
 All tabs normally share one identity (a second tab takes over the first). To play as different people in one browser, add `?player=<id>` to a tab's URL once, e.g. `http://localhost:5173/?player=2`. That tab keeps its own separate guest session until it is closed. A small "dev player 2" tag shows which one you are.

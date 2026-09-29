@@ -90,7 +90,7 @@ export function SettingsForm({ initial, submitLabel, submitDisabled, onSubmit, f
       {numberField(
         'startingStack',
         'Starting chips',
-        `${SETTINGS_BOUNDS.startingStack.min.toLocaleString()}–${SETTINGS_BOUNDS.startingStack.max.toLocaleString()}`,
+        `${SETTINGS_BOUNDS.startingStack.min.toLocaleString()}-${SETTINGS_BOUNDS.startingStack.max.toLocaleString()}`,
         autoFocus,
       )}
 

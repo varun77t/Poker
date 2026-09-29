@@ -13,6 +13,11 @@
   transform: translate(-50%, -50%);
 }
 
+/* Resting (game over): no action panel below, so the table centres in its area. */
+.resting {
+  top: 50%;
+}
+
 .felt {
   position: relative;
   width: 100%;
@@ -194,4 +199,65 @@
   transition:
     left 500ms var(--ease-out),
     top 500ms var(--ease-out);
+}
+
+/* Seats share the felt's box, so their percentage positions are unchanged. No z-index: seats,
+   tags and the dealer button still layer with the rest of the felt. */
+.seats {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.seats > * {
+  pointer-events: auto;
+}
+
+/* Game over: the felt dims under a shade and the seats rest; the result plate stays lit above both. */
+.resting .felt::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  background: rgb(14 5 8 / 0.42);
+  animation: rest 700ms var(--ease-out) both;
+}
+
+/* No board to sit above: the game's result takes the middle of the felt. */
+.resting .center {
+  z-index: 3;
+  bottom: auto;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Seats rest above the shade; the game's winner keeps full strength (and the brass edge). */
+.resting .seats {
+  z-index: 2;
+}
+
+.resting .seats > :not([data-winner]) {
+  opacity: 0.72;
+  animation: rest-seats 700ms var(--ease-out) both;
+}
+
+@keyframes rest {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rest-seats {
+  from {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .result,
+  .resting .felt::before,
+  .resting .seats > * {
+    animation: none;
+  }
 }

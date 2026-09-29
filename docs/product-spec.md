@@ -77,14 +77,15 @@ Blinds do not increase over time (no tournament structure in the MVP).
 - **Turn timer:** when it runs out, the player auto-checks if that's legal, and otherwise auto-folds.
 - **Joining mid-game:** a new player waits for the current hand to finish and is dealt in next hand. They don't have to post a blind to enter.
 - **Busting:** a player with 0 chips after a hand is busted.
-  - **Rebuys on:** the player sees a "Rebuy for 1,000" button, usable between hands. Rebuys are unlimited.
+  - **Rebuys on:** the player sees a "Rebuy for 1,000" button in place of the action buttons, usable whenever they are not in a hand (the chips play from the next hand). Rebuys are unlimited.
   - **Rebuys off:** the player stays seated as a spectator until they leave.
 - **Leaving mid-hand:** the player's hand is folded immediately. If they are all-in, the hand plays out without them and they are removed afterwards. Their seat stays (marked as left) until the hand's results have been shown. Coming back to the room before then gives them the seat and chips back.
+- **Coming back later in the same game:** a player who played and left returns with the chips they left with (0 if they were busted), never a fresh stack. After the game ends, a returning player is an ordinary newcomer.
 - **Game end:**
   - **Rebuys off:** the game ends when only one player has chips, or when no human has chips (bots don't play on alone).
   - **Rebuys on:** if fewer than two players have chips at the start of a hand, the table pauses until someone rebuys or the host ends the game.
-  - **Any time:** the host can end the game.
-- **Finished screen:** each player's final stack and net result (final stack − total bought in), ranked.
+  - **Any time:** the host can end the game (End game in the top bar, with a confirm). A hand in progress is finished first; everyone sees "Last hand" until then.
+- **Finished screen:** the table rests on the left with the winner named on the felt; on the right, every player who played (including those who left) with their final chips, rebuys and net result (final stack − total bought in), ranked by net. The host can change the settings and start the next game (fresh stacks for everyone seated); others see who they are waiting for. Anyone can leave. A player disconnected on the finished screen loses the seat after 60 s, as in the lobby.
 
 ## 5. Disconnection & reconnection
 - **Disconnect in the lobby:** the seat is held for **60 s**, then released.

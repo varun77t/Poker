@@ -54,7 +54,7 @@ poker/
 │       │   ├── room.ts          Room type, seat helpers, toRoomView/toSnapshot projections
 │       │   └── roomManager.ts   create/join/leave/start, host migration, TTL + grace timers, player→room index
 │       ├── table/
-│       │   └── tableController.ts  one per playing room: deals hands, turn timers, pacing, payouts, button (rebuys, game end: Phase 6)
+│       │   └── tableController.ts  one per playing room: deals hands, turn timers, pacing, payouts, button, game end
 │       ├── engine/              PURE — must not import anything outside engine/ and shared/
 │       │   ├── index.ts         the public API (import the engine from here)
 │       │   ├── deck.ts          FULL_DECK, shuffle / shuffledDeck(randomInt) — Fisher–Yates, RNG injected
@@ -82,12 +82,14 @@ poker/
 │       ├── main.tsx, App.tsx    router: /, /create, /room/:code (+ /dev/table in development only)
 │       ├── socket/              socket singleton (typed), session bootstrap, request()
 │       ├── state/store.ts       latest snapshot (by version), connection status, server clock offset
-│       ├── pages/               Landing, CreateRoom, Room (renders Lobby | TablePage), TablePage, DevTable
+│       ├── pages/               Landing, CreateRoom, Room (renders Lobby | TablePage | FinishedPage),
+│       │                        TablePage, FinishedPage (results + next game), DevTable
 │       ├── components/          Layout, Button, TextField, SettingsForm, ConnectionOverlay
-│       │   └── table/           PokerTable, Seat, PlayingCard, ChipStack, ActionPanel (+ .module.css)
+│       │   └── table/           PokerTable, Seat, PlayingCard, ChipStack, ActionPanel, RoomBar (+ .module.css)
 │       ├── table/               model.ts (display derivations), motionPlan.ts (what moves between
 │       │                        two snapshots), useTableMotion.ts (plays it); unit tested with Vitest
-│       └── styles/              global.css; the table's tokens live in TablePage.module.css
+│       └── styles/              global.css (placeholder screens); cardRoom.module.css (the in-game world's
+│                                tokens and shared controls, used by TablePage and FinishedPage)
 └── e2e/                         Playwright tests (Phase 9)
 ```
 
@@ -288,7 +290,9 @@ interface Room {
   version: number;                  // ++ on ANY change; lets clients drop out-of-order snapshots
   emptySince: number | null;
   table: TableController | null;    // while status == 'playing'
-  lastHandId: number;               // hand ids never repeat within a room
+  lastHandId: number;               // hand ids never repeat within a room (they keep counting across games)
+  departed: Map<PlayerId, { displayName; stack; totalBuyIn }>; // played this game, then left: chips come back on rejoin
+  finalResults: FinalResult[] | null; // while status == 'finished'
 }
 interface Seat {
   playerId: PlayerId;
@@ -299,6 +303,7 @@ interface Seat {
   waitingForNextHand: boolean;
   leaving: boolean;                 // left while dealt in; not a member; freed before the next hand
   missedHands: number;              // hands started in a row while disconnected (R-9.3)
+  played: boolean;                  // dealt into at least one hand of the current game (has a result)
 }
 
 // engine/types.ts
@@ -364,8 +369,8 @@ interface RoomView {
   youId: PlayerId;
   seats: ({ seat: number; playerId: PlayerId; displayName: string; stack: number;   // live stack during a hand
             connected: boolean; waitingForNextHand: boolean; busted: boolean; leaving: boolean } | null)[];
-  table: { nextHandAt: number | null; waitingForPlayers: boolean } | null;          // while playing
-  finalResults: { playerId: PlayerId; displayName: string; finalStack: number; net: number }[] | null;
+  table: { nextHandAt: number | null; waitingForPlayers: boolean; endingAfterHand: boolean } | null; // while playing
+  finalResults: { playerId: PlayerId; displayName: string; finalStack: number; totalBuyIn: number; rebuys: number; net: number }[] | null; // while finished
 }
 interface GameView {
   handId: number; seq: number;
@@ -509,11 +514,12 @@ Only results are written, and only at key moments: room created, hand finished, 
 | Engine property | Vitest + fast-check | Random 2–5 players, stacks, and legal actions: chip conservation, no negative stacks, termination, no leaked hidden info in `toGameView` |
 | Evaluator | Vitest | Category table, kickers, wheel, board plays, plus a few thousand random 7-card hands checked against a slow brute-force reference |
 | Rooms / sessions | Vitest + fake timers | Codes, join/leave, host migration, TTL, grace windows |
-| Table controller | Vitest + fake `Clock` | Hand sequencing, timers, pacing, rebuys, busts, removals, game end |
+| Table controller | Vitest + fake `Clock` | Hand sequencing, timers, pacing, rebuys, busts, removals, game end (`test/table/lifecycle.test.ts`: whole games from start to finished screen and restart) |
+| Room-level simulation | Vitest + fast-check | Random joins, leaves, disconnects, actions, rebuys, host ends and restarts, with rebuys on and off: a zero-sum chip ledger (seated + departed players), finished results that sum to zero, no stuck table, no leaked cards |
 | Socket integration | Vitest + in-process server + `socket.io-client` | Multi-client flows, all error codes, **no hole-card leakage in any emitted payload**, reconnect restores the view |
 | E2E | Playwright (3 browser contexts) | Create → invite link join → play hands → disconnect/reconnect → finish |
-| Client display logic | Vitest | `table/model.ts` and `table/motionPlan.ts` (seat rotation, tags, bet-size shortcuts, result wording, animation choreography) |
-| Manual | 3 browser profiles on a laptop/desktop screen (the app is desktop-only); `/dev/table?state=turn|flop|showdown|waiting` renders the table from sample data | Feel, layout, timing |
+| Client display logic | Vitest | `table/model.ts` and `table/motionPlan.ts` (seat rotation, tags, bet-size shortcuts, result wording, final standings, animation choreography) |
+| Manual | 3 browser profiles on a laptop/desktop screen (the app is desktop-only); `/dev/table?state=...` renders the in-game screens from sample data (turn, flop, showdown, waiting, busted, busted-off, ending, finished, finished-guest) | Feel, layout, timing |
 
 **CI gate** (local script until CI exists): `npm run typecheck && npm run lint && npm test && npm run build`.
 

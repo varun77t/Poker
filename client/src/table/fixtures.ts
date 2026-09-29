@@ -74,7 +74,7 @@ export function snapshot(g: GameView | null, occupied: (SeatView | number)[], yo
       settings: { ...DEFAULT_ROOM_SETTINGS },
       youId,
       seats,
-      table: { nextHandAt: null, waitingForPlayers: false },
+      table: { nextHandAt: null, waitingForPlayers: false, endingAfterHand: false },
       finalResults: null,
     },
     game: g,

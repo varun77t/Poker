@@ -2,7 +2,7 @@
 
 This is the live reference for everything the client and server exchange. The types in [`shared/src/events.ts`](../shared/src/events.ts), [`shared/src/views.ts`](../shared/src/views.ts) and [`shared/src/schemas.ts`](../shared/src/schemas.ts) are the source of truth, and this page must stay in sync with them.
 
-**Status:** Phase 4 (hands are dealt and played in real time). Rebuys, game end and restart arrive in Phase 6; bots in Phase 7.
+**Status:** Phase 6 (a whole game: hands in real time, rebuys, game end, results and restart). Bots arrive in Phase 7.
 
 ---
 
@@ -49,7 +49,7 @@ This is the live reference for everything the client and server exchange. The ty
 | `ILLEGAL_ACTION` | The action isn't allowed now (e.g. check facing a bet, raise when raising is closed, R-4.5) |
 | `INVALID_AMOUNT` | Missing, extra or out-of-range bet/raise amount (R-4.9) |
 | `INTERNAL` | Unexpected server error (details are logged server-side only) |
-| `REBUY_NOT_ALLOWED` | Reserved for Phase 6 |
+| `REBUY_NOT_ALLOWED` | Rebuys are off, the player still has chips, or they are in a hand still being played |
 
 ---
 
@@ -63,8 +63,10 @@ This is the live reference for everything the client and server exchange. The ty
 | `room:join` | `{ code: string }` (≤16 chars) | `{ code }` | See below |
 | `room:leave` | `{}` | `{}` | See below. Host passes to the next member clockwise. When the last member leaves, any game stops, the room goes back to an empty lobby and is deleted after 10 minutes. `NOT_IN_ROOM` if not seated. |
 | `room:updateSettings` | `{ settings: RoomSettings }` | `{}` | Host only (`NOT_HOST`); not while `playing` (`INVALID_STATE`). In `waiting`, every seated player's stack is reset to the new `startingStack`. In `finished`, only the settings change; they apply on restart. Identical settings are a no-op (no new snapshot). |
-| `game:start` | `{}` | `{}` | Host only; status `waiting` or `finished`; ≥ 2 seated. Sets status `playing` and deals the first hand straight away (the first button is a random seat, R-2.2). |
+| `game:start` | `{}` | `{}` | Host only (`NOT_HOST`); status `waiting` or `finished` (`INVALID_STATE` while playing); ≥ 2 seated (`NOT_ENOUGH_PLAYERS`). Sets status `playing`, gives every seated player a fresh `startingStack` (this is also the restart from the finished screen), clears `finalResults`, and deals the first hand straight away (the first button is a random seat, R-2.2). Hand ids keep counting across games. |
 | `game:action` | `{ handId, seq, type, amount? }` | `{}` | See §3.1 |
+| `game:rebuy` | `{}` | `{}` | See §3.3 |
+| `game:end` | `{}` | `{}` | See §3.4 |
 
 **`room:join` rules:**
 - The code is normalized: uppercased, with spaces and dashes removed.
@@ -72,11 +74,12 @@ This is the live reference for everything the client and server exchange. The ty
 - The player is seated in the lowest free seat. If the room is `playing`, they are marked `waitingForNextHand`.
 - Joining leaves any other room, but only after the new room is known to have space.
 - If the player left this room during the hand still being played (or shown), they get that seat and its chips back. Their fold stands, and they are dealt in from the next hand.
+- If the player played in this room's current game and left it earlier, they come back with the chips they left with (possibly 0, i.e. busted) and their buy-in total, not a fresh stack. This memory lasts until the game ends or restarts. Players who never played get a fresh stack as usual.
 - Joining a room whose table is waiting for players (§4.2) deals the next hand at once.
 - **Errors:** `ROOM_NOT_FOUND`, `ROOM_FULL`, and `RATE_LIMITED` (10 joins per minute per player).
 
 **`room:leave` rules:**
-- Not dealt into the current hand (lobby, waiting for the next hand, busted): the seat is freed now.
+- Not dealt into the current hand (lobby, finished screen, waiting for the next hand, busted): the seat is freed now.
 - Dealt into the current hand: the hand is folded at once (R-9.1; an all-in hand stays in and can still win). The seat stays, marked `leaving`, until the hand is over and its results pause has ended, then it is freed. Chips still on it leave with the player.
 - Either way the player stops being a member at once: they get no more `state` events for the room and can create or join another.
 
@@ -91,6 +94,21 @@ This is the live reference for everything the client and server exchange. The ty
 - Schema: integers only, `handId`/`seq` ≥ 0, `0 ≤ amount ≤ 1,000,000,000`, no other keys (`INVALID_PAYLOAD` otherwise).
 - **Errors:** `NOT_IN_ROOM`, `INVALID_STATE` (no game, no hand right now, the hand is over, or cards are being dealt), `STALE_ACTION`, `NOT_YOUR_TURN`, `ILLEGAL_ACTION`, `INVALID_AMOUNT`.
 - On success every member gets a new `state` (usually before the ack).
+
+### 3.3 `game:rebuy`
+
+A busted player buys back in for the starting stack (R-10.2). Payload `{}`.
+- Allowed while the room is `playing`, rebuys are on, the player's seat has 0 chips, and they are not in a hand still being played. That includes sitting out during someone else's hand and the results pause of the hand they busted in. The chips play from the next hand.
+- The seat's `stack` becomes `startingStack` and its buy-in total grows by the same amount (it shows in the final results).
+- If the table was waiting for players (§4.2), the next hand is dealt at once.
+- **Errors:** `NOT_IN_ROOM`, `INVALID_STATE` (no game running), `REBUY_NOT_ALLOWED` (rebuys off; still has chips; in a hand being played, with the message "You can rebuy once this hand is over.").
+
+### 3.4 `game:end`
+
+The host ends the game (R-10.4). Payload `{}`.
+- With no hand on the table (waiting for players), the game ends at once.
+- Otherwise the current hand is played out and its results pause runs as usual; then, instead of the next hand, the game ends. Until then every snapshot has `table.endingAfterHand: true`. Asking again changes nothing.
+- **Errors:** `NOT_IN_ROOM`, `NOT_HOST`, `INVALID_STATE` (no game running).
 
 ### 3.2 `RoomSettings`
 
@@ -128,7 +146,15 @@ interface RoomView {
   youId: string;            // the receiving player
   seats: (SeatView | null)[]; // always 5; null = open seat
   table: TableView | null;  // while status is 'playing'
-  finalResults: null;       // Phase 6
+  finalResults: FinalResult[] | null; // while status is 'finished'; ranked by net, best first
+}
+interface FinalResult {     // everyone dealt into at least one hand of the game, including players who left
+  playerId: string;
+  displayName: string;
+  finalStack: number;       // chips at the end of the game, or when they left it
+  totalBuyIn: number;       // starting stack + every rebuy
+  rebuys: number;
+  net: number;              // finalStack - totalBuyIn; the nets of a game sum to zero
 }
 interface SeatView {
   seat: number;
@@ -137,12 +163,13 @@ interface SeatView {
   stack: number;            // chips in front of them; during a hand, what they have left behind (not in the pot)
   connected: boolean;       // false while disconnected (lobby: seat released after 60 s; game: see §4.2)
   waitingForNextHand: boolean; // joined during a game; dealt in from the next hand
-  busted: boolean;          // 0 chips between hands (R-10.1): not dealt in
+  busted: boolean;          // 0 chips and not in a hand being played (R-10.1): not dealt in; may rebuy if rebuys are on
   leaving: boolean;         // left during this hand; the seat is freed before the next one
 }
 interface TableView {
   nextHandAt: number | null;   // server time the next hand is dealt, during the results pause
-  waitingForPlayers: boolean;  // fewer than 2 players have chips: no hand until someone joins (R-10.4)
+  waitingForPlayers: boolean;  // rebuys on and fewer than 2 players have chips: no hand until someone joins or rebuys (R-10.4)
+  endingAfterHand: boolean;    // the host ended the game; it finishes after the current hand's results
 }
 ```
 
@@ -183,7 +210,10 @@ Players waiting for the next hand also get the `game` (without anyone's hole car
 - **Turns:** the player to act has `turnSeconds` (room setting). When it runs out the server checks for them if that's legal, otherwise folds (R-9.2), connected or not.
 - **Between streets:** after a betting round closes, the next street is dealt after 0.8 s. When no more betting is possible (R-5.8) everyone's hand is shown and the rest of the board comes out one street every 1.5 s.
 - **Results:** the finished hand stays in `game` with its `result` for 5 s after a showdown or 3 s after a hand won by folds (`table.nextHandAt`), then the next hand is dealt with the button moved (R-2.2).
-- **Between hands:** seats of players who left are freed; late joiners are dealt in; busted players (0 chips) are skipped. If fewer than 2 players have chips, `game` becomes null and `table.waitingForPlayers` is true until someone joins. (Rebuys and game end: Phase 6.)
+- **Between hands:** seats of players who left are freed (their chips are remembered for the rest of the game, see `room:join`); late joiners are dealt in; busted players (0 chips) are skipped. Then:
+  - If the host ended the game (`table.endingAfterHand`), the game ends.
+  - If fewer than 2 players have chips: with rebuys **off** the game ends (R-10.4); with rebuys **on**, `game` becomes null and `table.waitingForPlayers` is true until someone joins or rebuys, or the host ends the game.
+- **Game end:** status becomes `finished`, `table` and `game` become null, and `finalResults` lists everyone who was dealt a hand in the game (seated or not), ranked by net result. Seated players stay seated. Disconnected players get the lobby's 60 s grace window from here on. The host can change settings (`room:updateSettings`) and restart (`game:start`); anyone can leave or join.
 - **Disconnects:** a disconnected player keeps their seat and is dealt in; their turns time out. Someone still disconnected when 3 hands in a row have started is removed before the next hand, and their chips leave with them (R-9.3). Reconnecting resets the count and immediately sends the full snapshot, including their cards and, if it's their turn, their options and the running deadline.
 
 ## 5. HTTP

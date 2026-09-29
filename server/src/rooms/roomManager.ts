@@ -13,7 +13,7 @@ import { DomainError } from '../errors';
 import { silentLogger, type Logger } from '../logger';
 import { MAX_MISSED_HANDS, type Timings } from '../policies';
 import { TableController, type NewDeck, type TableTimings } from '../table/tableController';
-import { members, nextMemberSeat, seatIndexOf, type Room } from './room';
+import { buildFinalResults, members, nextMemberSeat, seatIndexOf, type Room } from './room';
 import { generateUniqueRoomCode, secureRandomInt, type RandomInt } from './roomCode';
 
 export interface PlayerRef {
@@ -36,7 +36,10 @@ export interface RoomManagerDeps {
 
 /**
  * Owns all rooms, seats, hosts and the player→room index. No sockets. A player is in at most one
- * room. Each playing room has a TableController that runs the hands. Rules: docs/product-spec.md §3 and §5.
+ * room. Each playing room has a TableController that runs the hands. Rules: docs/product-spec.md §3–§5.
+ *
+ * Room lifecycle: `waiting` (lobby) → `playing` (host starts) → `finished` (host ends it, or rebuys are
+ * off and one player is left with chips) → `playing` again on restart, with fresh stacks.
  */
 export class RoomManager {
   private readonly rooms = new Map<string, Room>();
@@ -74,6 +77,8 @@ export class RoomManager {
       emptySince: null,
       table: null,
       lastHandId: 0,
+      departed: new Map(),
+      finalResults: null,
     };
     this.rooms.set(code, room);
     this.seatPlayer(room, player, 0);
@@ -104,6 +109,13 @@ export class RoomManager {
     // Only leave the current room once the new one is known to have space.
     this.removeFromCurrentRoom(player.playerId);
     this.seatPlayer(room, player, freeSeat);
+    // Back in a game they played earlier: the chips they left with, not a fresh stack (not even when busted).
+    const returning = room.departed.get(player.playerId);
+    const seat = room.seats[freeSeat];
+    if (returning && seat) {
+      room.departed.delete(player.playerId);
+      Object.assign(seat, { stack: returning.stack, totalBuyIn: returning.totalBuyIn, played: true });
+    }
     room.table?.seatsChanged(); // a table waiting for players deals now
     this.changed(room);
     return room;
@@ -119,6 +131,7 @@ export class RoomManager {
     this.removeFromCurrentRoom(playerId);
   }
 
+  /** Starts the game from the lobby, or restarts it from the finished screen. Everyone gets a fresh starting stack. */
   start(playerId: PlayerId): void {
     const room = this.requireRoomOf(playerId);
     if (room.hostId !== playerId) throw new DomainError('NOT_HOST', 'Only the host can start the game.');
@@ -127,12 +140,51 @@ export class RoomManager {
       throw new DomainError('NOT_ENOUGH_PLAYERS', `At least ${MIN_PLAYERS_TO_START} players are needed to start.`);
     }
     room.status = 'playing';
+    room.finalResults = null;
+    room.departed.clear();
     for (const seat of members(room)) {
-      seat.waitingForNextHand = false;
-      seat.missedHands = 0;
+      Object.assign(seat, {
+        stack: room.settings.startingStack,
+        totalBuyIn: room.settings.startingStack,
+        waitingForNextHand: false,
+        missedHands: 0,
+        played: false,
+      });
+      this.cancelGraceTimer(seat.playerId);
     }
     room.table = this.createTable(room);
     room.table.start(); // deals the first hand and sends snapshots
+  }
+
+  /**
+   * R-10.2: a busted player buys back in for the starting stack. Allowed whenever they are not in a
+   * hand being played (sitting out, or during the results of the hand they busted in); the chips play
+   * from the next hand. A table waiting for players deals straight away.
+   */
+  rebuy(playerId: PlayerId): void {
+    const room = this.requireRoomOf(playerId);
+    const seat = room.seats[seatIndexOf(room, playerId)];
+    if (!seat || room.status !== 'playing' || !room.table) {
+      throw new DomainError('INVALID_STATE', 'You can only rebuy while a game is running.');
+    }
+    if (!room.settings.rebuys) throw new DomainError('REBUY_NOT_ALLOWED', 'Rebuys are off in this room.');
+    if (room.table.isPlayingHand(playerId)) {
+      throw new DomainError('REBUY_NOT_ALLOWED', 'You can rebuy once this hand is over.');
+    }
+    if (seat.stack > 0) throw new DomainError('REBUY_NOT_ALLOWED', 'You can only rebuy when you are out of chips.');
+
+    seat.stack = room.settings.startingStack;
+    seat.totalBuyIn += room.settings.startingStack;
+    room.table.seatsChanged();
+    this.changed(room);
+  }
+
+  /** Host only (R-10.4). Ends at once between hands; otherwise after the current hand and its results. */
+  endGame(playerId: PlayerId): void {
+    const room = this.requireRoomOf(playerId);
+    if (room.hostId !== playerId) throw new DomainError('NOT_HOST', 'Only the host can end the game.');
+    if (room.status !== 'playing' || !room.table) throw new DomainError('INVALID_STATE', 'No game is running.');
+    room.table.requestEnd(); // sends the snapshot itself: "ending after this hand", or the results
   }
 
   /** A player's game action (§6.3). Identity comes from the socket; the table checks handId/seq and legality. */
@@ -165,8 +217,9 @@ export class RoomManager {
   }
 
   /**
-   * Marks the player's seat connected or disconnected. A disconnected player in a lobby loses the
-   * seat after the grace window; in a game they stay seated (R-9.2, R-9.3). Returns true if anything changed.
+   * Marks the player's seat connected or disconnected. A disconnected player in a lobby or on the
+   * finished screen loses the seat after the grace window; in a game they stay seated (R-9.2, R-9.3).
+   * Returns true if anything changed.
    */
   setConnected(playerId: PlayerId, connected: boolean): boolean {
     const room = this.getRoomOf(playerId);
@@ -175,19 +228,7 @@ export class RoomManager {
 
     this.cancelGraceTimer(playerId);
     if (connected) seat.missedHands = 0;
-    if (!connected && room.status === 'waiting') {
-      this.graceTimers.set(
-        playerId,
-        this.deps.clock.schedule(this.deps.timings.lobbyDisconnectGraceMs, () => {
-          this.graceTimers.delete(playerId);
-          const current = this.getRoomOf(playerId);
-          const currentSeat = current?.seats[seatIndexOf(current, playerId)];
-          if (current && currentSeat && !currentSeat.connected && current.status === 'waiting') {
-            this.removeFromRoom(current, playerId);
-          }
-        }),
-      );
-    }
+    if (!connected && room.status !== 'playing') this.startGraceTimer(playerId);
 
     if (seat.connected === connected) return false;
     seat.connected = connected;
@@ -222,7 +263,43 @@ export class RoomManager {
       logger: logger ?? silentLogger,
       onChange: () => this.changed(room),
       beforeHand: () => this.releaseDepartedSeats(room),
+      onGameOver: () => this.finishGame(room),
     });
+  }
+
+  /**
+   * Between hands: the game is over. Results are fixed now (seated and departed players), the room
+   * shows them until the host restarts, and disconnected players get the lobby's grace window.
+   */
+  private finishGame(room: Room): void {
+    room.table?.stop();
+    room.table = null;
+    room.status = 'finished';
+    room.finalResults = buildFinalResults(room);
+    room.departed.clear();
+    for (const seat of members(room)) {
+      seat.waitingForNextHand = false;
+      seat.missedHands = 0;
+      if (!seat.connected) this.startGraceTimer(seat.playerId);
+    }
+    this.deps.logger?.debug(`room ${room.code}: game over after hand ${room.lastHandId}`);
+    this.changed(room);
+  }
+
+  /** A disconnected player outside a running game loses their seat unless they are back within the grace window. */
+  private startGraceTimer(playerId: PlayerId): void {
+    this.cancelGraceTimer(playerId);
+    this.graceTimers.set(
+      playerId,
+      this.deps.clock.schedule(this.deps.timings.lobbyDisconnectGraceMs, () => {
+        this.graceTimers.delete(playerId);
+        const current = this.getRoomOf(playerId);
+        const currentSeat = current?.seats[seatIndexOf(current, playerId)];
+        if (current && currentSeat && !currentSeat.connected && current.status !== 'playing') {
+          this.removeFromRoom(current, playerId);
+        }
+      }),
+    );
   }
 
   private requireRoomOf(playerId: PlayerId): Room {
@@ -242,6 +319,7 @@ export class RoomManager {
       waitingForNextHand: room.status === 'playing',
       leaving: false,
       missedHands: 0,
+      played: false,
       joinSeq: ++this.joinSeq,
     };
     this.roomOfPlayer.set(player.playerId, room.code);
@@ -270,7 +348,7 @@ export class RoomManager {
     const table = room.table;
     const dealtIn = table?.isDealtIn(playerId) ?? false;
     if (dealtIn) seat.leaving = true;
-    else room.seats[index] = null;
+    else this.freeSeat(room, index);
 
     if (room.hostId === playerId) this.migrateHost(room, index);
     if (members(room).length === 0) this.closeEmptyRoom(room);
@@ -288,15 +366,24 @@ export class RoomManager {
     room.seats.forEach((seat, index) => {
       if (!seat) return;
       if (seat.leaving) {
-        room.seats[index] = null;
+        this.freeSeat(room, index);
       } else if (!seat.connected && seat.missedHands >= MAX_MISSED_HANDS) {
-        room.seats[index] = null;
+        this.freeSeat(room, index);
         this.roomOfPlayer.delete(seat.playerId);
         this.cancelGraceTimer(seat.playerId);
       }
     });
     if (members(room).length === 0) this.closeEmptyRoom(room);
     else if (hostIndex !== -1 && room.seats[hostIndex] === null) this.migrateHost(room, hostIndex);
+  }
+
+  /** Empties a seat. During a game, a player who played remembers their chips (see Room.departed). */
+  private freeSeat(room: Room, index: number): void {
+    const seat = room.seats[index];
+    if (seat && room.status === 'playing' && seat.played) {
+      room.departed.set(seat.playerId, { displayName: seat.displayName, stack: seat.stack, totalBuyIn: seat.totalBuyIn });
+    }
+    room.seats[index] = null;
   }
 
   /** Host passes to the next member clockwise from the old host's seat (skipping players who left). */
@@ -311,6 +398,8 @@ export class RoomManager {
     room.table = null;
     room.status = 'waiting';
     room.seats = room.seats.map(() => null);
+    room.departed.clear();
+    room.finalResults = null;
     room.emptySince = this.deps.clock.now();
     this.emptyRoomTimers.get(room.code)?.();
     this.emptyRoomTimers.set(

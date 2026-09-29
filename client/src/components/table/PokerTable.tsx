@@ -11,19 +11,21 @@ interface Props {
   model: TableModel;
   result: ResultSummary | null;
   clock: TurnClock | null;
+  /** The game is over: the table dims and the seats rest while the result plate stays lit. */
+  resting?: boolean;
 }
 
 const at = ([x, y]: [number, number]) => ({ left: `${x * 100}%`, top: `${y * 100}%` });
 
 /** The oval table: rail, felt, board, pots, bets, dealer button and the five seats around it. */
-export function PokerTable({ snapshot, model, result, clock }: Props) {
+export function PokerTable({ snapshot, model, result, clock, resting = false }: Props) {
   const game = snapshot.game;
-  const table = snapshot.room.table;
+  const { table, youId, hostId } = snapshot.room;
   const highlight = result && result.highlight.size > 0 ? result.highlight : null;
   const slotOfSeat = (seat: number) => model.seats[seat]?.slot ?? 0;
 
   return (
-    <div className={styles.table}>
+    <div className={cx(styles.table, resting && styles.resting)}>
       <div className={styles.felt}>
         <div className={cx(styles.wordmark, (result || table?.waitingForPlayers) && styles.hidden)} aria-hidden="true">
           PRIVATE HOLD'EM
@@ -46,7 +48,10 @@ export function PokerTable({ snapshot, model, result, clock }: Props) {
         {table?.waitingForPlayers && (
           <div className={styles.waiting} role="status">
             <h2>Waiting for players</h2>
-            <p>A hand needs at least two players with chips. Invite a friend with room code {snapshot.room.code}.</p>
+            <p>
+              A hand needs two players with chips. {waitingHint(snapshot)}
+              {youId === hostId && ' Or end the game from the top bar.'}
+            </p>
           </div>
         )}
 
@@ -71,16 +76,29 @@ export function PokerTable({ snapshot, model, result, clock }: Props) {
           </span>
         )}
 
-        {model.seats.map((s) =>
-          'empty' in s ? (
-            <EmptySeat key={s.seat} slot={s.slot} />
-          ) : (
-            <Seat key={s.seat} model={s} highlight={highlight} clock={s.isTurn ? clock : null} />
-          ),
-        )}
+        <div className={styles.seats}>
+          {model.seats.map((s) =>
+            'empty' in s ? (
+              // A finished table shows only the seats people sat in.
+              !resting && <EmptySeat key={s.seat} slot={s.slot} />
+            ) : (
+              <Seat key={s.seat} model={s} highlight={highlight} clock={s.isTurn ? clock : null} />
+            ),
+          )}
+        </div>
       </div>
     </div>
   );
+}
+
+/** Who can get the table going again: the busted players by name (if rebuys are on), or a new friend. */
+function waitingHint({ room }: TableSnapshot): string {
+  const invite = `invite a friend with code ${room.code}.`;
+  if (!room.settings.rebuys) return `To keep playing, ${invite}`;
+  const out = room.seats.flatMap((s) => (s?.busted ? [s.playerId === room.youId ? 'You' : s.displayName] : []));
+  if (out.length === 0) return `To keep playing, ${invite}`;
+  const names = out.length === 1 ? out[0] : `${out.slice(0, -1).join(', ')} or ${out.at(-1)}`;
+  return `${names} can rebuy, or ${invite}`;
 }
 
 function Pots({ game }: { game: GameView }) {

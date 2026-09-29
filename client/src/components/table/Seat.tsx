@@ -53,6 +53,7 @@ export function Seat({ model, highlight, clock }: Props) {
   return (
     <div
       className={cx(styles.seat, isYou && styles.you, folded && styles.folded, isTurn && styles.turn, isWinner && styles.winner, sittingOut && styles.out)}
+      data-winner={isWinner || undefined}
       style={{ left: `${x * 100}%`, top: `${y * 100}%` } as CSSProperties}
     >
       <div className={styles.hole}>
@@ -76,7 +77,7 @@ export function Seat({ model, highlight, clock }: Props) {
           <span className={styles.stack}>{formatChips(stack)}</span>
         </span>
         {tag && (
-          <span className={cx(styles.tag, (tag.kind === 'away' || tag.kind === 'left') && styles.tagQuiet)} aria-hidden="true">
+          <span className={cx(styles.tag, (tag.kind === 'away' || tag.kind === 'left' || tag.kind === 'busted') && styles.tagQuiet)} aria-hidden="true">
             {tagText(tag)}
           </span>
         )}

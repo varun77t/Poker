@@ -1,0 +1,41 @@
+.stack {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: 26px;
+  height: 26px;
+}
+
+.chip {
+  position: absolute;
+  left: 0;
+  width: 26px;
+  height: 26px;
+  border: 3px dashed var(--chip-stripe);
+  border-radius: 50%;
+  box-shadow: 0 1px 0 rgb(0 0 0 / 0.45);
+}
+
+.chip::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1.5px solid var(--chip-inlay);
+  border-radius: 50%;
+}
+
+.red {
+  background: var(--chip-red);
+}
+
+.blue {
+  background: var(--chip-blue);
+}
+
+.black {
+  background: var(--chip-black);
+}
+
+.green {
+  background: var(--chip-green);
+}

@@ -11,3 +11,8 @@ playwright-report/
 test-results/
 .DS_Store
 Thumbs.db
+
+# Impeccable design tool: local cache and review captures (the surface brief and config are kept)
+client/.impeccable/hook.cache.json
+client/.impeccable/review/
+client/.impeccable/config.local.json

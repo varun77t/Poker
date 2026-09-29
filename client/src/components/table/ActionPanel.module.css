@@ -1,0 +1,179 @@
+.panel {
+  position: absolute;
+  right: 24px;
+  bottom: 20px;
+  z-index: 5;
+  width: 344px;
+  padding: 12px;
+  border: 1px solid var(--plaque-edge);
+  border-radius: 16px;
+  background: rgb(24 10 12 / 0.92);
+  box-shadow: 0 20px 40px -12px rgb(0 0 0 / 0.7);
+}
+
+.status {
+  min-height: 22px;
+  margin: 0 0 8px;
+  color: var(--ink-muted);
+  font-size: 16px;
+}
+
+.status b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.hurry {
+  color: var(--brass);
+  font-weight: 600;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1.3fr;
+  gap: 8px;
+}
+
+.act {
+  display: grid;
+  place-content: center;
+  height: 48px;
+  border: 1px solid var(--plaque-edge);
+  border-radius: 10px;
+  background: var(--button);
+  color: var(--ink);
+  font: 700 18px / 1.1 var(--font-ui);
+  cursor: pointer;
+  transition:
+    transform 90ms,
+    background-color 150ms,
+    opacity 150ms;
+}
+
+.act small {
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+.act:hover:not(:disabled) {
+  background: var(--button-hover);
+}
+
+.act:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.act:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+.primary {
+  border-color: var(--brass-hi);
+  background: var(--brass);
+  color: var(--brass-ink);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35);
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--brass-hover);
+}
+
+.fold {
+  color: var(--fold-ink);
+}
+
+.sizer {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  margin: 10px 0 0;
+}
+
+.sizer input[type='range'] {
+  width: 100%;
+  accent-color: var(--brass);
+}
+
+.amount {
+  display: block;
+  width: 86px;
+  height: 34px;
+  padding: 0 8px;
+  border: 1px solid var(--plaque-edge);
+  border-radius: 8px;
+  background: var(--field);
+  color: var(--ink);
+  font: 600 16px var(--font-ui);
+  text-align: right;
+}
+
+.amount:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 1px;
+}
+
+.presets {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.presets button,
+.presets span {
+  display: grid;
+  flex: 1;
+  place-items: center;
+  height: 30px;
+  border: 1px solid var(--plaque-edge);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ink-muted);
+  font: 600 14px var(--font-ui);
+  cursor: pointer;
+}
+
+.presets button:hover:not(:disabled) {
+  border-color: var(--brass-soft);
+  color: var(--ink);
+}
+
+.error {
+  margin: 8px 0 0;
+  color: var(--danger);
+  font-size: 16px;
+}
+
+.idle .status {
+  margin-bottom: 8px;
+}
+
+.ghostAct {
+  cursor: default;
+  opacity: 0.3;
+}
+
+/* Brass means "now": nothing is actionable here, so the ghost of the primary stays neutral. */
+.ghostAct.primary {
+  border-color: var(--plaque-edge);
+  background: var(--button);
+  color: var(--ink);
+  box-shadow: none;
+}
+
+.ghostRow {
+  opacity: 0.3;
+}
+
+.ghostRow span {
+  cursor: default;
+}
+
+.track {
+  display: block;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--plaque-edge);
+}

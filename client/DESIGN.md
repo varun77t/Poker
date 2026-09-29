@@ -1,0 +1,357 @@
+---
+name: Private Hold'em
+description: A card-room table among friends, where the state of the hand is always the brightest thing on screen.
+colors:
+  room: "#1f0d12"
+  room-lift: "#2b1219"
+  felt: "#1c6445"
+  felt-lit: "#22744f"
+  felt-edge: "#124530"
+  felt-ink: "rgb(236 226 200 / 0.16)"
+  felt-label: "rgb(8 26 17 / 0.62)"
+  rail: "#3a1c14"
+  rail-lit: "#57301f"
+  rail-shade: "#2a130d"
+  brass: "#d2a54c"
+  brass-lit: "#e7c16e"
+  brass-hover: "#dfb35a"
+  brass-trim: "#a88444"
+  brass-ink: "#2a1407"
+  paper: "#f7f2e7"
+  ink: "#f3ecdf"
+  ink-muted: "#c5b49c"
+  ink-faint: "#8e7b67"
+  suit-red: "#c62f3b"
+  suit-black: "#1b1b1f"
+  card-back: "#7b1d2a"
+  plaque: "#24110f"
+  plaque-turn: "#33190f"
+  plaque-edge: "#4a2a1d"
+  avatar: "#5a2e22"
+  button: "#33191a"
+  button-hover: "#43211f"
+  field: "#1a0b0c"
+  fold-ink: "#f0b7b3"
+  danger: "#e0645f"
+  win: "#7fcf9c"
+  chip-red: "#c62f3b"
+  chip-blue: "#2f5fb3"
+  chip-black: "#26262b"
+  chip-green: "#1f8a56"
+  chip-stripe: "rgb(255 255 255 / 0.85)"
+  chip-inlay: "rgb(255 255 255 / 0.35)"
+typography:
+  display:
+    fontFamily: "Marcellus, Georgia, serif"
+    fontSize: "clamp(22px, calc(var(--table-w) * 0.026), 30px)"
+    fontWeight: 400
+    lineHeight: 1.15
+    letterSpacing: "normal"
+  headline:
+    fontFamily: "Marcellus, Georgia, serif"
+    fontSize: "24px"
+    fontWeight: 400
+    lineHeight: 1.2
+  title:
+    fontFamily: "Marcellus, Georgia, serif"
+    fontSize: "19px"
+    fontWeight: 400
+    lineHeight: 1
+    letterSpacing: "0.02em"
+  felt-lettering:
+    fontFamily: "Marcellus, Georgia, serif"
+    fontSize: "calc(var(--table-w) * 0.026)"
+    fontWeight: 400
+    lineHeight: 1
+    letterSpacing: "0.32em"
+  body:
+    fontFamily: "Barlow Semi Condensed, system-ui, sans-serif"
+    fontSize: "16px"
+    fontWeight: 500
+    lineHeight: 1.35
+    fontFeature: "tnum"
+  body-strong:
+    fontFamily: "Barlow Semi Condensed, system-ui, sans-serif"
+    fontSize: "16px"
+    fontWeight: 600
+    lineHeight: 1.15
+    fontFeature: "tnum"
+  figure:
+    fontFamily: "Barlow Semi Condensed, system-ui, sans-serif"
+    fontSize: "17px"
+    fontWeight: 600
+    fontFeature: "tnum"
+  action:
+    fontFamily: "Barlow Semi Condensed, system-ui, sans-serif"
+    fontSize: "18px"
+    fontWeight: 700
+    lineHeight: 1.1
+    fontFeature: "tnum"
+  label:
+    fontFamily: "Barlow Semi Condensed, system-ui, sans-serif"
+    fontSize: "14px"
+    fontWeight: 600
+    fontFeature: "tnum"
+  tag:
+    fontFamily: "Barlow Semi Condensed, system-ui, sans-serif"
+    fontSize: "13px"
+    fontWeight: 700
+    letterSpacing: "0.04em"
+  card-rank:
+    fontFamily: "Barlow Semi Condensed, system-ui, sans-serif"
+    fontSize: "36cqw"
+    fontWeight: 700
+    lineHeight: 1
+    letterSpacing: "-0.02em"
+rounded:
+  pill: "999px"
+  panel: "16px"
+  button: "10px"
+  control: "8px"
+  preset: "7px"
+  code: "6px"
+  card: "11% / 7.86%"
+spacing:
+  gutter: "24px"
+  header: "52px"
+  panel-pad: "12px"
+  xs: "6px"
+  sm: "8px"
+  md: "10px"
+  lg: "20px"
+components:
+  button-action:
+    backgroundColor: "{colors.button}"
+    textColor: "{colors.ink}"
+    typography: "{typography.action}"
+    rounded: "{rounded.button}"
+    height: "48px"
+  button-action-hover:
+    backgroundColor: "{colors.button-hover}"
+  button-primary:
+    backgroundColor: "{colors.brass}"
+    textColor: "{colors.brass-ink}"
+    typography: "{typography.action}"
+    rounded: "{rounded.button}"
+    height: "48px"
+  button-primary-hover:
+    backgroundColor: "{colors.brass-hover}"
+  button-fold:
+    backgroundColor: "{colors.button}"
+    textColor: "{colors.fold-ink}"
+    typography: "{typography.action}"
+    rounded: "{rounded.button}"
+    height: "48px"
+  button-ghost:
+    backgroundColor: "transparent"
+    textColor: "{colors.ink-muted}"
+    typography: "{typography.body-strong}"
+    rounded: "{rounded.control}"
+    padding: "7px 14px"
+  chip-preset:
+    backgroundColor: "transparent"
+    textColor: "{colors.ink-muted}"
+    typography: "{typography.label}"
+    rounded: "{rounded.preset}"
+    height: "30px"
+  input-amount:
+    backgroundColor: "{colors.field}"
+    textColor: "{colors.ink}"
+    typography: "{typography.body-strong}"
+    rounded: "{rounded.control}"
+    padding: "0 8px"
+    width: "86px"
+    height: "34px"
+  action-panel:
+    backgroundColor: "rgb(24 10 12 / 0.92)"
+    rounded: "{rounded.panel}"
+    padding: "{spacing.panel-pad}"
+    width: "344px"
+  seat-plaque:
+    backgroundColor: "{colors.plaque}"
+    textColor: "{colors.ink}"
+    typography: "{typography.body-strong}"
+    rounded: "{rounded.pill}"
+    padding: "7px 16px 7px 7px"
+  seat-plaque-turn:
+    backgroundColor: "{colors.plaque-turn}"
+  seat-tag:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.room}"
+    typography: "{typography.tag}"
+    rounded: "{rounded.pill}"
+    padding: "1px 8px"
+  pot-label:
+    backgroundColor: "{colors.felt-label}"
+    textColor: "{colors.ink}"
+    typography: "{typography.body-strong}"
+    rounded: "{rounded.pill}"
+    padding: "3px 12px"
+  result-plate:
+    backgroundColor: "{colors.felt-label}"
+    textColor: "{colors.paper}"
+    typography: "{typography.display}"
+    rounded: "{rounded.panel}"
+    padding: "8px 22px 10px"
+---
+
+# Design System: Private Hold'em
+
+## Overview
+
+**Creative North Star: "The Table Is the Room"**
+
+A real card-room table seen from your own chair. A deep wine room recedes into shadow, a padded mahogany rail carries a single brass trim line, and the green felt is lit from above so the centre of the table, where the board and pot sit, is the brightest thing on screen. Everything the player needs (whose turn, what a call costs, what is in the pot, who won) lives on or around the felt, not in sidebars.
+
+The world is warm, calm, and physical. Cards are cream paper with authored suit shapes, chips are flat striped discs, name plaques are dark leather pills. Motion is the table's own: cards slide from the dealer spot and turn over, chips slide to a bet, sweep into the pot when a street closes, and fly to the winner. It explains what happened and then stops. The owner confirmed two rejections: the online-casino look (glow, neon, stat sidebars, chip clutter) and the flat grey software table.
+
+Density is low and sized for arm's length on a laptop: 16px is the smallest routine text, cards scale with the table, and the whole screen fits a 1280x680 window with no scrolling.
+
+**Key Characteristics:**
+- One accent, brass, and it always means "now": the turn, the primary action, the winning cards.
+- Depth comes from light and material (lit felt, graded rail, soft drop shadows), never from glow.
+- Marcellus is lettering on the felt and in results; Barlow Semi Condensed with tabular figures carries every name and number.
+- Pills and ovals for things that sit on the table; modest rounded rectangles for controls you press.
+- Motion is physical and quick, and disappears entirely under reduced motion.
+
+**Scope.** Only the in-game table screen uses this world today. The landing, create-room, lobby and room screens still carry an early placeholder style (green/gold tokens in `src/styles/global.css`) that is not this system; they are due to be restyled to match it in the polish phase. Tokens are currently scoped to the table page root rather than `:root` so the world stays self-contained until then.
+
+## Colors
+
+A dim wine-and-mahogany room around a lit green felt, with cream paper and a single brass accent.
+
+### Primary
+- **Card-Room Brass** (brass): The one accent. The turn plaque's border and draining timer ring, the primary action button, the lift ring around winning cards, the winning hand line under a result, the "hurry" status, focus outlines, text selection and the range slider. Its lighter sibling **Brass Highlight** (brass-lit) is only the primary button's border; **Brass Hover** (brass-hover) is only its hover fill; **Dark Umber** (brass-ink) is the text set on brass.
+- **Rail Trim Brass** (brass-trim): A duller brass that is decoration, not signal: the single trim line inside the rail and the hover border on quiet controls. It never marks state.
+
+### Secondary
+- **Lamp-Lit Felt** (felt, felt-lit, felt-edge): The playing surface, always a radial light pool (felt-lit at the centre, felt at 45%, felt-edge at the rim). **Felt Shade** (felt-label) is a translucent dark green used for plates that sit on the felt: pot labels, the result plate, the waiting plate. **Printed Felt Ink** (felt-ink) is the faint cream of lettering printed into the cloth.
+
+### Tertiary
+- **Card Suits and Chips**: **Suit Red** (suit-red) and **Suit Black** (suit-black) on cream card faces; **Burgundy Card Back** (card-back) under a faint brass crosshatch. Chips come in four flat colours, **Chip Red**, **Chip Blue**, **Chip Black**, **Chip Green**, each with a white dashed edge stripe (**Chip Stripe**, chip-stripe) and a fainter inner ring (**Chip Inlay**, chip-inlay); stacks are built from these by amount, never as free decoration.
+
+### Neutral
+- **Wine Room** (room, room-lift): The backdrop, a radial gradient from room-lift at the centre to room at 70%. Also the text colour on paper-coloured tags and the dealer button.
+- **Mahogany Rail** (rail, rail-lit, rail-shade): The padded rail, graded top to bottom (rail-lit, rail at 40%, rail-shade).
+- **Leather Plaque** (plaque, plaque-turn, plaque-edge, avatar): Name plaques and their hairline edges; plaque-edge is also the standard 1px border for every control and panel. plaque-turn is the slightly warmer plaque of the player to act. avatar fills the initial disc.
+- **Oxblood Controls** (button, button-hover, field): Fill of action buttons and their hover; field is the sunken fill of the amount input.
+- **Cream Paper** (paper): Card faces, seat tags, the dealer button, and result headlines.
+- **Parchment Ink** (ink, ink-muted, ink-faint): Primary text, secondary text (stacks, labels, meta), and the faintest tier.
+- **Signal colours**: **Fold Blush** (fold-ink) for the Fold button and destructive text, **Danger** (danger) for errors and the leave-table border, **Payout Green** (win) only for the floating "+amount" as winnings land.
+
+### Named Rules
+**The Brass Means Now Rule.** Brass (brass) marks the one thing that is live right now: whose turn, the action you can take, the cards that won. When nothing is actionable, even the primary button's ghost drops to neutral oxblood. Decorative brass uses brass-trim, never brass.
+
+**The Lit Centre Rule.** The felt is the brightest large surface and the board sits in its light pool. The room and rail stay darker than the felt; nothing outside the table may out-shine it.
+
+## Typography
+
+**Display Font:** Marcellus (with Georgia, serif)
+**Body Font:** Barlow Semi Condensed 500/600/700 (with system-ui, sans-serif)
+
+**Character:** Marcellus is engraved, gently flared lettering, like a name printed into felt or a brass plate; Barlow Semi Condensed is a compact, plain working face whose tabular figures keep stacks, bets and pots aligned as they change.
+
+### Hierarchy
+- **Display** (Marcellus 400, clamp(22px, 2.6% of table width, 30px), 1.15): The showdown result ("You win 280"), in cream paper on a felt plate.
+- **Headline** (Marcellus 400, 24px, 1.2): Table-level status plates such as "Waiting for players".
+- **Title** (Marcellus 400, 19px, 1, 0.02em): The product name in the header.
+- **Felt Lettering** (Marcellus 400, 2.6% of table width, 0.32em, uppercase): The name printed into the felt, in felt-ink; it fades away while a result or waiting plate is shown.
+- **Body** (Barlow 500, 16px, 1.35, tabular figures): Default for the page; stacks, meta, status lines.
+- **Body Strong** (Barlow 600, 16px): Player names, bet amounts, the room code, ghost buttons.
+- **Action** (Barlow 700, 18px, 1.1): Action button labels; the amount sits under it at 13px/600.
+- **Label** (Barlow 600, 14px): Bet presets.
+- **Tag** (Barlow 700, 13px, 0.04em): State tags on plaques (All-in, Away, blind, last action).
+- **Card Rank** (Barlow 700, 36% of card width, 1, -0.02em): Card indices, scaled with the card via container units.
+
+### Named Rules
+**The Tabular Rule.** Every number on the table uses tabular figures (set once on the page root). Numbers that jump width as chips move are a defect.
+
+**The Lettering Rule.** Marcellus is for things a card room would letter or engrave: the felt, the result, the room's name. It never sets names, numbers, buttons or controls.
+
+## Layout
+
+A single fixed, non-scrolling stage. A 52px header strip (24px side gutters, 20px gaps) carries the name, room code, hand number, blinds and Leave table. Below it the oval table is centred and scales with the window: its width is the smallest of (viewport width minus 360px), (viewport height minus 256px) times 2.05, and 1320px, and its height is width / 2.05. Card width is 6.6% of table width, so the whole table, cards and board scale together from a 1280x680 laptop window up to large monitors.
+
+Your seat is always bottom centre, your two cards large (1.3 card widths) and overlapping the rail and your plaque; other seats sit clockwise at left, top-left, top-right and right, their cards at 0.62 card widths. The board of five sits in the felt centre, with the pot or result plate always just above it. The action panel is docked bottom-right, 344px wide, 24px from the edge. Bets sit on the felt in front of each seat; the dealer button travels between seats.
+
+Spacing is small-step and tight: 6, 8 and 10px inside controls and stacks, 12px panel padding, 20-24px at the page frame. Desktop only; there are no mobile breakpoints.
+
+## Elevation & Depth
+
+Depth is physical light and material, not glow. The room is a radial gradient, the rail a vertical gradient with a faint top highlight, and the felt a radial light pool with an inset brass trim line and an inset shadow under the rail. Objects that sit on the table cast short, soft, dark drop shadows; floating UI (the action panel) casts a longer one. Brass never glows; the one ring around winning cards is a hard 2.5px outline plus an ordinary drop shadow.
+
+### Shadow Vocabulary
+- **Table Drop** (`box-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.7), inset 0 2px 0 rgb(255 255 255 / 0.08)`): The table on the floor, with the rail's top highlight.
+- **Felt Well** (`box-shadow: inset 0 0 0 2px var(--brass-soft), inset 0 10px 30px rgb(0 0 0 / 0.35)`): The felt inside the rail: brass trim line plus rail shade.
+- **Panel Float** (`box-shadow: 0 20px 40px -12px rgb(0 0 0 / 0.7)`): The docked action panel.
+- **Plaque Rest** (`box-shadow: 0 8px 18px -6px rgb(0 0 0 / 0.6)`): Name plaques on the rail.
+- **Card Rest** (`box-shadow: 0 2px 4px rgb(0 0 0 / 0.35)`): Cards and the dealer button lying on felt.
+- **Card Lift** (`box-shadow: 0 0 0 2.5px var(--brass), 0 8px 16px rgb(0 0 0 / 0.4)` with an 8px rise): Winning cards at showdown.
+- **Chip Edge** (`box-shadow: 0 1px 0 rgb(0 0 0 / 0.45)`): Each chip in a stack.
+- **Brass Sheen** (`box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35)`): Only on the live primary button.
+
+### Named Rules
+**The No-Glow Rule.** Shadows are dark and fall downward. No coloured blurs, halos or neon, on brass or anything else.
+
+## Shapes
+
+Things that belong to the table are round: the oval table and felt, pill plaques, pill pot labels and tags, circular chips, the avatar disc and the dealer button (fully rounded, 999px or 50%). Things you press are modest rounded rectangles: action buttons (10px), inputs and ghost buttons (8px), presets (7px), the room code (6px). Floating plates and the action panel use 16px. Cards keep true playing-card proportions (5:7) with corners of 11% of their width. Borders are hairlines (1-1.5px) in plaque-edge; dashed borders mean "empty" (open seats, empty board slots) and the white dashed ring on chips is the chip's own edge stripe.
+
+## Components
+
+### Buttons
+Solid, pressable, and quiet until they are the move.
+- **Shape:** Gently rounded rectangles (10px), 48px tall, in a three-column row (Fold, Call/Check, Raise) sized 1 : 1.2 : 1.3.
+- **Action:** Oxblood fill (button), parchment text (ink), 1px plaque-edge border, 700 18px label with a 13px amount beneath.
+- **Primary:** Brass fill, dark umber text, brass-lit border and a thin top sheen. Exactly one per turn, the recommended action.
+- **Fold:** The action style with fold-ink text.
+- **Hover / Active / Disabled:** Hover lightens the fill (button-hover, brass-hover over 150ms); press nudges down 1px (90ms); disabled at 40% opacity. When it is not your turn the row stays in place as a 30% ghost with the primary reverted to neutral.
+- **Ghost / Danger (header):** Transparent, 8px radius, 7px 14px padding, plaque-edge border and ink-muted text; hover moves the border to brass-trim and the text to ink. The danger variant uses a translucent danger border and fold-ink text, with a faint danger wash on hover.
+
+### Chips (bet presets)
+- **Style:** Transparent, 30px tall, 7px radius, plaque-edge border, 600 14px ink-muted text, in an evenly divided row (Min, 1/2 pot, Pot, All-in).
+- **State:** Hover as the ghost button (brass-trim border, ink text).
+
+### Cards / Containers
+- **Action Panel:** 16px corners, near-opaque oxblood (rgb(24 10 12 / 0.92)), plaque-edge border, 12px padding, Panel Float shadow. A one-line status sits above the buttons.
+- **Felt Plates:** Pot labels (pill), result and waiting plates (16px) in translucent felt-label, so they read as printed on the cloth rather than floating.
+
+### Inputs / Fields
+- **Style:** The raise amount: 86x34px, sunken field fill, plaque-edge border, 8px radius, 600 16px right-aligned. Paired with a native range slider tinted brass.
+- **Focus:** 2px brass outline, 1px offset (3px everywhere else on the page).
+- **Error:** A 15px danger-coloured line under the sizer.
+
+### Navigation
+The header strip is the only navigation: product name in Marcellus, room code in a small bordered box (600, 0.08em tracking), "Hand 12 / Blinds 5 / 10" in ink-muted with values in ink, and Leave table as a ghost button that expands to an inline confirm.
+
+### Seat Plaque (signature)
+A dark leather pill (min 176px, yours 220px) with a 40px initial disc in Marcellus and name over stack. The player to act gets a brass border, the warmer plaque-turn fill, and a brass timer ring around the avatar that drains linearly over the turn. Folded and out seats drop to 50% opacity; your own folded cards darken and sink 10px. A small pill tag at the top-right shows state (paper for actions, blinds and All-in; plaque-edge for Away/Left). All-in is a status, not something to act on, so it never takes brass. Empty seats are a dashed, translucent pill reading "Open seat".
+
+### Playing Card (signature)
+Cream paper face, 5:7, 11% corners, rank and small suit top-left and a large authored suit shape bottom-right, all sized in container units so a card reads the same at any size. Backs are burgundy with a faint brass crosshatch inside a 4% margin. Non-winning cards at showdown dim (brightness 0.55, saturation 0.6); winning cards lift 8px with the brass ring.
+
+### Chip Stack (signature)
+26px flat discs with a 3px white dashed edge stripe and an inner ring, stacked 4px apart. The colour mix is chosen by amount (red alone for small bets up to black, black, green, blue, red at 1,000 and above), so a taller, darker stack means more.
+
+### Table Motion
+Motion uses one ease-out curve (cubic-bezier(0.16, 1, 0.3, 1)). Cards and chips fly between table anchors in 360ms; deals start 300ms in and stagger 70ms per card, board cards 150ms apart; cards turn over in 220ms; bets sweep to the pot 420ms after the closing call; winnings leave the pot at 1100ms with a "+amount" float in payout green. Only the landing settle uses a slight overshoot (cubic-bezier(0.34, 1.56, 0.64, 1), 240ms). Under prefers-reduced-motion nothing flies; the screen simply shows the new state.
+
+## Do's and Don'ts
+
+### Do:
+- **Do** reserve brass (#d2a54c) for what is live now: the turn, the primary action, the winning cards; use brass-trim for decoration.
+- **Do** keep the felt the brightest large surface and put hand state (board, pot, result) in its centre.
+- **Do** set every name and number in Barlow Semi Condensed with tabular figures, at 16px or larger for routine text.
+- **Do** use Marcellus only for lettering: the felt, the result, the product name.
+- **Do** express depth with dark, downward shadows and lit gradients, from the Shadow Vocabulary.
+- **Do** size table contents from the table width (cards at 6.6%) so the screen fits 1280x680 without scrolling.
+- **Do** make motion physical and quick with the shared ease-out curve, and drop it entirely under reduced motion.
+- **Do** pair every colour signal with text or shape (tags, timer ring, suit symbols).
+
+### Don't:
+- **Don't** use glow, neon, coloured halos or casino lighting effects.
+- **Don't** add stat sidebars, HUDs or chip clutter around the table.
+- **Don't** fall back to a flat grey software table or generic UI chrome.
+- **Don't** use brass as decoration; decorative brass is brass-trim.
+- **Don't** use money language (deposit, cash, jackpot, win big); chips are virtual and never bought.
+- **Don't** treat the green/gold tokens in `src/styles/global.css` as the system; they belong to the unmigrated placeholder screens.

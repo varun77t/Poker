@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Table prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Marcellus&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --room: #1f0d12;
+    --room-2: #2b1219;
+    --felt: #1c6445;
+    --felt-edge: #124530;
+    --felt-ink: rgb(236 226 200 / 0.16);
+    --rail: #3a1c14;
+    --rail-hi: #57301f;
+    --brass: #d2a54c;
+    --brass-soft: #a88444;
+    --paper: #f7f2e7;
+    --ink: #f3ecdf;
+    --ink-muted: #c5b49c;
+    --ink-faint: #8e7b67;
+    --suit-red: #c62f3b;
+    --suit-black: #1b1b1f;
+    --plaque: #24110f;
+    --plaque-edge: #4a2a1d;
+    --danger: #e0645f;
+    --ok: #7fcf9c;
+    --font-ui: 'Barlow Semi Condensed', system-ui, sans-serif;
+    --font-display: 'Marcellus', Georgia, serif;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --table-w: min(calc(100vw - 360px), calc((100dvh - 250px) * 2.05), 1060px);
+    --table-h: calc(var(--table-w) / 2.05);
+    --card-w: calc(var(--table-w) * 0.066);
+    --above-board: calc(50% + var(--card-w) * 1.4 * 0.4 + 22px);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    min-height: 100dvh; overflow: hidden; color: var(--ink); font: 500 16px/1.35 var(--font-ui);
+    background: radial-gradient(ellipse 80% 70% at 50% 45%, var(--room-2), var(--room) 70%);
+    font-variant-numeric: tabular-nums;
+  }
+  ::selection { background: var(--brass); color: var(--room); }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+
+  /* Top bar */
+  .bar { position: absolute; inset: 0 0 auto; height: 52px; display: flex; align-items: center; gap: 20px; padding: 0 24px; }
+  .mark { font: 19px/1 var(--font-display); letter-spacing: 0.02em; }
+  .code { padding: 4px 10px; border: 1px solid var(--plaque-edge); border-radius: 6px; color: var(--ink-muted); font-weight: 600; letter-spacing: 0.08em; }
+  .meta { color: var(--ink-muted); }
+  .meta b { color: var(--ink); font-weight: 600; }
+  .spacer { flex: 1; }
+  .ghost { padding: 7px 14px; border: 1px solid var(--plaque-edge); border-radius: 8px; background: transparent; color: var(--ink-muted); cursor: pointer; }
+  .ghost:hover { color: var(--ink); border-color: var(--brass-soft); }
+
+  /* Table */
+  .stage { position: absolute; inset: 52px 0 0; }
+  .table {
+    position: absolute; left: 50%; top: calc(50% - 44px); width: var(--table-w); height: var(--table-h);
+    transform: translate(-50%, -50%); border-radius: 999px; padding: calc(var(--table-w) * 0.028);
+    background: linear-gradient(180deg, var(--rail-hi), var(--rail) 40%, #2a130d);
+    box-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.7), inset 0 2px 0 rgb(255 255 255 / 0.08);
+  }
+  .felt {
+    position: relative; width: 100%; height: 100%; border-radius: 999px;
+    background: radial-gradient(ellipse 60% 70% at 50% 42%, #22744f, var(--felt) 45%, var(--felt-edge));
+    box-shadow: inset 0 0 0 2px var(--brass-soft), inset 0 10px 30px rgb(0 0 0 / 0.35);
+  }
+  .wordmark { position: absolute; left: 50%; top: 17%; transform: translateX(-50%); font: calc(var(--table-w) * 0.026) / 1 var(--font-display); letter-spacing: 0.32em; color: var(--felt-ink); white-space: nowrap; transition: opacity 300ms; }
+  .felt:has(.result.show) .wordmark { opacity: 0; }
+  .pot { position: absolute; left: 50%; bottom: var(--above-board); transform: translateX(-50%); display: flex; align-items: center; gap: 10px; min-height: 34px; transition: opacity 250ms; }
+  .pot-label { padding: 3px 12px; border-radius: 999px; background: rgb(10 30 20 / 0.55); font-weight: 600; font-size: 17px; }
+  .pot-label span { color: var(--ink-muted); font-weight: 500; margin-right: 6px; }
+  .board { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -40%); display: flex; gap: calc(var(--card-w) * 0.14); }
+  .slot { width: var(--card-w); aspect-ratio: 5 / 7; border-radius: 8px; border: 1.5px dashed rgb(236 226 200 / 0.14); }
+  .deck { position: absolute; left: 50%; top: 7%; transform: translateX(-50%); width: calc(var(--card-w) * 0.8); aspect-ratio: 5 / 7; }
+
+  .result { position: absolute; left: 50%; bottom: var(--above-board); transform: translate(-50%, 6px); padding: 8px 22px 10px; border-radius: 16px; background: rgb(8 26 17 / 0.62); text-align: center; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 300ms var(--ease-out), transform 400ms var(--ease-out); }
+  .result.show { opacity: 1; transform: translate(-50%, 0); }
+  .result h2 { margin: 0; font: clamp(22px, calc(var(--table-w) * 0.026), 30px) / 1.15 var(--font-display); color: var(--paper); }
+  .result p { margin: 2px 0 0; color: var(--brass); font-weight: 600; font-size: 17px; }
+
+  /* Cards */
+  .card { position: relative; width: var(--card-w); aspect-ratio: 5 / 7; perspective: 600px; }
+  .card .inner { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform 380ms var(--ease-out); }
+  .card.down .inner { transform: rotateY(180deg); }
+  .face, .back { position: absolute; inset: 0; border-radius: calc(var(--card-w) * 0.11); backface-visibility: hidden; box-shadow: 0 2px 4px rgb(0 0 0 / 0.35); }
+  .face { background: var(--paper); color: var(--suit-black); padding: 6% 9%; }
+  .face.red { color: var(--suit-red); }
+  .face .rank { font: 700 calc(var(--card-w) * 0.36) / 1 var(--font-ui); }
+  .face .small { width: 28%; margin-top: 4%; }
+  .face .big { position: absolute; right: 9%; bottom: 7%; width: 50%; }
+  .face svg { display: block; fill: currentColor; }
+  .back { transform: rotateY(180deg); background:
+      repeating-linear-gradient(45deg, rgb(210 165 76 / 0.22) 0 1.5px, transparent 1.5px 7px),
+      repeating-linear-gradient(-45deg, rgb(210 165 76 / 0.22) 0 1.5px, transparent 1.5px 7px),
+      #7b1d2a; border: 3px solid var(--paper); }
+  .card.dim .face { filter: brightness(0.55) saturate(0.6); }
+  .card.lift { transform: translateY(-8px); transition: transform 300ms var(--ease-out); }
+  .card.lift .face { box-shadow: 0 0 0 2.5px var(--brass), 0 8px 16px rgb(0 0 0 / 0.4); }
+
+  /* Seats */
+  .seat { position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 6px; transition: opacity 300ms; }
+  .seat.folded { opacity: 0.45; }
+  .hole { display: flex; gap: 4px; height: calc(var(--card-w) * 0.62 * 1.4); }
+  .hole .card { width: calc(var(--card-w) * 0.62); }
+  .seat.you .hole { gap: 8px; height: calc(var(--card-w) * 1.3 * 1.4); margin-bottom: -18px; z-index: 2; }
+  .seat.you .hole .card { width: calc(var(--card-w) * 1.3); }
+  .plaque { position: relative; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 10px; min-width: 176px; padding: 7px 14px 7px 7px; border-radius: 999px; background: var(--plaque); border: 1.5px solid var(--plaque-edge); box-shadow: 0 8px 18px -6px rgb(0 0 0 / 0.6); transition: border-color 200ms, background-color 200ms; }
+  .seat.turn .plaque { border-color: var(--brass); background: #33190f; }
+  .seat.winner .plaque { border-color: var(--brass); }
+  .avatar { position: relative; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: #5a2e22; font: 20px/1 var(--font-display); }
+  .avatar svg { position: absolute; inset: -4px; width: 48px; height: 48px; transform: rotate(-90deg); }
+  .avatar circle { fill: none; stroke: var(--brass); stroke-width: 3; stroke-linecap: round; }
+  .who { display: flex; flex-direction: column; line-height: 1.15; }
+  .name { font-weight: 600; font-size: 16px; }
+  .stack { color: var(--ink-muted); font-size: 16px; }
+  .tag { position: absolute; right: -8px; top: -10px; padding: 1px 8px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; background: var(--paper); color: var(--room); }
+  .tag.act { background: var(--brass); }
+  .float { position: absolute; left: 50%; top: -6px; transform: translateX(-50%); font-weight: 700; font-size: 20px; color: var(--ok); pointer-events: none; }
+  .seat.you .plaque { min-width: 220px; }
+
+  .bet { position: absolute; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 16px; }
+  .dealer { position: absolute; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; transform: translate(-50%, -50%); background: var(--paper); color: var(--room); font: 700 14px/1 var(--font-ui); box-shadow: 0 2px 4px rgb(0 0 0 / 0.4); transition: left 500ms var(--ease-out), top 500ms var(--ease-out); }
+
+  /* Chips (flat, striped edge) */
+  .chips { position: relative; width: 26px; height: 26px; }
+  .chip { position: absolute; left: 0; width: 26px; height: 26px; border-radius: 50%; border: 3px dashed rgb(255 255 255 / 0.85); box-shadow: 0 1px 0 rgb(0 0 0 / 0.45); }
+  .chip::after { content: ''; position: absolute; inset: 4px; border-radius: 50%; border: 1.5px solid rgb(255 255 255 / 0.35); }
+  .c-red { background: #c62f3b; } .c-blue { background: #2f5fb3; } .c-black { background: #26262b; } .c-green { background: #1f8a56; } .c-white { background: #e8e1d2; border-color: rgb(40 40 40 / 0.5); }
+
+  /* Action panel */
+  .panel { position: absolute; right: 24px; bottom: 20px; width: 344px; padding: 12px; border-radius: 16px; background: rgb(24 10 12 / 0.92); border: 1px solid var(--plaque-edge); box-shadow: 0 20px 40px -12px rgb(0 0 0 / 0.7); transition: opacity 200ms; }
+  .panel .status { margin: 0 0 8px; color: var(--ink-muted); font-size: 16px; min-height: 22px; }
+  .panel .status b { color: var(--ink); font-weight: 600; }
+  .row { display: grid; grid-template-columns: 1fr 1.2fr 1.3fr; gap: 8px; }
+  .act { height: 48px; border-radius: 10px; border: 1px solid var(--plaque-edge); background: #33191a; color: var(--ink); font-weight: 700; font-size: 18px; cursor: pointer; transition: transform 90ms, background-color 150ms, opacity 150ms; }
+  .act:hover:not(:disabled) { background: #43211f; }
+  .act:active:not(:disabled) { transform: translateY(1px); }
+  .act.primary { background: var(--brass); border-color: #e7c16e; color: #2a1407; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35); }
+  .act.primary:hover:not(:disabled) { background: #dfb35a; }
+  .act.fold { color: #f0b7b3; }
+  .act:disabled { opacity: 0.35; cursor: default; }
+  .act small { display: block; font-size: 13px; font-weight: 600; opacity: 0.8; }
+  .sizer { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; margin-top: 10px; }
+  .sizer input[type='range'] { width: 100%; accent-color: var(--brass); }
+  .amount { width: 86px; height: 34px; padding: 0 8px; border-radius: 8px; border: 1px solid var(--plaque-edge); background: #1a0b0c; color: var(--ink); font: 600 16px var(--font-ui); text-align: right; }
+  .presets { display: flex; gap: 6px; margin-top: 8px; }
+  .presets button { flex: 1; height: 30px; border-radius: 7px; border: 1px solid var(--plaque-edge); background: transparent; color: var(--ink-muted); font-weight: 600; font-size: 14px; cursor: pointer; }
+  .presets button:hover:not(:disabled) { color: var(--ink); border-color: var(--brass-soft); }
+  .panel.idle .sizer, .panel.idle .presets { opacity: 0.35; }
+
+  .replay { position: absolute; left: 24px; bottom: 20px; padding: 10px 16px; border-radius: 10px; border: 1px solid var(--plaque-edge); background: transparent; color: var(--ink-muted); cursor: pointer; }
+  .replay:hover { color: var(--ink); border-color: var(--brass-soft); }
+
+  .flyer { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 20; }
+
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: 0ms !important; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="s" viewBox="0 0 100 100"><path d="M50 4C38 22 8 38 8 62c0 14 11 23 23 23 7 0 13-3 16-8-1 8-4 14-10 19h26c-6-5-9-11-10-19 3 5 9 8 16 8 12 0 23-9 23-23C92 38 62 22 50 4z"/></symbol>
+  <symbol id="h" viewBox="0 0 100 100"><path d="M50 92C34 76 6 58 6 34 6 18 18 8 31 8c9 0 16 5 19 12 3-7 10-12 19-12 13 0 25 10 25 26 0 24-28 42-44 58z"/></symbol>
+  <symbol id="d" viewBox="0 0 100 100"><path d="M50 4 88 50 50 96 12 50z"/></symbol>
+  <symbol id="c" viewBox="0 0 100 100"><path d="M50 6a19 19 0 0 0-17 28 19 19 0 1 0 7 33c-1 10-5 17-11 23h42c-6-6-10-13-11-23a19 19 0 1 0 7-33A19 19 0 0 0 50 6z"/></symbol>
+</svg>
+
+<header class="bar">
+  <span class="mark">Private Hold'em</span>
+  <span class="code">RW8W7B</span>
+  <span class="meta">Hand <b id="handNo">12</b></span>
+  <span class="meta">Blinds <b>5 / 10</b></span>
+  <span class="spacer"></span>
+  <button class="ghost" type="button">Leave table</button>
+</header>
+
+<main class="stage" id="stage">
+  <div class="table">
+    <div class="felt" id="felt">
+      <div class="wordmark">PRIVATE HOLD'EM</div>
+      <div class="deck" id="deck"></div>
+      <div class="pot" id="pot"></div>
+      <div class="result" id="result"><h2 id="resultTitle"></h2><p id="resultSub"></p></div>
+      <div class="board" id="board"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
+    </div>
+  </div>
+  <div class="dealer" id="dealer">D</div>
+</main>
+
+<section class="panel idle" id="panel" aria-label="Your actions">
+  <p class="status" id="status">Starting a hand</p>
+  <div class="row">
+    <button class="act fold" id="bFold" type="button" disabled>Fold</button>
+    <button class="act" id="bCall" type="button" disabled>Call</button>
+    <button class="act primary" id="bRaise" type="button" disabled>Raise</button>
+  </div>
+  <div class="sizer">
+    <input type="range" id="range" min="20" max="1000" step="10" value="40" aria-label="Raise to" disabled />
+    <input class="amount" id="amount" type="text" inputmode="numeric" value="40" aria-label="Raise to amount" disabled />
+  </div>
+  <div class="presets">
+    <button type="button" data-p="min" disabled>Min</button><button type="button" data-p="half" disabled>½ pot</button><button type="button" data-p="pot" disabled>Pot</button><button type="button" data-p="all" disabled>All-in</button>
+  </div>
+</section>
+<button class="replay" id="replay" type="button">Play the hand again</button>
+
+<script>
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const sleep = (ms) => new Promise((r) => setTimeout(r, reduce ? Math.min(ms, 60) : ms));
+const $ = (id) => document.getElementById(id);
+const stage = $('stage'), felt = $('felt');
+
+// Seat anchors (fraction of the felt box). You sit at the bottom, like a real chair.
+const LAYOUT = [
+  { x: 0.5, y: 1.02, bet: [0.5, 0.74], dealer: [0.62, 0.84] },   // you
+  { x: 0.02, y: 0.5, bet: [0.17, 0.52], dealer: [0.12, 0.3] },
+  { x: 0.2, y: 0.02, bet: [0.28, 0.3], dealer: [0.34, 0.16] },
+  { x: 0.8, y: 0.02, bet: [0.72, 0.3], dealer: [0.66, 0.16] },
+  { x: 0.98, y: 0.5, bet: [0.83, 0.52], dealer: [0.88, 0.3] },
+];
+const PLAYERS = [
+  { name: 'You', stack: 1000, you: true },
+  { name: 'Maya', stack: 1240 },
+  { name: 'Ravi', stack: 860 },
+  { name: 'Jonas', stack: 1105 },
+  { name: 'Priya', stack: 795 },
+];
+const SUIT = { s: 's', h: 'h', d: 'd', c: 'c' };
+
+function cardEl(code, { down = true, size } = {}) {
+  const el = document.createElement('div');
+  el.className = 'card' + (down ? ' down' : '');
+  if (size) el.style.width = size;
+  const rank = code ? code[0].replace('T', '10') : '';
+  const suit = code ? code[1] : 's';
+  el.innerHTML = `<div class="inner"><div class="face${suit === 'h' || suit === 'd' ? ' red' : ''}"><div class="rank">${rank}</div>
+    <svg class="small" viewBox="0 0 100 100"><use href="#${SUIT[suit]}"/></svg><svg class="big" viewBox="0 0 100 100"><use href="#${SUIT[suit]}"/></svg></div><div class="back"></div></div>`;
+  return el;
+}
+
+function chipStack(amount) {
+  const colors = amount >= 500 ? ['c-black', 'c-black', 'c-blue', 'c-red'] : amount >= 100 ? ['c-black', 'c-blue', 'c-red'] : amount >= 25 ? ['c-blue', 'c-red'] : ['c-red'];
+  const wrap = document.createElement('div');
+  wrap.className = 'chips';
+  colors.forEach((c, i) => { const chip = document.createElement('i'); chip.className = 'chip ' + c; chip.style.top = -i * 4 + 'px'; wrap.appendChild(chip); });
+  return wrap;
+}
+
+const at = (fx, fy) => ({ left: fx * 100 + '%', top: fy * 100 + '%' });
+function place(el, fx, fy) { Object.assign(el.style, at(fx, fy)); }
+const rectCenter = (el) => { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; };
+
+// Animate a temporary copy of `node` from one screen point to another.
+async function fly(node, from, to, { ms = 320, rotate = 0, lift = 0 } = {}) {
+  const f = document.createElement('div');
+  f.className = 'flyer';
+  f.appendChild(node);
+  document.body.appendChild(f);
+  const w = node.getBoundingClientRect().width || 0, h = node.getBoundingClientRect().height || 0;
+  const a = f.animate([
+    { transform: `translate(${from.x - w / 2}px, ${from.y - h / 2}px) rotate(${rotate}deg)` },
+    { transform: `translate(${(from.x + to.x) / 2 - w / 2}px, ${(from.y + to.y) / 2 - h / 2 - lift}px) rotate(${rotate / 3}deg)`, offset: 0.55 },
+    { transform: `translate(${to.x - w / 2}px, ${to.y - h / 2}px) rotate(0deg)` },
+  ], { duration: reduce ? 1 : ms, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' });
+  // Background tabs and paused renderers never resolve `finished`; the timer keeps the hand moving.
+  await Promise.race([a.finished, new Promise((r) => setTimeout(r, (reduce ? 1 : ms) + 40))]);
+  f.remove();
+}
+function settle(el) { if (!reduce) el.animate([{ transform: 'translateY(-7px)' }, { transform: 'translateY(0)' }], { duration: 220, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }); }
+
+let seats = [], pot = 0, bets = [], board = [], timer = null;
+
+function buildSeats() {
+  seats.forEach((s) => s.el.remove());
+  seats = PLAYERS.map((p, i) => {
+    const el = document.createElement('div');
+    el.className = 'seat' + (p.you ? ' you' : '');
+    el.innerHTML = `<div class="hole"></div><div class="plaque"><div class="avatar">${p.name[0]}<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="22"/></svg></div>
+      <div class="who"><span class="name">${p.name}</span><span class="stack">${p.stack.toLocaleString()}</span></div></div>`;
+    place(el, LAYOUT[i].x, LAYOUT[i].y);
+    felt.appendChild(el);
+    const ring = el.querySelector('circle');
+    ring.style.strokeDasharray = 138.2; ring.style.strokeDashoffset = 138.2;
+    return { ...p, el, ring, stackEl: el.querySelector('.stack'), hole: el.querySelector('.hole'), plaque: el.querySelector('.plaque'), committed: 0, folded: false };
+  });
+}
+function setStack(s) { s.stackEl.textContent = s.stack.toLocaleString(); }
+function tag(s, text, kind) { s.plaque.querySelector('.tag')?.remove(); if (!text) return; const t = document.createElement('span'); t.className = 'tag' + (kind ? ' ' + kind : ''); t.textContent = text; s.plaque.appendChild(t); }
+
+function showPot() {
+  const el = $('pot'); el.innerHTML = '';
+  if (pot > 0) { el.appendChild(chipStack(pot)); const l = document.createElement('span'); l.className = 'pot-label'; l.innerHTML = `<span>Pot</span>${pot.toLocaleString()}`; el.appendChild(l); }
+}
+function drawBet(i) {
+  bets[i]?.remove(); bets[i] = null;
+  const s = seats[i]; if (!s.committed) return;
+  const el = document.createElement('div'); el.className = 'bet';
+  el.appendChild(chipStack(s.committed));
+  const n = document.createElement('span'); n.textContent = s.committed.toLocaleString(); el.appendChild(n);
+  place(el, ...LAYOUT[i].bet); felt.appendChild(el); bets[i] = el; return el;
+}
+
+function turnRing(s, seconds) {
+  clearInterval(timer); seats.forEach((x) => { x.el.classList.remove('turn'); x.ring.style.transition = 'none'; x.ring.style.strokeDashoffset = 138.2; });
+  if (!s) return;
+  s.el.classList.add('turn');
+  s.ring.getBoundingClientRect();
+  s.ring.style.strokeDashoffset = 0;
+  setTimeout(() => { s.ring.style.transition = `stroke-dashoffset ${seconds}s linear`; s.ring.style.strokeDashoffset = 138.2; }, 30);
+}
+
+async function putIn(i, to, label) {
+  const s = seats[i];
+  const add = to - s.committed; s.stack -= add; s.committed = to; setStack(s);
+  const from = rectCenter(s.plaque);
+  const target = document.createElement('div'); place(target, ...LAYOUT[i].bet); target.style.position = 'absolute'; felt.appendChild(target);
+  await fly(chipStack(to), from, rectCenter(target), { ms: 360, lift: 10 });
+  target.remove(); settle(drawBet(i).querySelector('.chips'));
+  if (label) tag(s, label);
+}
+
+async function sweep() {
+  const dest = rectCenter($('pot'));
+  await Promise.all(seats.map(async (s, i) => {
+    if (!s.committed || !bets[i]) return;
+    const from = rectCenter(bets[i]); const amt = s.committed; bets[i].remove(); bets[i] = null;
+    pot += amt; s.committed = 0;
+    await fly(chipStack(amt), from, dest, { ms: 420 });
+  }));
+  showPot(); settle($('pot').querySelector('.chips')); seats.forEach((s) => { if (!s.folded) tag(s, null); });
+}
+
+async function dealHole(hands) {
+  const deck = rectCenter($('deck'));
+  for (let round = 0; round < 2; round++) {
+    for (const i of [1, 2, 3, 4, 0]) {
+      const s = seats[i];
+      const size = s.you ? 'calc(var(--card-w) * 1.3)' : 'calc(var(--card-w) * 0.62)';
+      const slot = cardEl(hands[i][round], { down: true, size }); slot.style.visibility = 'hidden'; s.hole.appendChild(slot);
+      const flying = cardEl(null, { down: true, size });
+      await fly(flying, deck, rectCenter(slot), { ms: 260, rotate: -14 });
+      slot.style.visibility = '';
+      if (s.you && round === 1) { await sleep(120); s.hole.querySelectorAll('.card').forEach((c) => c.classList.remove('down')); }
+      await sleep(40);
+    }
+  }
+}
+
+async function dealBoard(codes) {
+  const deck = rectCenter($('deck'));
+  const slots = $('board').children;
+  for (const code of codes) {
+    const idx = board.length; const slot = slots[idx];
+    const card = cardEl(code, { down: true }); card.style.visibility = 'hidden';
+    slot.replaceWith(card); board.push(card);
+    await fly(cardEl(null, { down: true }), deck, rectCenter(card), { ms: 300, rotate: -10 });
+    card.style.visibility = ''; await sleep(60); card.classList.remove('down'); await sleep(170);
+  }
+}
+
+// Player's turn: enable the panel with the legal actions the server would send.
+function yourTurn({ toCall, minTo, maxTo, potSize }) {
+  return new Promise((resolve) => {
+    const panel = $('panel'); panel.classList.remove('idle');
+    $('status').innerHTML = toCall ? `<b>Your turn.</b> ${toCall} to call.` : '<b>Your turn.</b> You can check.';
+    const call = $('bCall'); call.innerHTML = toCall ? `Call<small>${toCall}</small>` : 'Check';
+    const range = $('range'), amount = $('amount'), raise = $('bRaise');
+    range.min = minTo; range.max = maxTo; range.value = minTo; amount.value = minTo;
+    const sync = (v) => { v = Math.max(minTo, Math.min(maxTo, Math.round(v / 5) * 5)); range.value = v; amount.value = v; raise.innerHTML = `${toCall ? 'Raise' : 'Bet'}<small>to ${v}</small>`; };
+    sync(minTo);
+    range.oninput = () => sync(+range.value);
+    amount.onchange = () => sync(+amount.value || minTo);
+    document.querySelectorAll('.presets button').forEach((b) => b.onclick = () => sync({ min: minTo, half: toCall + potSize / 2 + seats[0].committed, pot: toCall + potSize + seats[0].committed, all: maxTo }[b.dataset.p]));
+    const controls = [call, raise, $('bFold'), range, amount, ...document.querySelectorAll('.presets button')];
+    controls.forEach((c) => (c.disabled = false));
+    const done = (choice) => { controls.forEach((c) => (c.disabled = true)); panel.classList.add('idle'); resolve(choice); };
+    call.onclick = () => done({ type: toCall ? 'call' : 'check' });
+    raise.onclick = () => done({ type: 'raise', to: +range.value });
+    $('bFold').onclick = () => done({ type: 'fold' });
+  });
+}
+function waiting(name) { $('status').innerHTML = `<b>${name}</b> is deciding`; }
+
+async function botAct(i, kind, to) {
+  const s = seats[i]; turnRing(s, 30); waiting(s.name); await sleep(900 + Math.random() * 500);
+  if (kind === 'fold') { s.folded = true; s.el.classList.add('folded'); tag(s, 'Fold'); for (const c of s.hole.children) c.animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(-16px)', opacity: 0 }], { duration: reduce ? 1 : 300, fill: 'forwards' }); }
+  else if (kind === 'check') tag(s, 'Check');
+  else await putIn(i, to, kind === 'call' ? 'Call' : kind === 'raise' ? 'Raise' : 'Bet');
+}
+
+async function you(ctx) {
+  turnRing(seats[0], 30);
+  const choice = await yourTurn(ctx);
+  turnRing(null);
+  if (choice.type === 'fold') { seats[0].folded = true; seats[0].el.classList.add('folded'); tag(seats[0], 'Fold'); }
+  else if (choice.type === 'check') tag(seats[0], 'Check');
+  else await putIn(0, choice.type === 'call' ? ctx.betTo : choice.to, choice.type === 'call' ? 'Call' : 'Raise');
+  return choice;
+}
+
+async function play() {
+  $('replay').disabled = true; turnRing(null); $('result').classList.remove('show');
+  pot = 0; board = []; bets.forEach((b) => b?.remove()); bets = [];
+  $('board').innerHTML = '<div class="slot"></div>'.repeat(5); showPot();
+  PLAYERS.forEach((p, i) => (p.stack = [1000, 1240, 860, 1105, 795][i]));
+  buildSeats();
+  const dealer = $('dealer'); const fr = felt.getBoundingClientRect(), sr = stage.getBoundingClientRect();
+  const dpos = (i) => { dealer.style.left = fr.left - sr.left + LAYOUT[i].dealer[0] * fr.width + 'px'; dealer.style.top = fr.top - sr.top + LAYOUT[i].dealer[1] * fr.height + 'px'; };
+  dpos(4); await sleep(250); dpos(3); $('status').textContent = 'Dealing';
+
+  // Hand: button Jonas (3); Priya small blind, You... (demo order simplified for the prototype)
+  await putIn(4, 5, 'SB'); await putIn(0, 10, 'BB');
+  await dealHole([['K', 'K'].map((r, k) => r + (k ? 'h' : 's')), ['9c', '9d'], ['7s', '2d'], ['Ac', 'Jd'], ['Qh', 'Th']]);
+
+  await botAct(1, 'call', 10);
+  await botAct(2, 'fold');
+  await botAct(3, 'raise', 40);
+  await botAct(4, 'call', 40);
+  const pre = await you({ toCall: 30, betTo: 40, minTo: 70, maxTo: 1000, potSize: 100 });
+  const target = pre.type === 'raise' ? pre.to : 40;
+  await botAct(1, 'call', target);
+  if (target > 40) { await botAct(3, 'call', target); await botAct(4, 'fold'); }
+  turnRing(null); await sleep(250); await sweep(); await sleep(250);
+
+  await dealBoard(['7h', 'Kd', '2c']);
+  if (!seats[4].folded) await botAct(4, 'check');
+  if (!seats[0].folded) {
+    const flop = await you({ toCall: 0, betTo: 0, minTo: 10, maxTo: seats[0].stack, potSize: pot });
+    if (flop.type === 'raise') { await botAct(1, 'fold'); await botAct(3, 'call', flop.to); if (!seats[4].folded) await botAct(4, 'fold'); }
+    else { await botAct(1, 'check'); await botAct(3, 'bet', 60); if (!seats[4].folded) await botAct(4, 'fold'); const r = await you({ toCall: 60, betTo: 60, minTo: 120, maxTo: seats[0].stack + seats[0].committed, potSize: pot + 60 }); if (r.type === 'raise') await botAct(3, 'call', r.to); await botAct(1, 'fold'); }
+  } else { await botAct(1, 'check'); await botAct(3, 'bet', 60); await botAct(4, 'fold'); await botAct(1, 'fold'); }
+  turnRing(null); await sleep(250); await sweep(); await sleep(200);
+  const alive = seats.filter((x) => !x.folded);
+  if (alive.length === 1) return winByFold(alive[0]);
+  await dealBoard(['Jc']); await sleep(400); await dealBoard(['7c']);
+  $('status').textContent = 'Showdown';
+
+  // Showdown: remaining hands turn over (R-7.3).
+  const live = seats.map((s, i) => i).filter((i) => !seats[i].folded);
+  for (const i of live) if (i !== 0) seats[i].hole.querySelectorAll('.card').forEach((c) => c.classList.remove('down'));
+  await sleep(700);
+  const winner = seats[0].folded ? seats[3] : seats[0];
+  const label = seats[0].folded ? 'Two pair, jacks and sevens' : 'Full house, kings over sevens';
+  [...board, ...seats.flatMap((s) => [...s.hole.children])].forEach((c) => c.classList.add('dim'));
+  const lift = seats[0].folded ? [board[4], board[1], ...winner.hole.children] : [board[1], board[0], board[4], ...winner.hole.children];
+  lift.forEach((c) => { c.classList.remove('dim'); c.classList.add('lift'); });
+  $('resultTitle').textContent = `${winner.name === 'You' ? 'You win' : winner.name + ' wins'} ${pot.toLocaleString()}`;
+  $('resultSub').textContent = label; $('pot').style.opacity = 0; $('result').classList.add('show');
+  winner.el.classList.add('winner');
+  await sleep(900);
+  await fly(chipStack(pot), rectCenter($('pot')), rectCenter(winner.plaque), { ms: 520, lift: 20 });
+  winner.stack += pot; setStack(winner); settle(winner.plaque);
+  const f = document.createElement('span'); f.className = 'float'; f.textContent = '+' + pot; winner.plaque.appendChild(f);
+  f.animate([{ transform: 'translate(-50%, 0)', opacity: 1 }, { transform: 'translate(-50%, -26px)', opacity: 0 }], { duration: reduce ? 1 : 1400, easing: 'ease-out', fill: 'forwards' });
+  pot = 0; showPot(); $('pot').style.opacity = 1;
+  $('status').textContent = 'Next hand in 5 seconds';
+  $('replay').disabled = false;
+}
+
+async function winByFold(w) {
+  // R-7.4: nobody shows; the pot simply goes to the last player in.
+  $('resultTitle').textContent = (w.you ? 'You win ' : w.name + ' wins ') + pot.toLocaleString();
+  $('resultSub').textContent = 'Everyone else folded'; $('pot').style.opacity = 0; $('result').classList.add('show');
+  w.el.classList.add('winner'); await sleep(700);
+  await fly(chipStack(pot), rectCenter($('pot')), rectCenter(w.plaque), { ms: 520, lift: 20 });
+  w.stack += pot; setStack(w); settle(w.plaque); pot = 0; showPot(); $('pot').style.opacity = 1;
+  $('status').textContent = 'Next hand in 3 seconds'; $('replay').disabled = false;
+}
+
+$('replay').onclick = play;
+play();
+</script>
+</body>
+</html>

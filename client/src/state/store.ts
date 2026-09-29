@@ -16,9 +16,11 @@ export interface AppState {
   connection: ConnectionStatus;
   /** Latest server snapshot of the room this player is seated in; null when not in a room. */
   snapshot: TableSnapshot | null;
+  /** Server clock minus this machine's clock (ms), from the latest snapshot. Corrects deadlines for skew. */
+  clockOffset: number;
 }
 
-let state: AppState = { session: null, connection: 'idle', snapshot: null };
+let state: AppState = { session: null, connection: 'idle', snapshot: null, clockOffset: 0 };
 const listeners = new Set<() => void>();
 
 export function getState(): AppState {
@@ -47,5 +49,10 @@ export function useAppState<T>(selector: (s: AppState) => T): T {
 export function acceptSnapshot(incoming: TableSnapshot): void {
   const current = state.snapshot;
   if (current && current.room.code === incoming.room.code && incoming.version <= current.version) return;
-  setState({ snapshot: incoming });
+  setState({ snapshot: incoming, clockOffset: incoming.serverTime - Date.now() });
+}
+
+/** The server's current time, as best this machine can tell. */
+export function serverNow(): number {
+  return Date.now() + state.clockOffset;
 }

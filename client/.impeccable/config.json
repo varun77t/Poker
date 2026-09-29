@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "nested-cards",
+        "value": "*",
+        "files": [
+          "prototypes/table-prototype.html"
+        ],
+        "createdAt": "2026-09-29T03:09:19.256Z",
+        "reason": "Claude triage: the nesting is the physical poker table (padded rail around the felt, seat plaques on the felt), a domain object rather than a card layout; throwaway design prototype"
+      },
+      {
+        "rule": "bounce-easing",
+        "value": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "files": [
+          "src/table/useTableMotion.ts"
+        ],
+        "createdAt": "2026-09-29T03:46:37.103Z",
+        "reason": "user confirmed: owner chose the lively motion of mock 3 (bouncing chips) and approved the prototype, which uses this one-bounce settle when chips land; it is a single 240ms settle, not a looping effect"
+      }
+    ]
+  }
+}

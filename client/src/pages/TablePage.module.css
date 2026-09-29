@@ -1,0 +1,157 @@
+/* The card room. Tokens live here so the table world stays self-contained until the other screens are restyled (Phase 8). */
+.page {
+  --room: #1f0d12;
+  --room-2: #2b1219;
+  --felt: #1c6445;
+  --felt-hi: #22744f;
+  --felt-edge: #124530;
+  --felt-ink: rgb(236 226 200 / 0.16);
+  --felt-label: rgb(8 26 17 / 0.62);
+  --rail: #3a1c14;
+  --rail-hi: #57301f;
+  --rail-lo: #2a130d;
+  --brass: #d2a54c;
+  --brass-hi: #e7c16e;
+  --brass-hover: #dfb35a;
+  --brass-soft: #a88444;
+  --brass-ink: #2a1407;
+  --paper: #f7f2e7;
+  --ink: #f3ecdf;
+  --ink-muted: #c5b49c;
+  --ink-faint: #8e7b67;
+  --suit-red: #c62f3b;
+  --suit-black: #1b1b1f;
+  --card-back: #7b1d2a;
+  --plaque: #24110f;
+  --plaque-turn: #33190f;
+  --plaque-edge: #4a2a1d;
+  --avatar: #5a2e22;
+  --button: #33191a;
+  --button-hover: #43211f;
+  --field: #1a0b0c;
+  --fold-ink: #f0b7b3;
+  --danger: #e0645f;
+  --win: #7fcf9c;
+  --chip-red: #c62f3b;
+  --chip-blue: #2f5fb3;
+  --chip-black: #26262b;
+  --chip-green: #1f8a56;
+  --chip-stripe: rgb(255 255 255 / 0.85);
+  --chip-inlay: rgb(255 255 255 / 0.35);
+  --font-ui: 'Barlow Semi Condensed', system-ui, sans-serif;
+  --font-display: 'Marcellus', Georgia, serif;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* The table scales with the window: width-bound on narrow screens, height-bound on short ones. */
+  --table-w: min(calc(100vw - 360px), calc((100dvh - 256px) * 2.05), 1320px);
+  --table-h: calc(var(--table-w) / 2.05);
+  --card-w: calc(var(--table-w) * 0.066);
+
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: radial-gradient(ellipse 80% 70% at 50% 45%, var(--room-2), var(--room) 70%);
+  color: var(--ink);
+  font: 500 16px / 1.35 var(--font-ui);
+  font-variant-numeric: tabular-nums;
+}
+
+.page ::selection {
+  background: var(--brass);
+  color: var(--room);
+}
+
+.page :focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 3px;
+}
+
+.bar {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 6;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  height: 52px;
+  padding: 0 24px;
+}
+
+.mark {
+  font: 19px / 1 var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+.code {
+  padding: 4px 10px;
+  border: 1px solid var(--plaque-edge);
+  border-radius: 6px;
+  color: var(--ink-muted);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.meta {
+  color: var(--ink-muted);
+}
+
+.meta b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.ghost,
+.danger {
+  padding: 7px 14px;
+  border: 1px solid var(--plaque-edge);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink-muted);
+  font: 600 16px var(--font-ui);
+  cursor: pointer;
+}
+
+.ghost:hover:not(:disabled) {
+  border-color: var(--brass-soft);
+  color: var(--ink);
+}
+
+.danger {
+  border-color: color-mix(in srgb, var(--danger) 50%, transparent);
+  color: var(--fold-ink);
+}
+
+.danger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+
+.confirm {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: var(--ink-muted);
+}
+
+.stage {
+  position: absolute;
+  inset: 52px 0 0;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.overlay [data-float] {
+  color: var(--win);
+  font-size: 18px;
+  font-weight: 700;
+  white-space: nowrap;
+}

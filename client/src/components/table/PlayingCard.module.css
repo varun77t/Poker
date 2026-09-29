@@ -1,0 +1,85 @@
+/*
+ * The card is a size container, so everything inside is measured in cqw (percent of the card's
+ * width). The card's own corners can't use cqw (an element can't query itself), so they use
+ * percentages of the box: 11% of the width across, the same length down (11% x 5/7 of the height).
+ */
+.card {
+  position: relative;
+  flex: none;
+  aspect-ratio: 5 / 7;
+  border-radius: 11% / 7.86%;
+  container-type: inline-size;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.35);
+  transition:
+    transform 300ms var(--ease-out),
+    filter 300ms var(--ease-out),
+    box-shadow 300ms var(--ease-out);
+}
+
+.face {
+  background: var(--paper);
+  color: var(--suit-black);
+}
+
+.red {
+  color: var(--suit-red);
+}
+
+.inner {
+  position: absolute;
+  inset: 0;
+  padding: 6cqw 9cqw;
+}
+
+.rank {
+  display: block;
+  font: 700 36cqw / 1 var(--font-ui);
+  letter-spacing: -0.02em;
+}
+
+.small {
+  display: block;
+  width: 28cqw;
+  margin-top: 4cqw;
+  fill: currentColor;
+}
+
+.big {
+  position: absolute;
+  right: 9cqw;
+  bottom: 7cqw;
+  width: 50cqw;
+  fill: currentColor;
+}
+
+.back {
+  background: var(--paper);
+}
+
+.pattern {
+  position: absolute;
+  inset: 4cqw;
+  border-radius: 8cqw;
+  background:
+    repeating-linear-gradient(45deg, rgb(210 165 76 / 0.24) 0 1.5px, transparent 1.5px 7px),
+    repeating-linear-gradient(-45deg, rgb(210 165 76 / 0.24) 0 1.5px, transparent 1.5px 7px),
+    var(--card-back);
+}
+
+.dim {
+  filter: brightness(0.55) saturate(0.6);
+}
+
+.lift {
+  transform: translateY(-8px);
+  box-shadow:
+    0 0 0 2.5px var(--brass),
+    0 8px 16px rgb(0 0 0 / 0.4);
+}
+
+.sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}

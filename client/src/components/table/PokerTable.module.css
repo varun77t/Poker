@@ -1,0 +1,197 @@
+.table {
+  position: absolute;
+  top: calc(50% - 44px);
+  left: 50%;
+  width: var(--table-w);
+  height: var(--table-h);
+  padding: calc(var(--table-w) * 0.028);
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--rail-hi), var(--rail) 40%, var(--rail-lo));
+  box-shadow:
+    0 30px 60px -20px rgb(0 0 0 / 0.7),
+    inset 0 2px 0 rgb(255 255 255 / 0.08);
+  transform: translate(-50%, -50%);
+}
+
+.felt {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: radial-gradient(ellipse 60% 70% at 50% 42%, var(--felt-hi), var(--felt) 45%, var(--felt-edge));
+  box-shadow:
+    inset 0 0 0 2px var(--brass-soft),
+    inset 0 10px 30px rgb(0 0 0 / 0.35);
+}
+
+.wordmark {
+  position: absolute;
+  top: 17%;
+  left: 50%;
+  color: var(--felt-ink);
+  font: calc(var(--table-w) * 0.026) / 1 var(--font-display);
+  letter-spacing: 0.32em;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  transition: opacity 300ms;
+}
+
+.hidden {
+  opacity: 0;
+}
+
+.deck {
+  position: absolute;
+  top: 7%;
+  left: 50%;
+  width: calc(var(--card-w) * 0.8);
+  aspect-ratio: 5 / 7;
+  transform: translateX(-50%);
+}
+
+/* Pot or result, always just above the board (board top = 50% - 0.4 card heights), clear of lifted cards. */
+.center {
+  position: absolute;
+  bottom: calc(50% + var(--card-w) * 1.4 * 0.4 + 22px);
+  left: 50%;
+  display: flex;
+  justify-content: center;
+  min-width: 120px;
+  min-height: 34px;
+  transform: translateX(-50%);
+}
+
+.pots {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.pot {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.potLabel {
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: var(--felt-label);
+  font-size: 17px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.potLabel span {
+  margin-right: 6px;
+  color: var(--ink-muted);
+  font-weight: 500;
+}
+
+.result {
+  padding: 8px 22px 10px;
+  border-radius: 16px;
+  background: var(--felt-label);
+  text-align: center;
+  white-space: nowrap;
+  animation: result-in 400ms var(--ease-out) both;
+}
+
+.result h2 {
+  margin: 0;
+  color: var(--paper);
+  font: clamp(22px, calc(var(--table-w) * 0.026), 30px) / 1.15 var(--font-display);
+}
+
+.result p {
+  margin: 2px 0 0;
+  color: var(--brass);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+@keyframes result-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.board {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  gap: calc(var(--card-w) * 0.14);
+  transform: translate(-50%, -40%);
+}
+
+.boardCard,
+.slot {
+  width: var(--card-w);
+}
+
+.slot {
+  aspect-ratio: 5 / 7;
+  border: 1.5px dashed rgb(236 226 200 / 0.14);
+  border-radius: 8px;
+}
+
+.waiting {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(420px, 60%);
+  padding: 14px 20px;
+  border-radius: 16px;
+  background: var(--felt-label);
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+.waiting h2 {
+  margin: 0;
+  font: 24px / 1.2 var(--font-display);
+}
+
+.waiting p {
+  margin: 6px 0 0;
+  color: var(--ink-muted);
+  font-size: 16px;
+}
+
+.spot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.bet {
+  position: absolute;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 600;
+  transform: translate(-50%, -50%);
+}
+
+.dealer {
+  position: absolute;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--paper);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.4);
+  color: var(--room);
+  font: 700 14px / 1 var(--font-ui);
+  transform: translate(-50%, -50%);
+  transition:
+    left 500ms var(--ease-out),
+    top 500ms var(--ease-out);
+}

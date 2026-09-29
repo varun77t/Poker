@@ -254,7 +254,9 @@ DealerButton, BlindMarkers, GameStatus (street, winner + hand label).
 - The viewing player is always rendered at the bottom seat.
 - Disable action buttons after sending until the next snapshot arrives (prevents double-sends).
 - Desktop only: lay out for laptop/desktop screens (about 1280px wide and up). No phone or tablet layout.
-- Minimal animation for now.
+- Motion (approved by the owner in Phase 5): cards deal from the dealer spot and turn over, chips slide to bets,
+  sweep into the pot and fly to the winner. Driven only by differences between snapshots; off under
+  prefers-reduced-motion.
 ```
 
 ---

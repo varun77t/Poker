@@ -76,14 +76,18 @@ poker/
 │       └── db/                  Phase 11 only (Drizzle schema + migrations)
 │   └── test/                    integration tests (in-process server + socket.io-client)
 ├── client/
+│   ├── PRODUCT.md               product context for design work
+│   ├── prototypes/              approved HTML table prototype (design reference, not built)
 │   └── src/
-│       ├── main.tsx, App.tsx    router: /, /create, /room/:code
-│       ├── socket/              socket singleton (typed), session bootstrap
-│       ├── hooks/               useSession, useTableState, useAction, useCountdown
-│       ├── pages/               Landing, CreateRoom, Room (renders Lobby | Table | Finished)
-│       ├── components/          PokerTable, PlayerSeat, PlayingCard, CommunityCards, Pot,
-│       │                        ActionPanel, DealerButton, BlindMarker, GameStatus, ...
-│       └── styles/              tokens.css + *.module.css
+│       ├── main.tsx, App.tsx    router: /, /create, /room/:code (+ /dev/table in development only)
+│       ├── socket/              socket singleton (typed), session bootstrap, request()
+│       ├── state/store.ts       latest snapshot (by version), connection status, server clock offset
+│       ├── pages/               Landing, CreateRoom, Room (renders Lobby | TablePage), TablePage, DevTable
+│       ├── components/          Layout, Button, TextField, SettingsForm, ConnectionOverlay
+│       │   └── table/           PokerTable, Seat, PlayingCard, ChipStack, ActionPanel (+ .module.css)
+│       ├── table/               model.ts (display derivations), motionPlan.ts (what moves between
+│       │                        two snapshots), useTableMotion.ts (plays it); unit tested with Vitest
+│       └── styles/              global.css; the table's tokens live in TablePage.module.css
 └── e2e/                         Playwright tests (Phase 9)
 ```
 
@@ -104,7 +108,7 @@ Bots get the same treatment. The table controller calls `decide(toGameView(state
 
 ```
 ┌─────────────────────────── Browser (per player) ───────────────────────────┐
-│  React pages/components  ←  useTableState (latest snapshot, by version)    │
+│  React pages/components  ←  store (latest snapshot, by version)            │
 │          │ intents                                    ▲ state snapshots     │
 │          ▼                                            │                     │
 │  typed socket.io-client  (auth: { token })  ──────────┘                     │
@@ -383,9 +387,10 @@ interface GameView {
 ```
 
 ### 8.4 Client state
-- `useTableState` holds the latest snapshot and **ignores any snapshot whose `version` ≤ the current one**.
-- React never computes poker values. It derives display-only values, such as seat rotation so "me" sits at the bottom, and the countdown from `turnDeadline`.
-- The action panel sends `{ handId, seq }` from the snapshot it rendered. After sending, it disables itself until a newer snapshot arrives or the ack returns an error.
+- The store (`client/src/state/store.ts`) holds the latest snapshot and **ignores any snapshot whose `version` ≤ the current one**. It also keeps `clockOffset = serverTime − Date.now()` from each snapshot, so `turnDeadline` and `nextHandAt` count down correctly even when a laptop's clock is off.
+- React never computes poker values. `client/src/table/model.ts` only arranges server values for display: seat rotation so "me" sits at the bottom, seat tags, pot totals, the ½-pot and pot shortcuts (clamped to the server's `minTo`/`maxTo`), and the wording of a result.
+- The action panel sends `{ handId, seq }` from the snapshot it rendered. After sending, it disables itself until a newer snapshot arrives (it is keyed by `seq`) or the ack returns an error, which it shows inline.
+- **Motion:** the screen always renders the newest snapshot. After each render, `planMotion(previous, next)` lists what visibly changed (cards dealt, bets placed, bets swept into the pot, cards turned over, pots paid out), and `useTableMotion` flies copies of cards and chips between named anchors (`data-anchor`) on an overlay, hiding each target until its copy lands. It never changes state, is skipped for reconnects mid-hand, and is off under `prefers-reduced-motion`.
 
 ---
 
@@ -507,7 +512,8 @@ Only results are written, and only at key moments: room created, hand finished, 
 | Table controller | Vitest + fake `Clock` | Hand sequencing, timers, pacing, rebuys, busts, removals, game end |
 | Socket integration | Vitest + in-process server + `socket.io-client` | Multi-client flows, all error codes, **no hole-card leakage in any emitted payload**, reconnect restores the view |
 | E2E | Playwright (3 browser contexts) | Create → invite link join → play hands → disconnect/reconnect → finish |
-| Manual | 3 browser profiles on a laptop/desktop screen (the app is desktop-only) | Feel, layout, timing |
+| Client display logic | Vitest | `table/model.ts` and `table/motionPlan.ts` (seat rotation, tags, bet-size shortcuts, result wording, animation choreography) |
+| Manual | 3 browser profiles on a laptop/desktop screen (the app is desktop-only); `/dev/table?state=turn|flop|showdown|waiting` renders the table from sample data | Feel, layout, timing |
 
 **CI gate** (local script until CI exists): `npm run typecheck && npm run lint && npm test && npm run build`.
 

@@ -197,9 +197,7 @@ export function Lobby({ snapshot }: { snapshot: TableSnapshot }) {
       {error && <Notice tone="error">{error}</Notice>}
 
       <div className={styles.actions}>
-        {room.status === 'playing' ? (
-          <Notice>The game has started. The poker table arrives in the next update.</Notice>
-        ) : isHost ? (
+        {isHost ? (
           <>
             <Button
               fullWidth

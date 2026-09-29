@@ -9,6 +9,7 @@ import { ensureSession } from '../session/session';
 import { request } from '../socket/connection';
 import { useAppState } from '../state/store';
 import { Lobby } from './Lobby';
+import { TablePage } from './TablePage';
 import styles from './Room.module.css';
 
 /** /room/:code — works as an invite link: asks for a name if needed, then joins and shows the room. */
@@ -73,7 +74,7 @@ function RoomSession({ code }: { code: string }) {
     );
   }
 
-  return <Lobby snapshot={snapshot} />;
+  return snapshot.room.status === 'playing' ? <TablePage snapshot={snapshot} /> : <Lobby snapshot={snapshot} />;
 }
 
 function NamePrompt({ code }: { code: string }) {

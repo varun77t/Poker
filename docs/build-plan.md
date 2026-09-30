@@ -417,6 +417,14 @@ Test the production build locally (npm run build && npm start) before writing /d
 Note hosting caveats (free tiers that sleep will drop live games).
 ```
 
+**Phase 10 decisions (made during the build):**
+- **Render** is the documented host, from a Blueprint (`render.yaml`: one free web service in Singapore, `npm ci && npm run build`, `npm start`, `/health`, one instance, `TRUST_PROXY=1`). Railway steps are in `docs/deployment.md` as the alternative. The owner creates the account and connects the GitHub repo.
+- `TRUST_PROXY` (proxy hop count, default 0) feeds Express `trust proxy` and the socket's client address. It closes the Phase 9 residual risks with a per-IP `room:join` limit (40 a minute) next to the per-IP session limit.
+- helmet sends a same-origin CSP (no `upgrade-insecure-requests`, so a local production run on http still works), HSTS and nosniff.
+- Logs are JSON lines in production (`LOG_FORMAT`). Crashes are logged as fatal before exit.
+- Shutdown sends `sys:shutdown` to every client (a new server→client event) before closing, and the client shows a toast that games in progress have ended.
+- `cross-env` moved to runtime dependencies (the start script needs it). `.node-version` pins Node 22.
+
 ---
 
 # PHASE 11 (Optional) — Persistence (dropped by the owner)

@@ -33,7 +33,7 @@ export interface TestServer {
   baseUrl: string;
   clock: FakeClock;
   createSession: (displayName: string, token?: string) => Promise<{ status: number; body: Ack<SessionInfo> }>;
-  connect: (token: unknown) => ClientSocket;
+  connect: (token: unknown, headers?: Record<string, string>) => ClientSocket;
   /** Creates a session and a connected socket. */
   player: (displayName: string) => Promise<TestPlayer>;
   /** A new connection with the same session (e.g. after a network drop). */
@@ -42,7 +42,7 @@ export interface TestServer {
 }
 
 export async function startTestServer(
-  overrides: Partial<Omit<AppServerOptions, 'config' | 'logger'>> = {},
+  overrides: Partial<Omit<AppServerOptions, 'logger'>> = {},
 ): Promise<TestServer> {
   const clock = new FakeClock();
   const server = createAppServer({
@@ -66,12 +66,13 @@ export async function startTestServer(
     return { status: res.status, body: (await res.json()) as Ack<SessionInfo> };
   };
 
-  const connect: TestServer['connect'] = (token) => {
+  const connect: TestServer['connect'] = (token, headers) => {
     const socket: ClientSocket = ioClient(baseUrl, {
       transports: ['websocket'],
       forceNew: true,
       reconnection: false,
       auth: { token },
+      ...(headers ? { extraHeaders: headers } : {}),
     });
     sockets.push(socket);
     return socket;

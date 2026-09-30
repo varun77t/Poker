@@ -1,12 +1,13 @@
 import { AUTH_INVALID } from '@poker/shared';
 import type { SessionStore } from '../sessions/sessionStore';
+import { clientAddress } from './clientAddress';
 import type { IoSocket } from './types';
 
 /**
  * Handshake auth: resolves `auth.token` to a session and pins the player's identity on the socket.
  * `socket.data.playerId` is the only identity handlers may use; payloads never carry identity.
  */
-export function authMiddleware(sessions: SessionStore) {
+export function authMiddleware(sessions: SessionStore, trustedHops: number) {
   return (socket: IoSocket, next: (err?: Error) => void): void => {
     const auth: unknown = socket.handshake.auth;
     const token = typeof auth === 'object' && auth !== null ? (auth as Record<string, unknown>).token : undefined;
@@ -16,6 +17,7 @@ export function authMiddleware(sessions: SessionStore) {
       return;
     }
     socket.data.playerId = session.playerId;
+    socket.data.clientIp = clientAddress(socket.handshake, trustedHops);
     next();
   };
 }

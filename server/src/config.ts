@@ -12,6 +12,14 @@ const EnvSchema = z.object({
   API_PORT: Port.default(3000),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug']).default('info'),
+  /** `json` (one object per line, for the hosting platform's log search) or `pretty`. Default: json in production. */
+  LOG_FORMAT: z.enum(['json', 'pretty']).optional(),
+  /**
+   * How many reverse proxies sit in front of the server (Render and Railway: 1). The client's real
+   * address is then read from X-Forwarded-For for per-IP rate limits. 0 trusts no proxy headers,
+   * which is right when nothing is in front (a spoofed header must not dodge the limits).
+   */
+  TRUST_PROXY: z.coerce.number().int().min(0).max(5).default(0),
 });
 
 export type Config = z.infer<typeof EnvSchema>;

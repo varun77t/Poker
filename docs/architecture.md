@@ -37,9 +37,10 @@ poker/
 │       └── constants.ts         MAX_SEATS=5, ROOM_CODE_ALPHABET, defaults and bounds
 ├── server/
 │   └── src/
-│       ├── index.ts             bootstrap: listen, graceful shutdown
-│       ├── app.ts               wires everything; createAppServer() is also used by tests
-│       ├── config.ts            env parsing (zod)
+│       ├── index.ts             bootstrap: listen, graceful shutdown (sys:shutdown to every client), crash logging
+│       ├── app.ts               wires everything (helmet headers, trust proxy); createAppServer() is also used by tests
+│       ├── config.ts            env parsing (zod): PORT, NODE_ENV, LOG_LEVEL, LOG_FORMAT, TRUST_PROXY
+│       ├── logger.ts            leveled logger; JSON lines in production
 │       ├── clock.ts             injectable time + scheduler (system clock; FakeClock in tests)
 │       ├── policies.ts          timing and rate-limit values
 │       ├── rateLimiter.ts       token bucket per key
@@ -290,6 +291,7 @@ type ErrorCode =
 |---|---|---|
 | `state` | `TableSnapshot` (§8.3) | after every change, per player |
 | `session:replaced` | `{}` | this socket was superseded by a newer tab/connection |
+| `sys:shutdown` | `{}` | the server is shutting down (deploy/restart); live games have ended |
 | `room:closed` | `{ reason: 'server_restart' }` | *(Phase 10, graceful shutdown)* the room was removed |
 
 The live, authoritative list is [socket-events.md](socket-events.md).

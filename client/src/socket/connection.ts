@@ -2,6 +2,7 @@ import { AUTH_INVALID, type ClientEventName, type EventAck, type EventPayload, t
 import { postSession } from '../lib/api';
 import { loadName, loadSession, saveSession } from '../lib/storage';
 import { acceptSnapshot, getState, setState } from '../state/store';
+import { notifyError } from '../state/toasts';
 import { socket } from './socket';
 
 const REQUEST_TIMEOUT_MS = 8000;
@@ -85,6 +86,9 @@ export function initConnection(): void {
   socket.on('state', acceptSnapshot);
 
   socket.on('session:replaced', () => setState({ connection: 'replaced' }));
+
+  // A deploy or restart: games live in the server's memory, so any game in progress is over.
+  socket.on('sys:shutdown', () => notifyError('The server is restarting, so games in progress have ended. You can start a new room once it is back.'));
 
   const saved = loadSession();
   if (saved) {

@@ -9,6 +9,7 @@ import { authMiddleware } from './middleware';
 import type { IoServer } from './types';
 
 export interface SocketDeps extends HandlerDeps {
+  trustedHops: number;
   logger: Logger;
   sessions: SessionStore;
   rooms: RoomManager;
@@ -20,7 +21,7 @@ export interface SocketDeps extends HandlerDeps {
 export function registerSocketHandlers(io: IoServer, deps: SocketDeps): void {
   const { logger, sessions, rooms, connections, broadcaster } = deps;
 
-  io.use(authMiddleware(sessions));
+  io.use(authMiddleware(sessions, deps.trustedHops));
 
   io.on('connection', (socket) => {
     const { playerId } = socket.data;

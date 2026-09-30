@@ -1,6 +1,7 @@
 import { createServer, type Server as HttpServer } from 'node:http';
 import { MAX_SOCKET_PAYLOAD_BYTES } from '@poker/shared';
 import express, { type ErrorRequestHandler, type Express } from 'express';
+import helmet from 'helmet';
 import { Server } from 'socket.io';
 import { scheduleEvery, systemClock, type Clock } from './clock';
 import type { Config } from './config';
@@ -39,8 +40,11 @@ export interface AppServer {
   io: IoServer;
   sessions: SessionStore;
   rooms: RoomManager;
-  /** Stops timers and closes Socket.IO and the HTTP server. */
-  close(): Promise<void>;
+  /**
+   * Stops timers and closes Socket.IO and the HTTP server. With `notify`, every connected client is
+   * first told the server is going away (`sys:shutdown`), so it can say so instead of just "reconnecting".
+   */
+  close(options?: { notify?: boolean }): Promise<void>;
 }
 
 /** Builds the Express app, HTTP server and Socket.IO server without listening (tests call this too). */
@@ -70,12 +74,38 @@ export function createAppServer(options: AppServerOptions): AppServer {
   const limiter = (l: { count: number; windowMs: number }) => new RateLimiter(clock, l.count, l.windowMs);
   const eventLimiter = limiter(limits.socketEvents);
   const joinLimiter = limiter(limits.roomJoins);
+  const joinIpLimiter = limiter(limits.roomJoinsPerIp);
   const createLimiter = limiter(limits.roomCreates);
   const sessionLimiter = limiter(limits.sessionCreates);
 
   // HTTP
   const app = express();
   app.disable('x-powered-by');
+  // Behind the hosting platform's proxy, req.ip is the visitor (per-IP limits), not the proxy.
+  app.set('trust proxy', options.config.TRUST_PROXY);
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          // Everything is same-origin: the built client, its fonts, and the Socket.IO connection.
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"], // React style attributes (positions, timer ring)
+          imgSrc: ["'self'", 'data:'],
+          fontSrc: ["'self'", 'data:'],
+          connectSrc: ["'self'"],
+          objectSrc: ["'none'"],
+          baseUri: ["'self'"],
+          frameAncestors: ["'none'"],
+          formAction: ["'self'"],
+          // The platform terminates HTTPS; a local production run is plain http://localhost.
+          upgradeInsecureRequests: null,
+        },
+      },
+      // HSTS only means something over HTTPS, which the platform provides; browsers ignore it on http.
+      strictTransportSecurity: { maxAge: 15_552_000, includeSubDomains: false },
+    }),
+  );
   app.use(express.json({ limit: '10kb' }));
 
   const httpServer = createServer(app);
@@ -119,21 +149,27 @@ export function createAppServer(options: AppServerOptions): AppServer {
     broadcaster,
     guard,
     joinLimiter,
+    joinIpLimiter,
     createLimiter,
+    trustedHops: options.config.TRUST_PROXY,
   });
 
   // Housekeeping: expire idle sessions (dropping any seat they still hold) and prune idle rate-limit buckets.
   const stopSweeper = scheduleEvery(clock, timings.sessionSweepIntervalMs, () => {
     for (const playerId of sessions.sweep((id) => connections.has(id))) rooms.removePlayer(playerId);
-    for (const l of [eventLimiter, joinLimiter, createLimiter, sessionLimiter]) l.sweep();
+    for (const l of [eventLimiter, joinLimiter, joinIpLimiter, createLimiter, sessionLimiter]) l.sweep();
   });
 
-  const close = () =>
-    new Promise<void>((resolve) => {
-      stopSweeper();
-      rooms.dispose();
-      void io.close(() => resolve());
-    });
+  const close = async ({ notify = false } = {}) => {
+    stopSweeper();
+    rooms.dispose();
+    if (notify) {
+      io.emit('sys:shutdown', {});
+      // A moment for the notice to reach clients before their sockets close.
+      await new Promise((r) => setTimeout(r, 300));
+    }
+    await new Promise<void>((resolve) => void io.close(() => resolve()));
+  };
 
   return { app, httpServer, io, sessions, rooms, close };
 }

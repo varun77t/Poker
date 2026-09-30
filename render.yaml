@@ -1,0 +1,21 @@
+# Render Blueprint: one web service that serves the built client, the REST endpoints and Socket.IO.
+# See docs/deployment.md. Games live in memory, so this must stay a single instance.
+services:
+  - type: web
+    name: private-holdem
+    runtime: node
+    # "free" sleeps after about 15 minutes without visitors (the next visit takes about a minute to
+    # wake it, and a sleep ends any game). "starter" stays up; change it here or in the dashboard.
+    plan: free
+    region: singapore
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    numInstances: 1
+    autoDeploy: true
+    envVars:
+      # Render puts one proxy in front of the app; trust it so rate limits see each visitor's address.
+      - key: TRUST_PROXY
+        value: "1"
+      - key: LOG_LEVEL
+        value: info

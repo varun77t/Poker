@@ -138,6 +138,7 @@ Bots are server-run players (product-spec §3.7). Both events are host only (`NO
 |---|---|---|
 | `state` | `TableSnapshot` | After every change to the player's room (actions, timeouts, dealt streets, results, joins, leaves, connection changes), on reconnect, and on `sync:request` |
 | `session:replaced` | `{}` | Just before the server disconnects this socket, because the same session connected elsewhere |
+| `sys:shutdown` | `{}` | The server is shutting down (a deploy or restart). Games live in memory, so any game in progress has ended; the client shows a toast and reconnects when the server is back |
 
 Each member gets their **own** snapshot on their own socket; the `game` part is built by `toGameView()` for that player. Players who left (`leaving` seats) get nothing more.
 

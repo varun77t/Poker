@@ -74,6 +74,8 @@ export interface ServerToClientEvents {
   state: (snapshot: TableSnapshot) => void;
   /** This connection was superseded by a newer one for the same session (another tab). */
   'session:replaced': (payload: EmptyPayload) => void;
+  /** The server is shutting down (a deploy or restart). Live games end; the client reconnects when it is back. */
+  'sys:shutdown': (payload: EmptyPayload) => void;
 }
 
 export type ClientEventName = keyof ClientToServerEvents;
@@ -90,6 +92,8 @@ export interface InterServerEvents {}
 /** Set by the handshake middleware. The only source of player identity on the server. */
 export interface SocketData {
   playerId: string;
+  /** The client's address (through trusted proxies), for per-IP rate limits. Never sent to clients. */
+  clientIp: string;
 }
 
 /** Error message the handshake middleware uses when a session token is missing, unknown or expired. */

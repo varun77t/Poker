@@ -47,6 +47,8 @@ export interface RateLimits {
   socketEvents: RateLimit;
   /** room:join attempts, per player (slows down room-code guessing). */
   roomJoins: RateLimit;
+  /** room:join attempts, per client address (behind the proxy: needs TRUST_PROXY). */
+  roomJoinsPerIp: RateLimit;
   /** room:create, per player (each create can leave an empty room behind for its TTL). */
   roomCreates: RateLimit;
   /** POST /api/session, per IP. */
@@ -58,6 +60,7 @@ export interface RateLimits {
 export const DEFAULT_RATE_LIMITS: RateLimits = {
   socketEvents: { count: 20, windowMs: 5_000 },
   roomJoins: { count: 10, windowMs: 60_000 },
+  roomJoinsPerIp: { count: 40, windowMs: 60_000 },
   roomCreates: { count: 5, windowMs: 60_000 },
   sessionCreates: { count: 10, windowMs: 60_000 },
   maxStrikes: 50,

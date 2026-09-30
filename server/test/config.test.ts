@@ -3,12 +3,14 @@ import { listenPort, loadConfig } from '../src/config';
 
 describe('loadConfig', () => {
   it('applies defaults', () => {
-    expect(loadConfig({})).toEqual({ PORT: 3000, API_PORT: 3000, NODE_ENV: 'development', LOG_LEVEL: 'info' });
+    expect(loadConfig({})).toEqual({ PORT: 3000, API_PORT: 3000, NODE_ENV: 'development', LOG_LEVEL: 'info', TRUST_PROXY: 0 });
   });
 
   it('rejects invalid values', () => {
     expect(() => loadConfig({ PORT: 'abc' })).toThrow(/PORT/);
     expect(() => loadConfig({ NODE_ENV: 'staging' })).toThrow(/NODE_ENV/);
+    expect(() => loadConfig({ TRUST_PROXY: 'yes' })).toThrow(/TRUST_PROXY/);
+    expect(() => loadConfig({ LOG_FORMAT: 'xml' })).toThrow(/LOG_FORMAT/);
   });
 });
 

@@ -7,7 +7,7 @@
 **Result:**
 - All 17 attacks are refused.
 - Two weaknesses were found and fixed (see *Fixes*).
-- Two risks remain for Phase 10 (see *Residual risks*).
+- Two risks were left for Phase 10; both are now closed (see *Residual risks*).
 
 ## How the server defends itself
 
@@ -72,10 +72,11 @@ Transport:
   - The player answers with the **C** key while the bots act on their own.
   - After three hands the host ends the game and the final standings appear.
 
-## Residual risks (for Phase 10)
+## Residual risks (closed in Phase 10)
 
+- **Closed in Phase 10.** `TRUST_PROXY` sets Express `trust proxy` and the socket's client address (`server/src/socket/clientAddress.ts`), and `room:join` now also has a per-IP limit (40 a minute). Tests: `server/test/deployment.test.ts`. The original note follows.
 - **Per-network limits need the real client address.** `POST /api/session` is limited to 10 a minute per IP. Behind a hosting proxy every visitor would share the proxy's address, so production must set Express `trust proxy` for `req.ip` to be the visitor. Once it is set, a per-IP limit on `room:join` should be added too. Without one, a patient attacker could make many guest sessions over hours and multiply their room-code guesses. Even then, a correct guess only seats them visibly in a friends' lobby, where everyone can see them.
-- **Transport security and headers.** Locally the app runs over plain HTTP. In production the platform's HTTPS, plus secure headers (helmet), must be in place (Phase 10).
+- **Transport security and headers.** Locally the app runs over plain HTTP. In production the platform's HTTPS, plus secure headers (helmet), must be in place. **Closed in Phase 10:** helmet sends a same-origin CSP, HSTS and nosniff, and Render and Railway serve HTTPS.
 
 Not risks for this app:
 - **Session tokens** are kept in `localStorage`, which only matters if a script could be injected. Display names are restricted to letters, numbers, spaces and `_ - . '`, and React escapes all text.

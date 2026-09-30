@@ -24,12 +24,14 @@ export interface HandlerDeps {
   broadcaster: Broadcaster;
   guard: ReturnType<typeof createGuard>;
   joinLimiter: RateLimiter;
+  /** room:join per client address, so fresh guest sessions can't multiply room-code guesses. */
+  joinIpLimiter: RateLimiter;
   createLimiter: RateLimiter;
 }
 
 /** Thin mapping from events to domain calls. No business rules here. */
 export function registerHandlers(socket: IoSocket, deps: HandlerDeps): void {
-  const { rooms, sessions, broadcaster, joinLimiter, createLimiter, clock } = deps;
+  const { rooms, sessions, broadcaster, joinLimiter, joinIpLimiter, createLimiter, clock } = deps;
   const on = deps.guard(socket);
 
   const playerRef = (playerId: PlayerId): PlayerRef => {
@@ -54,8 +56,8 @@ export function registerHandlers(socket: IoSocket, deps: HandlerDeps): void {
     return { code: room.code };
   });
 
-  on('room:join', JoinRoomPayloadSchema, ({ playerId }, { code }) => {
-    if (!joinLimiter.take(playerId)) {
+  on('room:join', JoinRoomPayloadSchema, ({ playerId, socket: s }, { code }) => {
+    if (!joinLimiter.take(playerId) || !joinIpLimiter.take(s.data.clientIp)) {
       throw new DomainError('RATE_LIMITED', 'Too many join attempts. Wait a minute and try again.');
     }
     const room = rooms.join(playerRef(playerId), code);

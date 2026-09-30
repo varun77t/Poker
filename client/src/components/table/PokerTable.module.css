@@ -4,28 +4,32 @@
   left: 50%;
   width: var(--table-w);
   height: var(--table-h);
-  padding: calc(var(--table-w) * 0.028);
+  padding: calc(var(--table-h) * 0.058);
   border-radius: 999px;
   background: linear-gradient(180deg, var(--rail-hi), var(--rail) 40%, var(--rail-lo));
   box-shadow:
     0 30px 60px -20px rgb(0 0 0 / 0.7),
-    inset 0 2px 0 rgb(255 255 255 / 0.08);
+    inset 0 2px 0 rgb(255 255 255 / 0.6),
+    inset 0 -3px 6px rgb(0 0 0 / 0.18);
   transform: translate(-50%, -50%);
 }
 
-/* Resting (game over): no action panel below, so the table centres in its area. */
-.resting {
+/* No action panel below (the lobby, and the resting table at game over), so the table centres in its area. */
+.centred {
   top: 50%;
 }
 
 .felt {
+  /* The board is the centre of attention, so its cards are a little larger than the seats' base size. */
+  --board-w: calc(var(--card-w) * 1.15);
+
   position: relative;
   width: 100%;
   height: 100%;
   border-radius: 999px;
   background: radial-gradient(ellipse 60% 70% at 50% 42%, var(--felt-hi), var(--felt) 45%, var(--felt-edge));
   box-shadow:
-    inset 0 0 0 2px var(--brass-soft),
+    inset 0 0 0 2px var(--rail-seam),
     inset 0 10px 30px rgb(0 0 0 / 0.35);
 }
 
@@ -34,7 +38,7 @@
   top: 17%;
   left: 50%;
   color: var(--felt-ink);
-  font: calc(var(--table-w) * 0.026) / 1 var(--font-display);
+  font: calc(var(--card-w) * 0.4) / 1 var(--font-display);
   letter-spacing: 0.32em;
   white-space: nowrap;
   transform: translateX(-50%);
@@ -57,7 +61,7 @@
 /* Pot or result, always just above the board (board top = 50% - 0.4 card heights), clear of lifted cards. */
 .center {
   position: absolute;
-  bottom: calc(50% + var(--card-w) * 1.4 * 0.4 + 22px);
+  bottom: calc(50% + var(--board-w) * 1.4 * 0.4 + 22px);
   left: 50%;
   display: flex;
   justify-content: center;
@@ -110,7 +114,7 @@
 
 .result p {
   margin: 2px 0 0;
-  color: var(--brass);
+  color: var(--lit);
   font-size: 17px;
   font-weight: 600;
 }
@@ -127,18 +131,18 @@
   top: 50%;
   left: 50%;
   display: flex;
-  gap: calc(var(--card-w) * 0.14);
+  gap: calc(var(--board-w) * 0.14);
   transform: translate(-50%, -40%);
 }
 
 .boardCard,
 .slot {
-  width: var(--card-w);
+  width: var(--board-w);
 }
 
 .slot {
   aspect-ratio: 5 / 7;
-  border: 1.5px dashed rgb(236 226 200 / 0.14);
+  border: 1.5px dashed rgb(250 244 211 / 0.14);
   border-radius: 8px;
 }
 
@@ -192,7 +196,9 @@
   height: 28px;
   border-radius: 50%;
   background: var(--paper);
-  box-shadow: 0 2px 4px rgb(0 0 0 / 0.4);
+  box-shadow:
+    0 0 0 1.5px var(--green),
+    0 2px 4px rgb(0 0 0 / 0.4);
   color: var(--room);
   font: 700 14px / 1 var(--font-ui);
   transform: translate(-50%, -50%);
@@ -220,7 +226,7 @@
   inset: 0;
   z-index: 1;
   border-radius: inherit;
-  background: rgb(14 5 8 / 0.42);
+  background: rgb(4 12 4 / 0.45);
   animation: rest 700ms var(--ease-out) both;
 }
 
@@ -232,7 +238,7 @@
   transform: translate(-50%, -50%);
 }
 
-/* Seats rest above the shade; the game's winner keeps full strength (and the brass edge). */
+/* Seats rest above the shade; the game's winner keeps full strength (and its lit edge). */
 .resting .seats {
   z-index: 2;
 }

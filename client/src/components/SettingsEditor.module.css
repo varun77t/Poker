@@ -1,0 +1,23 @@
+.editor {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.title {
+  font: 24px / 1.2 var(--font-display);
+}
+
+.hint {
+  margin-top: 6px;
+  color: var(--ink-muted);
+}
+
+.form {
+  margin-top: 16px;
+  padding: 18px;
+  border: 1px solid var(--plaque-edge);
+  border-radius: 16px;
+  background: var(--panel);
+  box-shadow: var(--shadow-panel);
+}

@@ -14,9 +14,9 @@
   min-width: 150px;
   height: 58px;
   padding: 0 22px;
-  border: 1.5px dashed rgb(236 226 200 / 0.22);
+  border: 1.5px dashed rgb(250 244 211 / 0.35);
   border-radius: 999px;
-  background: rgb(36 17 15 / 0.72);
+  background: color-mix(in srgb, var(--plaque) 94%, transparent);
   color: var(--ink-muted);
   font: 500 16px / 1.15 var(--font-ui);
   cursor: pointer;
@@ -32,7 +32,7 @@
 
 .openSeat:hover,
 .openSeat[aria-expanded='true'] {
-  border-color: var(--brass-soft);
+  border-color: var(--trim);
   color: var(--ink);
 }
 
@@ -48,8 +48,8 @@
   padding: 12px;
   border: 1px solid var(--plaque-edge);
   border-radius: 16px;
-  background: rgb(24 10 12 / 0.96);
-  box-shadow: 0 20px 40px -12px rgb(0 0 0 / 0.7);
+  background: var(--panel-solid);
+  box-shadow: var(--shadow-panel);
   text-align: left;
   translate: -50% 0;
   animation: plate-in 180ms var(--ease-out) both;
@@ -135,7 +135,7 @@
 }
 
 .removeTab:hover {
-  border-color: var(--brass-soft);
+  border-color: var(--trim);
   color: var(--ink);
 }
 

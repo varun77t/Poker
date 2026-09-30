@@ -1,7 +1,3 @@
-import '@fontsource/barlow-semi-condensed/500.css';
-import '@fontsource/barlow-semi-condensed/600.css';
-import '@fontsource/barlow-semi-condensed/700.css';
-import '@fontsource/marcellus/400.css';
 import type { GameView, TableSnapshot } from '@poker/shared';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
@@ -14,6 +10,7 @@ import type { TurnClock } from '../components/table/Seat';
 import { cx } from '../lib/cx';
 import { request } from '../socket/connection';
 import { serverNow, setState } from '../state/store';
+import { notifyError } from '../state/toasts';
 import room from '../styles/cardRoom.module.css';
 import { buildTableModel, summarizeResult, type TableModel } from '../table/model';
 import { useTableMotion } from '../table/useTableMotion';
@@ -104,7 +101,6 @@ function Header({ snapshot }: { snapshot: TableSnapshot }) {
   const navigate = useNavigate();
   const [confirming, setConfirming] = useState<'leave' | 'end' | null>(null);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const inLiveHand = !!game && !game.result && game.players.some((p) => p.playerId === roomView.youId && p.status !== 'folded');
   const isHost = roomView.hostId === roomView.youId;
   const ending = !!roomView.table?.endingAfterHand;
@@ -115,18 +111,20 @@ function Header({ snapshot }: { snapshot: TableSnapshot }) {
     setBusy(true);
     const res = await request('room:leave', {});
     setBusy(false);
-    if (!res.ok && res.error !== 'NOT_IN_ROOM') return;
+    if (!res.ok && res.error !== 'NOT_IN_ROOM') {
+      notifyError(res.message);
+      return;
+    }
     navigate('/');
     setState({ snapshot: null });
   }
 
   async function endGame() {
     setBusy(true);
-    setError(null);
     const res = await request('game:end', {});
     setBusy(false);
     setConfirming(null);
-    if (!res.ok) setError(res.message);
+    if (!res.ok) notifyError(res.message);
   }
 
   let actions;
@@ -157,11 +155,6 @@ function Header({ snapshot }: { snapshot: TableSnapshot }) {
   } else {
     actions = (
       <>
-        {error && (
-          <span className={room.barError} role="alert">
-            {error}
-          </span>
-        )}
         {ending ? (
           <BarNotice>Last hand</BarNotice>
         ) : (

@@ -7,8 +7,8 @@
   padding: 12px;
   border: 1px solid var(--plaque-edge);
   border-radius: 16px;
-  background: rgb(24 10 12 / 0.92);
-  box-shadow: 0 20px 40px -12px rgb(0 0 0 / 0.7);
+  background: var(--panel);
+  box-shadow: var(--shadow-panel);
 }
 
 .status {
@@ -24,7 +24,7 @@
 }
 
 .hurry {
-  color: var(--brass);
+  color: var(--lit);
   font-weight: 600;
 }
 
@@ -32,6 +32,24 @@
   display: grid;
   grid-template-columns: 1fr 1.2fr 1.3fr;
   gap: 8px;
+}
+
+/* The key that presses a button (F, C, R), tucked into its top-right corner. */
+.row > button {
+  position: relative;
+}
+
+.key {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  min-width: 15px;
+  padding: 0 3px;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  font: 700 11px / 13px var(--font-ui);
+  text-align: center;
+  opacity: 0.45;
 }
 
 /* The buttons themselves (act, primary) are shared with the finished screen: styles/cardRoom.module.css. */
@@ -55,7 +73,7 @@
 
 .sizer input[type='range'] {
   width: 100%;
-  accent-color: var(--brass);
+  accent-color: var(--lit);
 }
 
 .amount {
@@ -72,7 +90,7 @@
 }
 
 .amount:focus-visible {
-  outline: 2px solid var(--brass);
+  outline: 2px solid var(--lit);
   outline-offset: 1px;
 }
 
@@ -97,14 +115,8 @@
 }
 
 .presets button:hover:not(:disabled) {
-  border-color: var(--brass-soft);
+  border-color: var(--trim);
   color: var(--ink);
-}
-
-.error {
-  margin: 8px 0 0;
-  color: var(--danger);
-  font-size: 16px;
 }
 
 .idle .status {
@@ -116,7 +128,7 @@
   opacity: 0.3;
 }
 
-/* Brass means "now": nothing is actionable here, so the ghost of the primary stays neutral. */
+/* Lit cornsilk means "now": nothing is actionable here, so the ghost of the primary stays neutral. */
 .ghostAct.ghostPrimary {
   border-color: var(--plaque-edge);
   background: var(--button);

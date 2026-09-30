@@ -1,7 +1,8 @@
 import type { ActionType, GameView } from '@poker/shared';
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { request } from '../../socket/connection';
-import { formatChips, sizingPresets } from '../../table/model';
+import { notifyError } from '../../state/toasts';
+import { formatChips, SHORTCUT_KEYS, shortcutAction, sizingPresets } from '../../table/model';
 import { cx } from '../../lib/cx';
 import room from '../../styles/cardRoom.module.css';
 import styles from './ActionPanel.module.css';
@@ -51,7 +52,6 @@ function Turn({ game, secondsLeft }: { game: GameView; secondsLeft: number | nul
   const [amount, setAmount] = useState(presets.min);
   const [draft, setDraft] = useState(String(presets.min));
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const clamp = (n: number) => Math.min(legal.maxTo, Math.max(legal.minTo, Math.round(n)));
   const choose = (n: number) => {
@@ -62,14 +62,26 @@ function Turn({ game, secondsLeft }: { game: GameView; secondsLeft: number | nul
 
   async function send(type: ActionType, to?: number) {
     setBusy(true);
-    setError(null);
     const res = await request('game:action', { handId: game.handId, seq: game.seq, type, ...(to === undefined ? {} : { amount: to }) });
     if (!res.ok) {
       setBusy(false);
-      setError(res.error === 'STALE_ACTION' ? 'The table moved on before that arrived. Try again.' : res.message);
+      notifyError(res.error === 'STALE_ACTION' ? 'The table moved on before that arrived. Try again.' : res.message);
     }
     // On success the next snapshot re-keys this component.
   }
+
+  // F, C and R press the matching legal button (re-subscribed each render, so it sees the chosen amount).
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (busy || e.repeat || e.altKey || e.ctrlKey || e.metaKey || isTyping(e.target)) return;
+      const type = shortcutAction(e.key, legal);
+      if (!type) return;
+      e.preventDefault();
+      void send(type, type === 'bet' || type === 'raise' ? amount : undefined);
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
 
   const allIn = amount === legal.maxTo;
   const sizeVerb = legal.canBet ? 'Bet' : 'Raise to';
@@ -88,27 +100,44 @@ function Turn({ game, secondsLeft }: { game: GameView; secondsLeft: number | nul
         {secondsLeft !== null && secondsLeft <= 10 && <span className={styles.hurry}> {secondsLeft}s left</span>}
       </p>
       <div className={styles.row}>
-        <button type="button" className={cx(room.act, styles.fold)} disabled={busy} onClick={() => void send('fold')}>
+        <button
+          type="button"
+          className={cx(room.act, styles.fold)}
+          disabled={busy}
+          aria-keyshortcuts={SHORTCUT_KEYS.fold}
+          onClick={() => void send('fold')}
+        >
           Fold
+          <Key k={SHORTCUT_KEYS.fold} />
         </button>
         {legal.canCheck ? (
-          <button type="button" className={room.act} disabled={busy} onClick={() => void send('check')}>
+          <button type="button" className={room.act} disabled={busy} aria-keyshortcuts={SHORTCUT_KEYS.call} onClick={() => void send('check')}>
             Check
+            <Key k={SHORTCUT_KEYS.call} />
           </button>
         ) : (
-          <button type="button" className={room.act} disabled={busy || !legal.canCall} onClick={() => void send('call')}>
+          <button
+            type="button"
+            className={room.act}
+            disabled={busy || !legal.canCall}
+            aria-keyshortcuts={SHORTCUT_KEYS.call}
+            onClick={() => void send('call')}
+          >
             {callAllIn ? 'Call all-in' : 'Call'}
             <small>{formatChips(legal.callAmount)}</small>
+            <Key k={SHORTCUT_KEYS.call} />
           </button>
         )}
         <button
           type="button"
           className={cx(room.act, room.primary)}
           disabled={busy || !canSize}
+          aria-keyshortcuts={canSize ? SHORTCUT_KEYS.raise : undefined}
           onClick={() => void send(legal.canBet ? 'bet' : 'raise', amount)}
         >
           {!canSize ? 'Raise' : allIn ? 'All-in' : legal.canBet ? 'Bet' : 'Raise'}
           {canSize && <small>{allIn ? formatChips(amount) : `${sizeVerb === 'Bet' ? '' : 'to '}${formatChips(amount)}`}</small>}
+          {canSize && <Key k={SHORTCUT_KEYS.raise} />}
         </button>
       </div>
 
@@ -152,28 +181,37 @@ function Turn({ game, secondsLeft }: { game: GameView; secondsLeft: number | nul
           </div>
         </>
       )}
-      {error && (
-        <p className={styles.error} role="alert">
-          {error}
-        </p>
-      )}
     </section>
   );
 }
 
-/** Busted: rebuy (the one thing to do now, so it is brass) or, with rebuys off, watch. */
+/** The key that presses this button, in its top corner. */
+function Key({ k }: { k: string }) {
+  return (
+    <kbd className={styles.key} aria-hidden="true">
+      {k}
+    </kbd>
+  );
+}
+
+/** Typing into a field (the amount box) never triggers a shortcut; the range slider and buttons do. */
+function isTyping(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  if (target.isContentEditable || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) return true;
+  return target instanceof HTMLInputElement && target.type !== 'range' && target.type !== 'checkbox';
+}
+
+/** Busted: rebuy (the one thing to do now, so it is lit) or, with rebuys off, watch. */
 function OutOfChipsPanel({ rebuyFor }: { rebuyFor: number | null }) {
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   async function rebuy() {
     setBusy(true);
-    setError(null);
     const res = await request('game:rebuy', {});
     // On success the next snapshot has chips on the seat and this panel goes away.
     if (!res.ok) {
       setBusy(false);
-      setError(res.message);
+      notifyError(res.message);
     }
   }
 
@@ -194,11 +232,6 @@ function OutOfChipsPanel({ rebuyFor }: { rebuyFor: number | null }) {
       <button type="button" className={cx(room.act, room.primary, styles.rebuy)} disabled={busy} onClick={() => void rebuy()}>
         Rebuy for {formatChips(rebuyFor)}
       </button>
-      {error && (
-        <p className={styles.error} role="alert">
-          {error}
-        </p>
-      )}
     </section>
   );
 }

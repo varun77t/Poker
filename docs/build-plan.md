@@ -364,6 +364,18 @@ toasts for errors from acks, reconnecting banner, keyboard shortcuts (F/C/R). De
 Respect prefers-reduced-motion. Keep CSS Modules. Run the full test suite after changes.
 ```
 
+**Phase 8 decisions (made during the build):**
+- The owner chose the colours for the whole app: **Dark Green #132A13 and Cornsilk #FAF4D3**. Every surface is a shade of the green and every light thing (text, cards, the live action) is the cornsilk. The design tokens moved to `:root` in `client/src/styles/global.css`, and the old placeholder tokens were removed.
+- The **lobby is the table itself** before the first hand: everyone sits in their seat, the host adds bots from the open seats (the Phase 7 controls), and the invite, settings and Start sit in a column beside it, like the finished screen.
+- The landing page shows a corner of the table drawn with the real card and chip components. Create room, the invite prompt, joining and the error screens share a shell with the table's top bar.
+- Errors from turned-down requests are **toasts** under the top bar; form mistakes stay inline. The reconnecting banner sits in the same place.
+- **F / C / R** press Fold, Check-or-Call and Bet-or-Raise on your turn (ignored while typing in the amount box); each button shows its key.
+- A just-changed setting is marked like a status tag (paper), replacing the rail-trim underline. The departed player's standings plaque uses a token instead of a literal colour.
+- After a first look the owner asked for less green: the table's **rail is cornsilk** (cream around green).
+- **Fonts:** the owner chose Josefin Sans (headings, 600) and Nunito Sans (everything else) from five options, replacing Marcellus and Barlow Semi Condensed.
+- **Laptop fit:** the owner plays on a 14-inch laptop (about 1536 x 700 inside the browser). The table now stretches sideways (up to 2.6 : 1) to fill the play area instead of leaving empty bands, board cards are 15% larger, and the landing's table always fits beside the form.
+- `/dev/table` gained `state=lobby|lobby-guest|lobby-alone` and `screen=create|invite|joining|problem|toast` for design review.
+
 ---
 
 # PHASE 9 — Security & Multiplayer Audit + E2E

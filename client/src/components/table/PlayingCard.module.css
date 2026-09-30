@@ -61,8 +61,8 @@
   inset: 4cqw;
   border-radius: 8cqw;
   background:
-    repeating-linear-gradient(45deg, rgb(210 165 76 / 0.24) 0 1.5px, transparent 1.5px 7px),
-    repeating-linear-gradient(-45deg, rgb(210 165 76 / 0.24) 0 1.5px, transparent 1.5px 7px),
+    repeating-linear-gradient(45deg, rgb(250 244 211 / 0.13) 0 1.5px, transparent 1.5px 7px),
+    repeating-linear-gradient(-45deg, rgb(250 244 211 / 0.13) 0 1.5px, transparent 1.5px 7px),
     var(--card-back);
 }
 
@@ -72,8 +72,10 @@
 
 .lift {
   transform: translateY(-8px);
+  /* A cornsilk ring around a cornsilk card needs a band of felt between them to read as a ring. */
   box-shadow:
-    0 0 0 2.5px var(--brass),
+    0 0 0 2px var(--felt-edge),
+    0 0 0 4.5px var(--lit),
     0 8px 16px rgb(0 0 0 / 0.4);
 }
 

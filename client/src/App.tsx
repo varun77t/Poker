@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router';
 import styles from './App.module.css';
 import { ConnectionOverlay } from './components/ConnectionOverlay';
+import { Toasts } from './components/Toasts';
 import { devPlayerSlot } from './lib/storage';
 import { CreateRoom } from './pages/CreateRoom';
 import { Landing } from './pages/Landing';
@@ -31,6 +32,7 @@ export function App() {
         <Route path="*" element={<NotFound />} />
       </Routes>
       <ConnectionOverlay />
+      <Toasts />
       {devPlayerSlot && <div className={styles.devSlot}>dev player {devPlayerSlot}</div>}
     </BrowserRouter>
   );

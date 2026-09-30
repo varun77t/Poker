@@ -1,5 +1,6 @@
 import {
   MAX_SEATS,
+  type ActionType,
   type BotLevel,
   type Card,
   type FinalResult,
@@ -317,6 +318,26 @@ export function hintNotes(hint: HandHint): string[] {
   const targets = hint.draws.map((d) => (d === 'flushDraw' ? 'a flush' : d === 'straightDraw' ? 'a straight' : 'an inside straight'));
   if (targets.length > 0) notes.push(`Drawing to ${targets.join(' or ')}.`);
   return notes;
+}
+
+/** The action panel's keys: F folds, C checks or calls, R bets or raises to the amount chosen. */
+export const SHORTCUT_KEYS = { fold: 'F', call: 'C', raise: 'R' } as const;
+
+/**
+ * What a key press asks for on the viewer's turn, or null when the key means nothing or its action
+ * is not legal now. The server still decides; this only picks which legal button the key presses.
+ */
+export function shortcutAction(key: string, legal: LegalActions): ActionType | null {
+  switch (key.toLowerCase()) {
+    case 'f':
+      return legal.canFold ? 'fold' : null;
+    case 'c':
+      return legal.canCheck ? 'check' : legal.canCall ? 'call' : null;
+    case 'r':
+      return legal.canBet ? 'bet' : legal.canRaise ? 'raise' : null;
+    default:
+      return null;
+  }
 }
 
 export { fmt as formatChips };

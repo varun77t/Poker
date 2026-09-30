@@ -1,22 +1,18 @@
-import '@fontsource/barlow-semi-condensed/500.css';
-import '@fontsource/barlow-semi-condensed/600.css';
-import '@fontsource/barlow-semi-condensed/700.css';
-import '@fontsource/marcellus/400.css';
-import { MIN_PLAYERS_TO_START, changedSettingKeys, type Card, type RoomSettings, type TableSnapshot } from '@poker/shared';
-import { useEffect, useId, useMemo, useState, type CSSProperties } from 'react';
+import { MIN_PLAYERS_TO_START, type Card, type TableSnapshot } from '@poker/shared';
+import { useId, useMemo, useState, type CSSProperties } from 'react';
 import { useNavigate } from 'react-router';
-import { Button } from '../components/Button';
-import { SettingsForm } from '../components/SettingsForm';
+import { SettingsEditor } from '../components/SettingsEditor';
+import { SettingsFacts } from '../components/SettingsFacts';
+import { useChangedSettings } from '../components/useChangedSettings';
 import { PokerTable } from '../components/table/PokerTable';
 import { BarMeta, RoomBar } from '../components/table/RoomBar';
 import { cx } from '../lib/cx';
 import { request } from '../socket/connection';
-import { setState, useAppState } from '../state/store';
+import { setState } from '../state/store';
+import { notifyError } from '../state/toasts';
 import room from '../styles/cardRoom.module.css';
 import { BOT_LEVEL_TEXT, buildStandings, buildTableModel, formatChips, formatNet, summarizeGame, type Standing } from '../table/model';
 import styles from './FinishedPage.module.css';
-
-const SETTINGS_NOTE_MS = 8000;
 
 /**
  * The game is over (room status `finished`). The table rests on the left with the winner named on
@@ -28,7 +24,7 @@ export function FinishedPage({ snapshot, startEditing = false }: { snapshot: Tab
   const { room: roomView } = snapshot;
   const navigate = useNavigate();
   const standings = useMemo(() => buildStandings(roomView), [roomView]);
-  // The game's winner (or co-winners) keep the brass edge on the resting table, tying the seat to the felt plate.
+  // The game's winner (or co-winners) keep the lit edge on the resting table, tying the seat to the felt plate.
   const model = useMemo(() => {
     const top = new Set(standings.filter((s) => s.isTop).map((s) => s.playerId));
     const base = buildTableModel(snapshot);
@@ -47,13 +43,16 @@ export function FinishedPage({ snapshot, startEditing = false }: { snapshot: Tab
     setLeaving(true);
     const res = await request('room:leave', {});
     setLeaving(false);
-    if (!res.ok && res.error !== 'NOT_IN_ROOM') return;
+    if (!res.ok && res.error !== 'NOT_IN_ROOM') {
+      notifyError(res.message);
+      return;
+    }
     navigate('/');
     setState({ snapshot: null });
   }
 
   return (
-    <div className={cx(room.world, styles.page)}>
+    <div className={cx(room.world, room.withSide)}>
       <RoomBar
         code={roomView.code}
         meta={<BarMeta label="Game over" />}
@@ -63,13 +62,18 @@ export function FinishedPage({ snapshot, startEditing = false }: { snapshot: Tab
           </button>
         }
       />
-      <main className={styles.stage}>
-        <section className={styles.tableArea} aria-label="The table">
+      <main className={room.sideStage}>
+        <section className={room.tableArea} aria-label="The table">
           <PokerTable snapshot={snapshot} model={model} result={result} clock={null} resting />
         </section>
-        <aside className={styles.side}>
+        <aside className={room.side}>
           {editing && isHost ? (
-            <SettingsEditor settings={roomView.settings} onDone={() => setEditing(false)} />
+            <SettingsEditor
+              settings={roomView.settings}
+              title="Settings for the next game"
+              hint="Everyone starts the next game with the new starting chips."
+              onDone={() => setEditing(false)}
+            />
           ) : (
             <>
               <Standings standings={standings} />
@@ -127,48 +131,26 @@ function NextGame({ snapshot, onChangeSettings }: { snapshot: TableSnapshot; onC
   const { room: roomView } = snapshot;
   const { settings } = roomView;
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const isHost = roomView.hostId === roomView.youId;
   const seated = roomView.seats.filter((s) => s !== null);
   const hostName = seated.find((s) => s.playerId === roomView.hostId)?.displayName ?? 'the host';
   const enough = seated.length >= MIN_PLAYERS_TO_START;
 
-  // Everyone sees what the host changed, for a few seconds (adjusting state during render, not in an effect).
-  const [seen, setSeen] = useState(settings);
-  const [changed, setChanged] = useState<(keyof RoomSettings)[]>([]);
-  const diff = changedSettingKeys(seen, settings);
-  if (diff.length > 0) {
-    setSeen(settings);
-    setChanged(diff);
-  }
-  useEffect(() => {
-    if (changed.length === 0) return;
-    const timer = window.setTimeout(() => setChanged([]), SETTINGS_NOTE_MS);
-    return () => window.clearTimeout(timer);
-  }, [changed]);
-  const mark = (...keys: (keyof RoomSettings)[]) => (changed.some((k) => keys.includes(k)) ? true : undefined);
+  const changed = useChangedSettings(settings);
 
   async function start() {
     setBusy(true);
-    setError(null);
     const res = await request('game:start', {});
     // On success the room is playing again and the table screen takes over.
     if (!res.ok) {
       setBusy(false);
-      setError(res.message);
+      notifyError(res.message);
     }
   }
 
   return (
-    <section className={styles.next} aria-label="Next game">
-      <p className={styles.settings}>
-        Next game: <b data-changed={mark('startingStack')}>{formatChips(settings.startingStack)}</b> chips, blinds{' '}
-        <b data-changed={mark('smallBlind', 'bigBlind')}>
-          {formatChips(settings.smallBlind)}/{formatChips(settings.bigBlind)}
-        </b>
-        , <b data-changed={mark('turnSeconds')}>{settings.turnSeconds}s</b> turns, rebuys{' '}
-        <b data-changed={mark('rebuys')}>{settings.rebuys ? 'on' : 'off'}</b>.
-      </p>
+    <section className={cx(room.sidePanel, styles.next)} aria-label="Next game">
+      <SettingsFacts settings={settings} changed={changed} lead="Next game:" />
       {changed.length > 0 && !isHost && (
         <p className={styles.note} role="status">
           {hostName} changed the settings.
@@ -194,47 +176,6 @@ function NextGame({ snapshot, onChangeSettings }: { snapshot: TableSnapshot; onC
       ) : (
         <p className={styles.waitingFor}>Waiting for {hostName} to start the next game.</p>
       )}
-      {error && (
-        <p className={styles.error} role="alert">
-          {error}
-        </p>
-      )}
-    </section>
-  );
-}
-
-/** The host edits the next game's settings in place of the standings; they apply on restart. */
-function SettingsEditor({ settings, onDone }: { settings: RoomSettings; onDone: () => void }) {
-  const titleId = useId();
-  const connected = useAppState((s) => s.connection === 'connected');
-
-  async function save(next: RoomSettings): Promise<string | null> {
-    const res = await request('room:updateSettings', { settings: next });
-    if (!res.ok) return res.message;
-    onDone();
-    return null;
-  }
-
-  return (
-    <section className={styles.editor} aria-labelledby={titleId}>
-      <h2 id={titleId} className={styles.title}>
-        Settings for the next game
-      </h2>
-      <p className={styles.editorHint}>Everyone starts the next game with the new starting chips.</p>
-      <div className={styles.form}>
-        <SettingsForm
-          initial={settings}
-          submitLabel="Save settings"
-          submitDisabled={!connected}
-          onSubmit={save}
-          autoFocus
-          footer={
-            <Button variant="ghost" fullWidth onClick={onDone}>
-              Cancel
-            </Button>
-          }
-        />
-      </div>
     </section>
   );
 }

@@ -3,7 +3,7 @@ import { useAppState } from '../state/store';
 import { Button } from './Button';
 import styles from './ConnectionOverlay.module.css';
 
-/** Global connection feedback: a "reconnecting" bar, or a blocking notice when another tab took over. */
+/** A blocking notice when another tab took this session over. (The reconnecting banner lives with the toasts.) */
 export function ConnectionOverlay() {
   const connection = useAppState((s) => s.connection);
 
@@ -15,18 +15,10 @@ export function ConnectionOverlay() {
             Open in another tab
           </h2>
           <p className={styles.body}>You're playing in another tab or window. Only one can be active at a time.</p>
-          <Button fullWidth onClick={takeOverSession}>
+          <Button variant="primary" fullWidth onClick={takeOverSession} autoFocus>
             Play here instead
           </Button>
         </div>
-      </div>
-    );
-  }
-
-  if (connection === 'reconnecting') {
-    return (
-      <div className={styles.bar} role="status">
-        Connection lost. Reconnecting…
       </div>
     );
   }

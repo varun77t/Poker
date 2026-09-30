@@ -11,8 +11,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@fontsource/barlow-semi-condensed": "^5.3.0",
-    "@fontsource/marcellus": "^5.3.0",
+    "@fontsource/josefin-sans": "^5.3.0",
+    "@fontsource/nunito-sans": "^5.3.0",
     "@poker/shared": "*",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",

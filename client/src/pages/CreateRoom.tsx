@@ -1,6 +1,6 @@
 import { DEFAULT_ROOM_SETTINGS, type RoomSettings } from '@poker/shared';
 import { Link, Navigate, useNavigate } from 'react-router';
-import { Brand, Card, Page } from '../components/Layout';
+import { Panel, Shell } from '../components/Layout';
 import { SettingsForm } from '../components/SettingsForm';
 import { request } from '../socket/connection';
 import { useAppState } from '../state/store';
@@ -12,7 +12,7 @@ export function CreateRoom() {
   return <CreateRoomForm />;
 }
 
-function CreateRoomForm() {
+export function CreateRoomForm() {
   const navigate = useNavigate();
   const connected = useAppState((s) => s.connection === 'connected');
 
@@ -24,14 +24,10 @@ function CreateRoomForm() {
   }
 
   return (
-    <Page>
-      <Brand />
-      <Card>
-        <div>
-          <h1 className={styles.heading}>New room</h1>
-          <p className={styles.sub}>You can change these in the lobby until the game starts.</p>
-        </div>
-
+    <Shell>
+      <Panel className={styles.panel}>
+        <h1 className={styles.heading}>New room</h1>
+        <p className={styles.sub}>You can change these in the lobby until the game starts.</p>
         <SettingsForm
           initial={DEFAULT_ROOM_SETTINGS}
           submitLabel={connected ? 'Create room' : 'Connecting…'}
@@ -43,7 +39,7 @@ function CreateRoomForm() {
             </Link>
           }
         />
-      </Card>
-    </Page>
+      </Panel>
+    </Shell>
   );
 }

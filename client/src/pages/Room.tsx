@@ -2,7 +2,8 @@ import { isValidRoomCode, normalizeRoomCode, type ErrorCode } from '@poker/share
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useParams } from 'react-router';
 import { Button } from '../components/Button';
-import { Brand, Card, Notice, Page } from '../components/Layout';
+import { Panel, Shell } from '../components/Layout';
+import { SuitSymbols, PlayingCard } from '../components/table/PlayingCard';
 import { TextField } from '../components/TextField';
 import { loadName } from '../lib/storage';
 import { ensureSession } from '../session/session';
@@ -62,25 +63,34 @@ function RoomSession({ code }: { code: string }) {
     );
   }
 
-  if (!inRoom || !snapshot) {
-    return (
-      <Page>
-        <Brand />
-        <Card>
-          <p className={styles.joining} role="status">
-            {connection === 'connected' ? 'Joining room' : 'Connecting'} <span className={styles.code}>{code}</span>…
-          </p>
-        </Card>
-      </Page>
-    );
-  }
+  if (!inRoom || !snapshot) return <Joining code={code} connected={connection === 'connected'} />;
 
   if (snapshot.room.status === 'playing') return <TablePage snapshot={snapshot} />;
   if (snapshot.room.status === 'finished') return <FinishedPage snapshot={snapshot} />;
   return <Lobby snapshot={snapshot} />;
 }
 
-function NamePrompt({ code }: { code: string }) {
+/** Finding the seat: three backs dealt face down while the join goes through. */
+export function Joining({ code, connected }: { code: string; connected: boolean }) {
+  return (
+    <Shell>
+      <SuitSymbols />
+      <div className={styles.joining} role="status">
+        <span className={styles.backs} aria-hidden="true">
+          <PlayingCard card={null} className={styles.back} />
+          <PlayingCard card={null} className={styles.back} />
+          <PlayingCard card={null} className={styles.back} />
+        </span>
+        <h1 className={styles.heading}>
+          Room <span className={styles.code}>{code}</span>
+        </h1>
+        <p className={styles.sub}>{connected ? 'Taking your seat…' : 'Connecting to the table…'}</p>
+      </div>
+    </Shell>
+  );
+}
+
+export function NamePrompt({ code }: { code: string }) {
   const [name, setName] = useState(loadName);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -95,15 +105,12 @@ function NamePrompt({ code }: { code: string }) {
   }
 
   return (
-    <Page>
-      <Brand />
-      <Card>
-        <div>
-          <p className={styles.eyebrow}>You're invited to</p>
-          <h1 className={styles.heading}>
-            Room <span className={styles.code}>{code}</span>
-          </h1>
-        </div>
+    <Shell>
+      <Panel className={styles.panel}>
+        <h1 className={styles.heading}>
+          Room <span className={styles.code}>{code}</span>
+        </h1>
+        <p className={styles.sub}>You're invited to play. Tell the table who you are.</p>
         <form className={styles.form} onSubmit={onSubmit} noValidate>
           <TextField
             label="Your name"
@@ -118,31 +125,34 @@ function NamePrompt({ code }: { code: string }) {
             autoFocus
             maxLength={40}
           />
-          <Button type="submit" fullWidth busy={busy}>
-            Join room
+          <Button type="submit" variant="primary" fullWidth busy={busy}>
+            Take a seat
           </Button>
         </form>
-      </Card>
-    </Page>
+      </Panel>
+    </Shell>
   );
 }
 
-function RoomProblem({ title, message, onRetry }: { title: string; message: string; onRetry?: () => void }) {
+export function RoomProblem({ title, message, onRetry }: { title: string; message: string; onRetry?: () => void }) {
   return (
-    <Page>
-      <Brand />
-      <Card>
+    <Shell>
+      <Panel className={styles.panel}>
         <h1 className={styles.heading}>{title}</h1>
-        <Notice tone="error">{message}</Notice>
-        {onRetry && (
-          <Button variant="secondary" fullWidth onClick={onRetry}>
-            Try again
-          </Button>
-        )}
-        <Link to="/" className={styles.homeLink}>
-          Back to start
-        </Link>
-      </Card>
-    </Page>
+        <p className={styles.sub} role="alert">
+          {message}
+        </p>
+        <div className={styles.problemActions}>
+          {onRetry && (
+            <Button variant="primary" onClick={onRetry}>
+              Try again
+            </Button>
+          )}
+          <Link to="/" className={styles.homeLink}>
+            Back to start
+          </Link>
+        </div>
+      </Panel>
+    </Shell>
   );
 }

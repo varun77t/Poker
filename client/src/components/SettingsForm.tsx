@@ -87,34 +87,35 @@ export function SettingsForm({ initial, submitLabel, submitDisabled, onSubmit, f
 
   return (
     <form className={styles.form} onSubmit={submit} noValidate>
-      {numberField(
-        'startingStack',
-        'Starting chips',
-        `${SETTINGS_BOUNDS.startingStack.min.toLocaleString()}-${SETTINGS_BOUNDS.startingStack.max.toLocaleString()}`,
-        autoFocus,
-      )}
+      <div className={styles.pair}>
+        {numberField(
+          'startingStack',
+          'Starting chips',
+          `${SETTINGS_BOUNDS.startingStack.min.toLocaleString()} to ${SETTINGS_BOUNDS.startingStack.max.toLocaleString()}`,
+          autoFocus,
+        )}
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor={timerId}>
+            Time per turn
+          </label>
+          <select
+            id={timerId}
+            className={styles.select}
+            value={turnSeconds}
+            onChange={(e) => setTurnSeconds(Number(e.target.value))}
+          >
+            {turnOptions.map((s) => (
+              <option key={s} value={s}>
+                {s} seconds
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
 
       <div className={styles.pair}>
         {numberField('smallBlind', 'Small blind')}
         {numberField('bigBlind', 'Big blind')}
-      </div>
-
-      <div className={styles.field}>
-        <label className={styles.label} htmlFor={timerId}>
-          Time per turn
-        </label>
-        <select
-          id={timerId}
-          className={styles.select}
-          value={turnSeconds}
-          onChange={(e) => setTurnSeconds(Number(e.target.value))}
-        >
-          {turnOptions.map((s) => (
-            <option key={s} value={s}>
-              {s} seconds
-            </option>
-          ))}
-        </select>
       </div>
 
       <label className={styles.toggle}>
@@ -127,7 +128,7 @@ export function SettingsForm({ initial, submitLabel, submitDisabled, onSubmit, f
 
       {formError && <Notice tone="error">{formError}</Notice>}
 
-      <Button type="submit" fullWidth busy={busy} disabled={submitDisabled}>
+      <Button type="submit" variant="primary" fullWidth busy={busy} disabled={submitDisabled}>
         {submitLabel}
       </Button>
       {footer}

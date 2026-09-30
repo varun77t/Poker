@@ -1,35 +1,4 @@
 /* The finished screen. Tokens and shared controls: styles/cardRoom.module.css. */
-.page {
-  --side-w: 400px;
-
-  /* The resting table fills what the standings column leaves, with room for the side seats' plaques
-     (they overhang the rail by about 60px each side). */
-  --table-w: min(calc(100vw - var(--side-w) - 72px - 150px), calc((100dvh - 256px) * 2.05), 1100px);
-  --table-h: calc(var(--table-w) / 2.05);
-  --card-w: calc(var(--table-w) * 0.066);
-}
-
-.stage {
-  position: absolute;
-  inset: 52px 0 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) var(--side-w);
-  gap: 24px;
-  padding: 12px 24px 20px;
-}
-
-.tableArea {
-  position: relative;
-  min-width: 0;
-}
-
-.side {
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
-  min-height: 0;
-}
-
 .title {
   margin: 0;
   font: 24px / 1.2 var(--font-display);
@@ -58,20 +27,20 @@
   border: 1.5px solid var(--plaque-edge);
   border-radius: 999px;
   background: var(--plaque);
-  box-shadow: 0 8px 18px -6px rgb(0 0 0 / 0.6);
+  box-shadow: var(--shadow-plaque);
   animation: settle 440ms var(--ease-out) both;
   animation-delay: calc(260ms + var(--i, 0) * 80ms);
 }
 
-/* The winner: the game's winning thing, so it carries the brass. */
+/* The winner: the game's winning thing, so it is lit. */
 .top {
-  border-color: var(--brass);
+  border-color: var(--lit);
   background: var(--plaque-turn);
 }
 
 /* Left the game: a flatter plaque and quieter name, with every figure still at full contrast. */
 .gone {
-  background: rgb(36 17 15 / 0.5);
+  background: color-mix(in srgb, var(--plaque) 50%, transparent);
   box-shadow: none;
 }
 
@@ -90,7 +59,7 @@
 }
 
 .top .rank {
-  color: var(--brass);
+  color: var(--lit);
 }
 
 .avatar {
@@ -181,29 +150,8 @@
 }
 
 /* Straight under the standings: the result, then the next game. */
-.next {
-  padding: 14px;
-  border: 1px solid var(--plaque-edge);
-  border-radius: 16px;
-  background: rgb(24 10 12 / 0.92);
-  box-shadow: 0 20px 40px -12px rgb(0 0 0 / 0.7);
-}
-
-.settings {
-  margin: 0 0 12px;
-  color: var(--ink-muted);
-}
-
-.settings b {
-  color: var(--ink);
-  font-weight: 600;
-  transition: color 300ms;
-}
-
-.settings b[data-changed] {
-  color: var(--paper);
-  text-decoration: underline 2px var(--brass-soft);
-  text-underline-offset: 4px;
+.next > p:first-of-type {
+  margin-bottom: 12px;
 }
 
 .note {
@@ -217,85 +165,14 @@
   gap: 8px;
 }
 
-.hint,
-.error {
-  margin: 10px 0 0;
-}
-
 .hint {
+  margin: 10px 0 0;
   color: var(--ink-muted);
-}
-
-.error {
-  color: var(--danger);
 }
 
 .waitingFor {
   margin: 0;
   font-weight: 600;
-}
-
-.editor {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.editorHint {
-  margin: 6px 0 16px;
-  color: var(--ink-muted);
-}
-
-/* The shared settings form, dressed in the card room by remapping its tokens. */
-.form {
-  --color-bg: var(--field);
-  --color-surface-raised: var(--button);
-  --color-border: var(--plaque-edge);
-  --color-text: var(--ink);
-  --color-text-muted: var(--ink-muted);
-  --color-text-faint: var(--ink-faint);
-  --color-accent: var(--brass);
-  --color-accent-hover: var(--brass-hover);
-  --color-accent-ring: color-mix(in srgb, var(--brass) 25%, transparent);
-  --color-danger: var(--danger);
-  --color-danger-bg: color-mix(in srgb, var(--danger) 12%, transparent);
-  --radius-sm: 8px;
-  --font-sans: var(--font-ui);
-
-  padding: 16px;
-  border: 1px solid var(--plaque-edge);
-  border-radius: 16px;
-  background: rgb(24 10 12 / 0.92);
-}
-
-/* No browser-default steppers or arrows in the card room. */
-.form input[type='number'] {
-  appearance: textfield;
-}
-
-.form input[type='number']::-webkit-inner-spin-button,
-.form input[type='number']::-webkit-outer-spin-button {
-  margin: 0;
-  appearance: none;
-}
-
-.form select {
-  padding-right: 36px;
-  background-image:
-    linear-gradient(45deg, transparent 50%, var(--ink-muted) 50%),
-    linear-gradient(135deg, var(--ink-muted) 50%, transparent 50%);
-  background-position:
-    right 20px center,
-    right 14px center;
-  background-size: 6px 6px;
-  background-repeat: no-repeat;
-  appearance: none;
-  cursor: pointer;
-}
-
-.form select option {
-  background: var(--field);
-  color: var(--ink);
 }
 
 @keyframes settle {

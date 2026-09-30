@@ -97,12 +97,12 @@ Blinds do not increase over time (no tournament structure in the MVP).
 - **Reconnect:** the player returns with the same session token. They get their seat, their cards, and the current table state immediately.
 
 ## 6. Screens
-1. **Landing:** name field, "Create room", "Join room" (code input), "Play against bots" (Phase 7).
+1. **Landing:** name field, "Create a room", "Play against bots" (Phase 7), and joining a friend's room by code, beside a picture of the table.
 2. **Create room:** the settings form (§3.5) with defaults pre-filled.
-3. **Lobby** (`/room/:code`, state `waiting`): code with a copy-link button, settings with an Edit button (host), player list with seat, host and bot badges, "Add bot" on open seats and "Remove" on bot seats (host), count "3/5", Start (host, enabled at ≥2), Leave.
-4. **Table** (state `playing`): the table with up to 5 seats (your own seat always at the bottom), board, pots, dealer and blind markers, turn countdown, action panel, hand results.
+3. **Lobby** (`/room/:code`, state `waiting`): the table itself with nothing dealt, everyone already in their seat and a "Waiting to start" plate on the felt. The host adds a bot by pressing an open seat and removes one from its seat, as at the table. Beside the table: the room code with a copy-link button, the settings as one sentence with an Edit button (host), Start (host, enabled at ≥2) or who everyone is waiting for. The player count "3 / 5" and Leave are in the top bar.
+4. **Table** (state `playing`): the table with up to 5 seats (your own seat always at the bottom), board, pots, dealer and blind markers, turn countdown, action panel, hand results, and the hand hint. On your turn the keys **F** (fold), **C** (check or call) and **R** (bet or raise to the amount chosen) press the matching button; they do nothing while typing in the amount box.
 5. **Finished:** results table, Restart (host), Leave.
-6. **Error/empty states:** room not found, room full, connection lost / reconnecting, opened in another tab.
+6. **Loading, error and empty states:** joining a room (face-down cards being dealt), room not found, room full, page not found, opened in another tab. Losing the connection shows a "Reconnecting" banner at the top of every screen. A request the server turns down (an action that arrived too late, a failed rebuy, start or end) shows a short toast at the top; form mistakes are shown next to the field.
 
 ## 7. Non-functional requirements
 - **Real time:** other players see an action within ~200 ms on a normal connection.
@@ -125,3 +125,4 @@ Real money, chip purchases, tournaments and blind levels, leaderboards, friends 
 8. Room settings are editable by the host until the game starts (added after Phase 2).
 9. Bots (Phase 7): added by the host, three levels (Easy, Medium, Pro), never host, never play without a connected human, auto-rebuy when rebuys are on.
 10. Desktop only (decided before Phase 4): the UI targets laptop/desktop screens; no phone or tablet layout.
+11. Colours (Phase 8): the owner chose a two-colour scheme for the whole app, Dark Green #132A13 and Cornsilk #FAF4D3 (see `client/DESIGN.md`).

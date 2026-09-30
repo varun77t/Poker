@@ -1,278 +1,60 @@
-.header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--space-4);
-}
-
-.eyebrow {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: 0.875rem;
-}
-
-.code {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  line-height: 1.2;
+/* The lobby's side column. The layout and shared controls live in styles/cardRoom.module.css. */
+/* Level with the table rather than hanging from the top. */
+.side {
+  justify-content: center;
+  padding-bottom: 40px;
 }
 
 .invite {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+}
+
+.title {
+  font: 24px / 1.2 var(--font-display);
+}
+
+/* The one thing to pass on, so it is the largest figure on the screen. */
+.code {
+  margin-top: 10px;
+  font: 700 52px / 1 var(--font-ui);
+  letter-spacing: 0.16em;
+}
+
+.hint {
+  margin-top: 10px;
+  color: var(--ink-muted);
+}
+
+.copy {
+  margin-top: 16px;
 }
 
 .linkFallback {
-  min-height: 36px;
-  padding: 0 var(--space-2);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-bg);
-  color: var(--color-text);
-  font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  height: 40px;
+  margin-top: 8px;
+  padding: 0 12px;
+  border: 1px solid var(--plaque-edge);
+  border-radius: 8px;
+  background: var(--field);
+  color: var(--ink);
 }
 
-.settings {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.start > p:first-of-type {
+  margin-bottom: 12px;
 }
 
-.settings li {
-  padding: var(--space-1) var(--space-3);
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: var(--color-surface-raised);
-  color: var(--color-text-muted);
-  font-size: 0.875rem;
-  transition:
-    background-color 300ms ease,
-    border-color 300ms ease,
-    color 300ms ease;
+.note {
+  margin: -4px 0 12px;
+  color: var(--ink);
 }
 
-.settings li[data-changed='true'] {
-  border-color: var(--color-accent);
-  background: var(--color-warning-bg);
-  color: var(--color-accent);
-}
-
-.settings .editItem {
-  padding: 0;
-  border: 0;
-  background: none;
-}
-
-.editButton {
-  min-height: 32px;
-  padding: var(--space-1) var(--space-3);
-  border: 1px dashed var(--color-border);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--color-text);
-  font: inherit;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.editButton:hover {
-  border-color: var(--color-text-muted);
-}
-
-.editButton:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
-
-.editor {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--color-border);
-}
-
-.editorTitle {
-  margin: 0;
-  font-size: 1.125rem;
-}
-
-.editorHint {
-  margin: var(--space-1) 0 0;
-  color: var(--color-text-muted);
-  font-size: 0.875rem;
-}
-
-.playersHeader {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-}
-
-.playersTitle {
-  margin: 0;
-  font-size: 1.125rem;
-}
-
-.count {
-  color: var(--color-text-muted);
-  font-variant-numeric: tabular-nums;
-}
-
-.seats {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.seat,
-.openSeat {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  min-height: 52px;
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-sm);
-}
-
-.seat {
-  background: var(--color-surface-raised);
-}
-
-.seat[data-connected='false'] .avatar,
-.seat[data-connected='false'] .name {
-  opacity: 0.5;
-}
-
-.openSeat {
-  border: 1px dashed var(--color-border);
-  color: var(--color-text-faint);
-  font-size: 0.9375rem;
-}
-
-.avatar {
+.hostRow {
   display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--color-felt);
-  color: var(--color-card-face);
-  font-weight: 700;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
 }
 
-.name {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
+.waitingFor {
   font-weight: 600;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.badges {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: var(--space-1);
-}
-
-.badge,
-.hostBadge,
-.offline {
-  padding: 2px var(--space-2);
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.badge {
-  background: var(--color-bg);
-  color: var(--color-text-muted);
-}
-
-.hostBadge {
-  background: var(--color-accent);
-  color: #1b1405;
-}
-
-.offline {
-  background: var(--color-warning-bg);
-  color: var(--color-warning);
-}
-
-/* Who a seat is (a bot and its level): outlined, where the other badges are filled. */
-.botBadge {
-  padding: 1px var(--space-2);
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  color: var(--color-text-muted);
-  font-size: 0.75rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-/* Host controls on a seat row: add a bot to an open seat, remove a bot. */
-.addBot {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--color-text-muted);
-  font-size: 0.875rem;
-}
-
-.rowButton {
-  min-height: 30px;
-  padding: 0 var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--color-text);
-  font: inherit;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.rowButton:hover:not(:disabled) {
-  border-color: var(--color-text-muted);
-}
-
-.rowButton:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
-
-.rowButton:disabled {
-  cursor: default;
-  opacity: 0.5;
-}
-
-.actions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.hint,
-.waiting {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: 0.9375rem;
-  text-align: center;
 }

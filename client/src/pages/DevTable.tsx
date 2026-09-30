@@ -1,13 +1,19 @@
 import { DEFAULT_ROOM_SETTINGS, MAX_SEATS, type FinalResult, type GamePlayerView, type GameView, type HandCategory, type HandDraw, type HandHint, type SeatView, type TableSnapshot } from '@poker/shared';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
+import { setState } from '../state/store';
+import { notifyError } from '../state/toasts';
+import { CreateRoomForm } from './CreateRoom';
 import { FinishedPage } from './FinishedPage';
+import { Joining, NamePrompt, RoomProblem } from './Room';
+import { Lobby } from './Lobby';
 import { TablePage } from './TablePage';
 
 /**
  * Development only: the real in-game screens fed with sample snapshots, for design review and
  * screenshots without a running game. Not in production builds.
- * /dev/table?state=turn|flop|showdown|waiting|busted|busted-off|ending|finished|finished-guest|bots|bots-waiting|bots-finished|draw|board
+ * /dev/table?state=turn|flop|showdown|waiting|busted|busted-off|ending|finished|finished-guest|bots|bots-waiting|bots-finished|draw|board|lobby|lobby-guest|lobby-alone
+ * Other screens: /dev/table?screen=create|invite|joining|problem|toast (toast also shows the reconnecting banner)
  * (&edit=1 opens the settings editor)
  */
 
@@ -19,7 +25,7 @@ function seat(i: number, over: Partial<SeatView> = {}): SeatView {
 }
 
 /** A bot in seat `i` (§3.7). */
-function bot(i: number, name: string, level: 'easy' | 'medium', over: Partial<SeatView> = {}): SeatView {
+function bot(i: number, name: string, level: 'easy' | 'medium' | 'pro', over: Partial<SeatView> = {}): SeatView {
   return seat(i, { playerId: `bot:${i}`, displayName: name, isBot: true, botLevel: level, ...over });
 }
 
@@ -163,6 +169,14 @@ function build(state: string): TableSnapshot {
     return s;
   }
 
+  if (state === 'lobby' || state === 'lobby-guest' || state === 'lobby-alone') {
+    // Before the first hand: you host (or Maya does, for the guest view) with a Pro bot seated.
+    const seats = state === 'lobby-alone' ? [seat(0)] : [seat(0), seat(1), null, bot(3, 'Ace Bot', 'pro')];
+    const s = snap(seats, null, null);
+    s.room = { ...s.room, status: 'waiting', ...(state === 'lobby-guest' ? { hostId: id(1) } : {}) };
+    return s;
+  }
+
   if (state === 'ending') {
     const players = [
       hp(0, { stack: 900, committed: 40, holeCards: ['9d', '9c'], lastAction: { type: 'call', amount: 40, allIn: false } }),
@@ -213,11 +227,22 @@ function build(state: string): TableSnapshot {
 
 export default function DevTable() {
   const [params] = useSearchParams();
+  const screen = params.get('screen');
   const state = params.get('state') ?? 'turn';
   const snapshot = useMemo(() => build(state), [state]);
-  return snapshot.room.status === 'finished' ? (
-    <FinishedPage snapshot={snapshot} startEditing={params.get('edit') === '1'} />
-  ) : (
-    <TablePage snapshot={snapshot} />
-  );
+
+  useEffect(() => {
+    if (screen !== 'toast') return;
+    notifyError('The table moved on before that arrived. Try again.');
+    setState({ connection: 'reconnecting' });
+  }, [screen]);
+
+  if (screen === 'create') return <CreateRoomForm />;
+  if (screen === 'invite') return <NamePrompt code="RW8W7B" />;
+  if (screen === 'joining') return <Joining code="RW8W7B" connected />;
+  if (screen === 'problem') return <RoomProblem title="Room not found" message="No room has that code. Check it with whoever invited you." onRetry={() => undefined} />;
+
+  const edit = params.get('edit') === '1';
+  if (snapshot.room.status === 'waiting') return <Lobby snapshot={snapshot} startEditing={edit} />;
+  return snapshot.room.status === 'finished' ? <FinishedPage snapshot={snapshot} startEditing={edit} /> : <TablePage snapshot={snapshot} />;
 }

@@ -13,12 +13,14 @@ interface Props {
   clock: TurnClock | null;
   /** The game is over: the table dims and the seats rest while the result plate stays lit. */
   resting?: boolean;
+  /** A plate on the felt before any hand is dealt (the lobby's "Waiting to start"). */
+  plate?: { title: string; text: string } | null;
 }
 
 const at = ([x, y]: [number, number]) => ({ left: `${x * 100}%`, top: `${y * 100}%` });
 
 /** The oval table: rail, felt, board, pots, bets, dealer button and the five seats around it. */
-export function PokerTable({ snapshot, model, result, clock, resting = false }: Props) {
+export function PokerTable({ snapshot, model, result, clock, resting = false, plate = null }: Props) {
   const game = snapshot.game;
   const { table, youId, hostId } = snapshot.room;
   const highlight = result && result.highlight.size > 0 ? result.highlight : null;
@@ -26,9 +28,9 @@ export function PokerTable({ snapshot, model, result, clock, resting = false }: 
   const isHost = youId === hostId;
 
   return (
-    <div className={cx(styles.table, resting && styles.resting)}>
+    <div className={cx(styles.table, (resting || plate) && styles.centred, resting && styles.resting)}>
       <div className={styles.felt}>
-        <div className={cx(styles.wordmark, (result || table?.waitingForPlayers) && styles.hidden)} aria-hidden="true">
+        <div className={cx(styles.wordmark, (result || table?.waitingForPlayers || plate) && styles.hidden)} aria-hidden="true">
           PRIVATE HOLD'EM
         </div>
         <span className={styles.deck} data-anchor="deck" aria-hidden="true" />
@@ -45,6 +47,13 @@ export function PokerTable({ snapshot, model, result, clock, resting = false }: 
         </div>
 
         {game && <Board game={game} highlight={highlight} />}
+
+        {plate && !game && (
+          <div className={styles.waiting} role="status">
+            <h2>{plate.title}</h2>
+            <p>{plate.text}</p>
+          </div>
+        )}
 
         {table?.waitingForPlayers && (
           <div className={styles.waiting} role="status">

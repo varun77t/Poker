@@ -2,7 +2,9 @@ import { DEFAULT_ROOM_SETTINGS, isValidRoomCode, normalizeRoomCode, ROOM_CODE_LE
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { Button } from '../components/Button';
-import { Brand, Card, Notice, Page } from '../components/Layout';
+import { Notice } from '../components/Layout';
+import { SuitSymbols } from '../components/table/PlayingCard';
+import { TableScene } from '../components/TableScene';
 import { TextField } from '../components/TextField';
 import { loadName } from '../lib/storage';
 import { ensureSession } from '../session/session';
@@ -66,63 +68,66 @@ export function Landing() {
   }
 
   return (
-    <Page>
-      <Brand size="large" />
+    <div className={styles.page}>
+      <SuitSymbols />
+      <main className={styles.intro}>
+        <h1 className={styles.title}>Private Hold'em</h1>
+        <p className={styles.lede}>Texas Hold'em for you and your friends. Share a code, take a seat. Virtual chips only.</p>
 
-      {snapshot && (
-        <Notice>
-          You're seated in room <strong className={styles.inlineCode}>{snapshot.room.code}</strong>.{' '}
-          <Link to={`/room/${snapshot.room.code}`}>Return to the room</Link>
-        </Notice>
-      )}
+        {snapshot && (
+          <Notice>
+            You're seated in room <strong>{snapshot.room.code}</strong>. <Link to={`/room/${snapshot.room.code}`}>Return to the room</Link>
+          </Notice>
+        )}
 
-      <Card>
-        <TextField
-          label="Your name"
-          value={name}
-          onChange={(e) => {
-            setName(e.target.value);
-            setNameError(null);
-          }}
-          error={nameError}
-          placeholder="What should the table call you?"
-          autoComplete="nickname"
-          maxLength={40}
-        />
-
-        <Button fullWidth busy={busy === 'create'} disabled={busy !== null} onClick={() => void continueWithName('create', '/create')}>
-          Create a room
-        </Button>
-        <Button variant="secondary" fullWidth busy={busy === 'bots'} disabled={busy !== null} onClick={() => void playBots()}>
-          Play against bots
-        </Button>
-        {botsError && <Notice tone="error">{botsError}</Notice>}
-
-        <div className={styles.divider}>
-          <span>or join a friend</span>
-        </div>
-
-        <form className={styles.joinRow} onSubmit={onJoin} noValidate>
+        <div className={styles.form}>
           <TextField
-            className={styles.codeField}
-            label="Room code"
-            code
-            value={code}
+            label="Your name"
+            value={name}
             onChange={(e) => {
-              setCode(normalizeRoomCode(e.target.value).slice(0, ROOM_CODE_LENGTH));
-              setCodeError(null);
+              setName(e.target.value);
+              setNameError(null);
             }}
-            error={codeError}
-            placeholder="ABC234"
-            autoComplete="off"
-            autoCapitalize="characters"
-            spellCheck={false}
+            error={nameError}
+            placeholder="What should the table call you?"
+            autoComplete="nickname"
+            maxLength={40}
           />
-          <Button type="submit" variant="secondary" busy={busy === 'join'} disabled={busy !== null} className={styles.joinButton}>
-            Join
-          </Button>
-        </form>
-      </Card>
-    </Page>
+
+          <div className={styles.start}>
+            <Button variant="primary" busy={busy === 'create'} disabled={busy !== null} onClick={() => void continueWithName('create', '/create')}>
+              Create a room
+            </Button>
+            <Button busy={busy === 'bots'} disabled={busy !== null} onClick={() => void playBots()}>
+              Play against bots
+            </Button>
+          </div>
+          {botsError && <Notice tone="error">{botsError}</Notice>}
+
+          <form className={styles.join} onSubmit={onJoin} noValidate>
+            <TextField
+              label="Join a friend's room"
+              code
+              value={code}
+              onChange={(e) => {
+                setCode(normalizeRoomCode(e.target.value).slice(0, ROOM_CODE_LENGTH));
+                setCodeError(null);
+              }}
+              error={codeError}
+              placeholder="ROOM CODE"
+              autoComplete="off"
+              autoCapitalize="characters"
+              spellCheck={false}
+            />
+            <Button type="submit" busy={busy === 'join'} disabled={busy !== null} className={styles.joinButton}>
+              Join
+            </Button>
+          </form>
+        </div>
+      </main>
+      <div className={styles.scene}>
+        <TableScene />
+      </div>
+    </div>
   );
 }

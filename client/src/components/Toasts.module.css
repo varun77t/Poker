@@ -1,0 +1,124 @@
+/* Centred in the 52px top bar, between the room's facts and its controls, above everything. */
+.stack {
+  position: fixed;
+  top: 8px;
+  left: 50%;
+  z-index: 40;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: min(560px, calc(100vw - 48px));
+  translate: -50% 0;
+  pointer-events: none;
+}
+
+.toasts {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.toast {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  max-width: 100%;
+  min-height: 36px;
+  padding: 4px 4px 4px 16px;
+  border: 1px solid color-mix(in srgb, var(--danger) 60%, var(--plaque-edge));
+  border-radius: 10px;
+  background: var(--panel-solid);
+  box-shadow: var(--shadow-panel);
+  pointer-events: auto;
+  animation: drop-in 260ms var(--ease-out) both;
+}
+
+.close {
+  flex: none;
+  padding: 3px 10px;
+  border: 1px solid var(--plaque-edge);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink-muted);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.close:hover {
+  border-color: var(--trim);
+  color: var(--ink);
+}
+
+/* A status everyone should notice, so it takes the paper of a seat tag, not the lit accent. */
+.banner {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-height: 36px;
+  padding: 4px 16px 4px 12px;
+  border-radius: 999px;
+  background: var(--paper);
+  box-shadow: var(--shadow-plaque);
+  color: var(--room);
+  font-weight: 700;
+  white-space: nowrap;
+  animation: drop-in 260ms var(--ease-out) both;
+}
+
+.aside {
+  padding-left: 10px;
+  border-left: 1px solid color-mix(in srgb, var(--room) 30%, transparent);
+  font-weight: 500;
+}
+
+/* Three chips waiting their turn. */
+.dots {
+  display: flex;
+  gap: 4px;
+}
+
+.dots i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--room);
+  animation: wait 1200ms ease-in-out infinite both;
+}
+
+.dots i:nth-child(2) {
+  animation-delay: 150ms;
+}
+
+.dots i:nth-child(3) {
+  animation-delay: 300ms;
+}
+
+@keyframes wait {
+  0%,
+  60%,
+  100% {
+    opacity: 0.25;
+  }
+  30% {
+    opacity: 1;
+  }
+}
+
+@keyframes drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .banner,
+  .dots i {
+    animation: none;
+  }
+
+  .dots i {
+    opacity: 0.6;
+  }
+}

@@ -1,437 +1,482 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-29T18:42:08.257Z",
+  "generatedAt": "2026-09-30T02:45:53.141Z",
   "title": "Design System: Private Hold'em",
   "extensions": {
     "colorMeta": {
-      "room": {
+      "green": {
         "role": "neutral",
-        "displayName": "Wine Room",
-        "canonical": "#1f0d12",
+        "displayName": "Dark Green",
+        "canonical": "#132a13",
         "tonalRamp": [
-          "oklch(15% 0.032 2.8)",
-          "oklch(26% 0.032 2.8)",
-          "oklch(37% 0.032 2.8)",
-          "oklch(48% 0.032 2.8)",
-          "oklch(59% 0.032 2.8)",
-          "oklch(70% 0.032 2.8)",
-          "oklch(82% 0.032 2.8)",
-          "oklch(95% 0.028 2.8)"
+          "oklch(15% 0.038 143.9)",
+          "oklch(26% 0.046 143.9)",
+          "oklch(37% 0.051 143.9)",
+          "oklch(48% 0.051 143.9)",
+          "oklch(59% 0.051 143.9)",
+          "oklch(70% 0.051 143.9)",
+          "oklch(82% 0.046 143.9)",
+          "oklch(95% 0.038 143.9)"
         ]
       },
-      "room-lift": {
+      "cornsilk": {
         "role": "neutral",
-        "displayName": "Wine Room Lift",
-        "canonical": "#2b1219",
+        "displayName": "Cornsilk",
+        "canonical": "#faf4d3",
         "tonalRamp": [
-          "oklch(15% 0.042 3.3)",
-          "oklch(26% 0.042 3.3)",
-          "oklch(37% 0.042 3.3)",
-          "oklch(48% 0.042 3.3)",
-          "oklch(59% 0.042 3.3)",
-          "oklch(70% 0.042 3.3)",
-          "oklch(82% 0.037 3.3)",
-          "oklch(95% 0.032 3.3)"
+          "oklch(15% 0.033 98.7)",
+          "oklch(26% 0.039 98.7)",
+          "oklch(37% 0.043 98.7)",
+          "oklch(48% 0.043 98.7)",
+          "oklch(59% 0.043 98.7)",
+          "oklch(70% 0.043 98.7)",
+          "oklch(82% 0.039 98.7)",
+          "oklch(95% 0.033 98.7)"
+        ]
+      },
+      "room": {
+        "role": "neutral",
+        "displayName": "Green Room",
+        "canonical": "#0b1a0b",
+        "tonalRamp": [
+          "oklch(15% 0.027 144.1)",
+          "oklch(26% 0.032 144.1)",
+          "oklch(37% 0.036 144.1)",
+          "oklch(48% 0.036 144.1)",
+          "oklch(59% 0.036 144.1)",
+          "oklch(70% 0.036 144.1)",
+          "oklch(82% 0.032 144.1)",
+          "oklch(95% 0.027 144.1)"
+        ]
+      },
+      "room-2": {
+        "role": "neutral",
+        "displayName": "Green Room Centre",
+        "canonical": "#132a13",
+        "tonalRamp": [
+          "oklch(15% 0.038 143.9)",
+          "oklch(26% 0.046 143.9)",
+          "oklch(37% 0.051 143.9)",
+          "oklch(48% 0.051 143.9)",
+          "oklch(59% 0.051 143.9)",
+          "oklch(70% 0.051 143.9)",
+          "oklch(82% 0.046 143.9)",
+          "oklch(95% 0.038 143.9)"
         ]
       },
       "felt": {
         "role": "secondary",
         "displayName": "Lamp-Lit Felt",
-        "canonical": "#1c6445",
+        "canonical": "#2a5529",
         "tonalRamp": [
-          "oklch(15% 0.081 160.8)",
-          "oklch(26% 0.087 160.8)",
-          "oklch(37% 0.087 160.8)",
-          "oklch(48% 0.087 160.8)",
-          "oklch(59% 0.087 160.8)",
-          "oklch(70% 0.085 160.8)",
-          "oklch(82% 0.075 160.8)",
-          "oklch(95% 0.064 160.8)"
+          "oklch(15% 0.064 143.4)",
+          "oklch(26% 0.077 143.4)",
+          "oklch(37% 0.086 143.4)",
+          "oklch(48% 0.086 143.4)",
+          "oklch(59% 0.086 143.4)",
+          "oklch(70% 0.086 143.4)",
+          "oklch(82% 0.077 143.4)",
+          "oklch(95% 0.064 143.4)"
         ]
       },
-      "felt-lit": {
+      "felt-hi": {
         "role": "secondary",
         "displayName": "Felt Light Pool",
-        "canonical": "#22744f",
+        "canonical": "#356a33",
         "tonalRamp": [
-          "oklch(15% 0.084 159.7)",
-          "oklch(26% 0.095 159.7)",
-          "oklch(37% 0.098 159.7)",
-          "oklch(48% 0.098 159.7)",
-          "oklch(59% 0.098 159.7)",
-          "oklch(70% 0.098 159.7)",
-          "oklch(82% 0.087 159.7)",
-          "oklch(95% 0.074 159.7)"
+          "oklch(15% 0.077 143.1)",
+          "oklch(26% 0.092 143.1)",
+          "oklch(37% 0.102 143.1)",
+          "oklch(48% 0.102 143.1)",
+          "oklch(59% 0.102 143.1)",
+          "oklch(70% 0.102 143.1)",
+          "oklch(82% 0.092 143.1)",
+          "oklch(95% 0.077 143.1)"
         ]
       },
       "felt-edge": {
         "role": "secondary",
         "displayName": "Felt Rim",
-        "canonical": "#124530",
+        "canonical": "#1b3b1b",
         "tonalRamp": [
-          "oklch(15% 0.065 162.1)",
-          "oklch(26% 0.065 162.1)",
-          "oklch(37% 0.065 162.1)",
-          "oklch(48% 0.065 162.1)",
-          "oklch(59% 0.065 162.1)",
-          "oklch(70% 0.063 162.1)",
-          "oklch(82% 0.055 162.1)",
-          "oklch(95% 0.046 162.1)"
+          "oklch(15% 0.050 143.8)",
+          "oklch(26% 0.060 143.8)",
+          "oklch(37% 0.067 143.8)",
+          "oklch(48% 0.067 143.8)",
+          "oklch(59% 0.067 143.8)",
+          "oklch(70% 0.067 143.8)",
+          "oklch(82% 0.060 143.8)",
+          "oklch(95% 0.050 143.8)"
         ]
       },
       "felt-ink": {
         "role": "secondary",
         "displayName": "Printed Felt Ink",
-        "canonical": "rgb(236 226 200 / 0.16)"
+        "canonical": "rgb(250 244 211 / 0.15)"
       },
       "felt-label": {
         "role": "secondary",
         "displayName": "Felt Shade",
-        "canonical": "rgb(8 26 17 / 0.62)"
+        "canonical": "rgb(7 20 7 / 0.6)"
       },
       "rail": {
         "role": "neutral",
-        "displayName": "Mahogany Rail",
-        "canonical": "#3a1c14",
+        "displayName": "Cornsilk Rail",
+        "canonical": "#f3ecc6",
         "tonalRamp": [
-          "oklch(15% 0.050 35.9)",
-          "oklch(26% 0.050 35.9)",
-          "oklch(37% 0.050 35.9)",
-          "oklch(48% 0.050 35.9)",
-          "oklch(59% 0.050 35.9)",
-          "oklch(70% 0.048 35.9)",
-          "oklch(82% 0.042 35.9)",
-          "oklch(95% 0.036 35.9)"
+          "oklch(15% 0.038 98.6)",
+          "oklch(26% 0.045 98.6)",
+          "oklch(37% 0.050 98.6)",
+          "oklch(48% 0.050 98.6)",
+          "oklch(59% 0.050 98.6)",
+          "oklch(70% 0.050 98.6)",
+          "oklch(82% 0.045 98.6)",
+          "oklch(95% 0.038 98.6)"
         ]
       },
-      "rail-lit": {
+      "rail-hi": {
         "role": "neutral",
-        "displayName": "Rail Highlight",
-        "canonical": "#57301f",
+        "displayName": "Cornsilk Rail Highlight",
+        "canonical": "#fdf8e0",
         "tonalRamp": [
-          "oklch(15% 0.063 43.8)",
-          "oklch(26% 0.063 43.8)",
-          "oklch(37% 0.063 43.8)",
-          "oklch(48% 0.063 43.8)",
-          "oklch(59% 0.063 43.8)",
-          "oklch(70% 0.061 43.8)",
-          "oklch(82% 0.054 43.8)",
-          "oklch(95% 0.046 43.8)"
+          "oklch(15% 0.024 97.3)",
+          "oklch(26% 0.029 97.3)",
+          "oklch(37% 0.032 97.3)",
+          "oklch(48% 0.032 97.3)",
+          "oklch(59% 0.032 97.3)",
+          "oklch(70% 0.032 97.3)",
+          "oklch(82% 0.029 97.3)",
+          "oklch(95% 0.024 97.3)"
         ]
       },
-      "rail-shade": {
+      "rail-lo": {
         "role": "neutral",
-        "displayName": "Rail Shade",
-        "canonical": "#2a130d",
+        "displayName": "Cornsilk Rail Shade",
+        "canonical": "#cfc69c",
         "tonalRamp": [
-          "oklch(15% 0.040 35.5)",
-          "oklch(26% 0.040 35.5)",
-          "oklch(37% 0.040 35.5)",
-          "oklch(48% 0.040 35.5)",
-          "oklch(59% 0.040 35.5)",
-          "oklch(70% 0.040 35.5)",
-          "oklch(82% 0.036 35.5)",
-          "oklch(95% 0.031 35.5)"
+          "oklch(15% 0.043 97.4)",
+          "oklch(26% 0.051 97.4)",
+          "oklch(37% 0.057 97.4)",
+          "oklch(48% 0.057 97.4)",
+          "oklch(59% 0.057 97.4)",
+          "oklch(70% 0.057 97.4)",
+          "oklch(82% 0.051 97.4)",
+          "oklch(95% 0.043 97.4)"
         ]
       },
-      "brass": {
+      "rail-seam": {
+        "role": "neutral",
+        "displayName": "Cornsilk Rail Seam",
+        "canonical": "rgb(19 42 19 / 0.55)"
+      },
+      "lit": {
         "role": "primary",
-        "displayName": "Card-Room Brass",
-        "canonical": "#d2a54c",
+        "displayName": "Lit Cornsilk",
+        "canonical": "#faf4d3",
         "tonalRamp": [
-          "oklch(15% 0.068 82.1)",
-          "oklch(26% 0.081 82.1)",
-          "oklch(37% 0.094 82.1)",
-          "oklch(48% 0.107 82.1)",
-          "oklch(59% 0.119 82.1)",
-          "oklch(70% 0.119 82.1)",
-          "oklch(82% 0.119 82.1)",
-          "oklch(95% 0.115 82.1)"
+          "oklch(15% 0.033 98.7)",
+          "oklch(26% 0.039 98.7)",
+          "oklch(37% 0.043 98.7)",
+          "oklch(48% 0.043 98.7)",
+          "oklch(59% 0.043 98.7)",
+          "oklch(70% 0.043 98.7)",
+          "oklch(82% 0.039 98.7)",
+          "oklch(95% 0.033 98.7)"
         ]
       },
-      "brass-lit": {
+      "lit-edge": {
         "role": "primary",
-        "displayName": "Brass Highlight",
-        "canonical": "#e7c16e",
+        "displayName": "Lit Edge",
+        "canonical": "#fffbea",
         "tonalRamp": [
-          "oklch(15% 0.056 85.4)",
-          "oklch(26% 0.068 85.4)",
-          "oklch(37% 0.080 85.4)",
-          "oklch(48% 0.092 85.4)",
-          "oklch(59% 0.105 85.4)",
-          "oklch(70% 0.111 85.4)",
-          "oklch(82% 0.111 85.4)",
-          "oklch(95% 0.111 85.4)"
+          "oklch(15% 0.017 96.0)",
+          "oklch(26% 0.020 96.0)",
+          "oklch(37% 0.023 96.0)",
+          "oklch(48% 0.023 96.0)",
+          "oklch(59% 0.023 96.0)",
+          "oklch(70% 0.023 96.0)",
+          "oklch(82% 0.020 96.0)",
+          "oklch(95% 0.017 96.0)"
         ]
       },
-      "brass-hover": {
+      "lit-hover": {
         "role": "primary",
-        "displayName": "Brass Hover",
-        "canonical": "#dfb35a",
+        "displayName": "Lit Hover",
+        "canonical": "#ece5c1",
         "tonalRamp": [
-          "oklch(15% 0.063 83.1)",
-          "oklch(26% 0.076 83.1)",
-          "oklch(37% 0.089 83.1)",
-          "oklch(48% 0.102 83.1)",
-          "oklch(59% 0.115 83.1)",
-          "oklch(70% 0.119 83.1)",
-          "oklch(82% 0.119 83.1)",
-          "oklch(95% 0.119 83.1)"
+          "oklch(15% 0.036 98.1)",
+          "oklch(26% 0.043 98.1)",
+          "oklch(37% 0.048 98.1)",
+          "oklch(48% 0.048 98.1)",
+          "oklch(59% 0.048 98.1)",
+          "oklch(70% 0.048 98.1)",
+          "oklch(82% 0.043 98.1)",
+          "oklch(95% 0.036 98.1)"
         ]
       },
-      "brass-trim": {
+      "lit-ink": {
         "role": "primary",
-        "displayName": "Rail Trim Brass",
-        "canonical": "#a88444",
+        "displayName": "Lit Ink",
+        "canonical": "#132a13",
         "tonalRamp": [
-          "oklch(15% 0.068 80.2)",
-          "oklch(26% 0.078 80.2)",
-          "oklch(37% 0.089 80.2)",
-          "oklch(48% 0.093 80.2)",
-          "oklch(59% 0.093 80.2)",
-          "oklch(70% 0.093 80.2)",
-          "oklch(82% 0.093 80.2)",
-          "oklch(95% 0.084 80.2)"
+          "oklch(15% 0.038 143.9)",
+          "oklch(26% 0.046 143.9)",
+          "oklch(37% 0.051 143.9)",
+          "oklch(48% 0.051 143.9)",
+          "oklch(59% 0.051 143.9)",
+          "oklch(70% 0.051 143.9)",
+          "oklch(82% 0.046 143.9)",
+          "oklch(95% 0.038 143.9)"
         ]
       },
-      "brass-ink": {
+      "trim": {
         "role": "primary",
-        "displayName": "Dark Umber",
-        "canonical": "#2a1407",
+        "displayName": "Rail Trim",
+        "canonical": "#868f73",
         "tonalRamp": [
-          "oklch(15% 0.043 50.2)",
-          "oklch(26% 0.043 50.2)",
-          "oklch(37% 0.043 50.2)",
-          "oklch(48% 0.043 50.2)",
-          "oklch(59% 0.043 50.2)",
-          "oklch(70% 0.042 50.2)",
-          "oklch(82% 0.037 50.2)",
-          "oklch(95% 0.031 50.2)"
+          "oklch(15% 0.031 122.1)",
+          "oklch(26% 0.038 122.1)",
+          "oklch(37% 0.042 122.1)",
+          "oklch(48% 0.042 122.1)",
+          "oklch(59% 0.042 122.1)",
+          "oklch(70% 0.042 122.1)",
+          "oklch(82% 0.038 122.1)",
+          "oklch(95% 0.031 122.1)"
         ]
       },
       "paper": {
         "role": "neutral",
-        "displayName": "Cream Paper",
-        "canonical": "#f7f2e7",
+        "displayName": "Cornsilk Paper",
+        "canonical": "#faf4d3",
         "tonalRamp": [
-          "oklch(15% 0.016 86.4)",
-          "oklch(26% 0.016 86.4)",
-          "oklch(37% 0.016 86.4)",
-          "oklch(48% 0.016 86.4)",
-          "oklch(59% 0.016 86.4)",
-          "oklch(70% 0.016 86.4)",
-          "oklch(82% 0.016 86.4)",
-          "oklch(95% 0.016 86.4)"
+          "oklch(15% 0.033 98.7)",
+          "oklch(26% 0.039 98.7)",
+          "oklch(37% 0.043 98.7)",
+          "oklch(48% 0.043 98.7)",
+          "oklch(59% 0.043 98.7)",
+          "oklch(70% 0.043 98.7)",
+          "oklch(82% 0.039 98.7)",
+          "oklch(95% 0.033 98.7)"
         ]
       },
       "ink": {
         "role": "neutral",
-        "displayName": "Parchment Ink",
-        "canonical": "#f3ecdf",
+        "displayName": "Cornsilk Ink",
+        "canonical": "#faf4d3",
         "tonalRamp": [
-          "oklch(15% 0.019 83.1)",
-          "oklch(26% 0.019 83.1)",
-          "oklch(37% 0.019 83.1)",
-          "oklch(48% 0.019 83.1)",
-          "oklch(59% 0.019 83.1)",
-          "oklch(70% 0.019 83.1)",
-          "oklch(82% 0.019 83.1)",
-          "oklch(95% 0.019 83.1)"
+          "oklch(15% 0.033 98.7)",
+          "oklch(26% 0.039 98.7)",
+          "oklch(37% 0.043 98.7)",
+          "oklch(48% 0.043 98.7)",
+          "oklch(59% 0.043 98.7)",
+          "oklch(70% 0.043 98.7)",
+          "oklch(82% 0.039 98.7)",
+          "oklch(95% 0.033 98.7)"
         ]
       },
       "ink-muted": {
         "role": "neutral",
-        "displayName": "Parchment Muted",
-        "canonical": "#c5b49c",
+        "displayName": "Cornsilk Ink Muted",
+        "canonical": "#c3c5a5",
         "tonalRamp": [
-          "oklch(15% 0.034 76.5)",
-          "oklch(26% 0.038 76.5)",
-          "oklch(37% 0.038 76.5)",
-          "oklch(48% 0.038 76.5)",
-          "oklch(59% 0.038 76.5)",
-          "oklch(70% 0.038 76.5)",
-          "oklch(82% 0.038 76.5)",
-          "oklch(95% 0.038 76.5)"
+          "oklch(15% 0.033 110.3)",
+          "oklch(26% 0.039 110.3)",
+          "oklch(37% 0.043 110.3)",
+          "oklch(48% 0.043 110.3)",
+          "oklch(59% 0.043 110.3)",
+          "oklch(70% 0.043 110.3)",
+          "oklch(82% 0.039 110.3)",
+          "oklch(95% 0.033 110.3)"
         ]
       },
       "ink-faint": {
         "role": "neutral",
-        "displayName": "Parchment Faint",
-        "canonical": "#8e7b67",
+        "displayName": "Cornsilk Ink Faint",
+        "canonical": "#8f977c",
         "tonalRamp": [
-          "oklch(15% 0.038 68.4)",
-          "oklch(26% 0.038 68.4)",
-          "oklch(37% 0.038 68.4)",
-          "oklch(48% 0.038 68.4)",
-          "oklch(59% 0.038 68.4)",
-          "oklch(70% 0.038 68.4)",
-          "oklch(82% 0.038 68.4)",
-          "oklch(95% 0.038 68.4)"
+          "oklch(15% 0.030 120.9)",
+          "oklch(26% 0.036 120.9)",
+          "oklch(37% 0.040 120.9)",
+          "oklch(48% 0.040 120.9)",
+          "oklch(59% 0.040 120.9)",
+          "oklch(70% 0.040 120.9)",
+          "oklch(82% 0.036 120.9)",
+          "oklch(95% 0.030 120.9)"
         ]
       },
       "suit-red": {
         "role": "tertiary",
         "displayName": "Suit Red",
-        "canonical": "#c62f3b",
+        "canonical": "#c0303a",
         "tonalRamp": [
-          "oklch(15% 0.133 22.1)",
-          "oklch(26% 0.153 22.1)",
-          "oklch(37% 0.174 22.1)",
-          "oklch(48% 0.187 22.1)",
-          "oklch(59% 0.187 22.1)",
-          "oklch(70% 0.178 22.1)",
-          "oklch(82% 0.156 22.1)",
-          "oklch(95% 0.131 22.1)"
+          "oklch(15% 0.135 22.3)",
+          "oklch(26% 0.162 22.3)",
+          "oklch(37% 0.180 22.3)",
+          "oklch(48% 0.180 22.3)",
+          "oklch(59% 0.180 22.3)",
+          "oklch(70% 0.180 22.3)",
+          "oklch(82% 0.162 22.3)",
+          "oklch(95% 0.135 22.3)"
         ]
       },
       "suit-black": {
         "role": "tertiary",
         "displayName": "Suit Black",
-        "canonical": "#1b1b1f",
+        "canonical": "#132a13",
         "tonalRamp": [
-          "oklch(15% 0.008 285.8)",
-          "oklch(26% 0.008 285.8)",
-          "oklch(37% 0.008 285.8)",
-          "oklch(48% 0.008 285.8)",
-          "oklch(59% 0.008 285.8)",
-          "oklch(70% 0.008 285.8)",
-          "oklch(82% 0.008 285.8)",
-          "oklch(95% 0.008 285.8)"
+          "oklch(15% 0.038 143.9)",
+          "oklch(26% 0.046 143.9)",
+          "oklch(37% 0.051 143.9)",
+          "oklch(48% 0.051 143.9)",
+          "oklch(59% 0.051 143.9)",
+          "oklch(70% 0.051 143.9)",
+          "oklch(82% 0.046 143.9)",
+          "oklch(95% 0.038 143.9)"
         ]
       },
       "card-back": {
         "role": "tertiary",
-        "displayName": "Burgundy Card Back",
-        "canonical": "#7b1d2a",
+        "displayName": "Green Card Back",
+        "canonical": "#132a13",
         "tonalRamp": [
-          "oklch(15% 0.117 18.0)",
-          "oklch(26% 0.128 18.0)",
-          "oklch(37% 0.128 18.0)",
-          "oklch(48% 0.128 18.0)",
-          "oklch(59% 0.122 18.0)",
-          "oklch(70% 0.108 18.0)",
-          "oklch(82% 0.093 18.0)",
-          "oklch(95% 0.076 18.0)"
+          "oklch(15% 0.038 143.9)",
+          "oklch(26% 0.046 143.9)",
+          "oklch(37% 0.051 143.9)",
+          "oklch(48% 0.051 143.9)",
+          "oklch(59% 0.051 143.9)",
+          "oklch(70% 0.051 143.9)",
+          "oklch(82% 0.046 143.9)",
+          "oklch(95% 0.038 143.9)"
         ]
       },
       "plaque": {
         "role": "neutral",
         "displayName": "Leather Plaque",
-        "canonical": "#24110f",
+        "canonical": "#0e1f0e",
         "tonalRamp": [
-          "oklch(15% 0.032 26.7)",
-          "oklch(26% 0.032 26.7)",
-          "oklch(37% 0.032 26.7)",
-          "oklch(48% 0.032 26.7)",
-          "oklch(59% 0.032 26.7)",
-          "oklch(70% 0.032 26.7)",
-          "oklch(82% 0.032 26.7)",
-          "oklch(95% 0.028 26.7)"
+          "oklch(15% 0.030 144.1)",
+          "oklch(26% 0.036 144.1)",
+          "oklch(37% 0.040 144.1)",
+          "oklch(48% 0.040 144.1)",
+          "oklch(59% 0.040 144.1)",
+          "oklch(70% 0.040 144.1)",
+          "oklch(82% 0.036 144.1)",
+          "oklch(95% 0.030 144.1)"
         ]
       },
       "plaque-turn": {
         "role": "neutral",
         "displayName": "Leather Plaque (Turn)",
-        "canonical": "#33190f",
+        "canonical": "#1c371b",
         "tonalRamp": [
-          "oklch(15% 0.045 41.5)",
-          "oklch(26% 0.045 41.5)",
-          "oklch(37% 0.045 41.5)",
-          "oklch(48% 0.045 41.5)",
-          "oklch(59% 0.045 41.5)",
-          "oklch(70% 0.045 41.5)",
-          "oklch(82% 0.039 41.5)",
-          "oklch(95% 0.034 41.5)"
+          "oklch(15% 0.044 143.2)",
+          "oklch(26% 0.053 143.2)",
+          "oklch(37% 0.059 143.2)",
+          "oklch(48% 0.059 143.2)",
+          "oklch(59% 0.059 143.2)",
+          "oklch(70% 0.059 143.2)",
+          "oklch(82% 0.053 143.2)",
+          "oklch(95% 0.044 143.2)"
         ]
       },
       "plaque-edge": {
         "role": "neutral",
         "displayName": "Plaque Edge",
-        "canonical": "#4a2a1d",
+        "canonical": "#2e4a2c",
         "tonalRamp": [
-          "oklch(15% 0.053 42.7)",
-          "oklch(26% 0.053 42.7)",
-          "oklch(37% 0.053 42.7)",
-          "oklch(48% 0.053 42.7)",
-          "oklch(59% 0.053 42.7)",
-          "oklch(70% 0.053 42.7)",
-          "oklch(82% 0.047 42.7)",
-          "oklch(95% 0.040 42.7)"
+          "oklch(15% 0.045 142.8)",
+          "oklch(26% 0.054 142.8)",
+          "oklch(37% 0.060 142.8)",
+          "oklch(48% 0.060 142.8)",
+          "oklch(59% 0.060 142.8)",
+          "oklch(70% 0.060 142.8)",
+          "oklch(82% 0.054 142.8)",
+          "oklch(95% 0.045 142.8)"
         ]
       },
       "avatar": {
         "role": "neutral",
         "displayName": "Avatar Disc",
-        "canonical": "#5a2e22",
+        "canonical": "#2a4a29",
         "tonalRamp": [
-          "oklch(15% 0.068 36.2)",
-          "oklch(26% 0.068 36.2)",
-          "oklch(37% 0.068 36.2)",
-          "oklch(48% 0.068 36.2)",
-          "oklch(59% 0.068 36.2)",
-          "oklch(70% 0.065 36.2)",
-          "oklch(82% 0.056 36.2)",
-          "oklch(95% 0.048 36.2)"
+          "oklch(15% 0.050 143.5)",
+          "oklch(26% 0.060 143.5)",
+          "oklch(37% 0.067 143.5)",
+          "oklch(48% 0.067 143.5)",
+          "oklch(59% 0.067 143.5)",
+          "oklch(70% 0.067 143.5)",
+          "oklch(82% 0.060 143.5)",
+          "oklch(95% 0.050 143.5)"
         ]
       },
       "button": {
         "role": "neutral",
-        "displayName": "Oxblood Control",
-        "canonical": "#33191a",
+        "displayName": "Green Control",
+        "canonical": "#1a331a",
         "tonalRamp": [
-          "oklch(15% 0.042 18.0)",
-          "oklch(26% 0.042 18.0)",
-          "oklch(37% 0.042 18.0)",
-          "oklch(48% 0.042 18.0)",
-          "oklch(59% 0.042 18.0)",
-          "oklch(70% 0.042 18.0)",
-          "oklch(82% 0.038 18.0)",
-          "oklch(95% 0.032 18.0)"
+          "oklch(15% 0.041 144.0)",
+          "oklch(26% 0.049 144.0)",
+          "oklch(37% 0.054 144.0)",
+          "oklch(48% 0.054 144.0)",
+          "oklch(59% 0.054 144.0)",
+          "oklch(70% 0.054 144.0)",
+          "oklch(82% 0.049 144.0)",
+          "oklch(95% 0.041 144.0)"
         ]
       },
       "button-hover": {
         "role": "neutral",
-        "displayName": "Oxblood Control Hover",
-        "canonical": "#43211f",
+        "displayName": "Green Control Hover",
+        "canonical": "#224321",
         "tonalRamp": [
-          "oklch(15% 0.053 24.3)",
-          "oklch(26% 0.053 24.3)",
-          "oklch(37% 0.053 24.3)",
-          "oklch(48% 0.053 24.3)",
-          "oklch(59% 0.053 24.3)",
-          "oklch(70% 0.051 24.3)",
-          "oklch(82% 0.045 24.3)",
-          "oklch(95% 0.038 24.3)"
+          "oklch(15% 0.052 143.3)",
+          "oklch(26% 0.062 143.3)",
+          "oklch(37% 0.069 143.3)",
+          "oklch(48% 0.069 143.3)",
+          "oklch(59% 0.069 143.3)",
+          "oklch(70% 0.069 143.3)",
+          "oklch(82% 0.062 143.3)",
+          "oklch(95% 0.052 143.3)"
         ]
       },
       "field": {
         "role": "neutral",
         "displayName": "Sunken Field",
-        "canonical": "#1a0b0c",
+        "canonical": "#081408",
         "tonalRamp": [
-          "oklch(15% 0.026 15.9)",
-          "oklch(26% 0.026 15.9)",
-          "oklch(37% 0.026 15.9)",
-          "oklch(48% 0.026 15.9)",
-          "oklch(59% 0.026 15.9)",
-          "oklch(70% 0.026 15.9)",
-          "oklch(82% 0.026 15.9)",
-          "oklch(95% 0.026 15.9)"
+          "oklch(15% 0.023 144.2)",
+          "oklch(26% 0.027 144.2)",
+          "oklch(37% 0.030 144.2)",
+          "oklch(48% 0.030 144.2)",
+          "oklch(59% 0.030 144.2)",
+          "oklch(70% 0.030 144.2)",
+          "oklch(82% 0.027 144.2)",
+          "oklch(95% 0.023 144.2)"
         ]
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "Panel Glass",
+        "canonical": "rgb(9 22 9 / 0.92)"
+      },
+      "panel-solid": {
+        "role": "neutral",
+        "displayName": "Panel Glass (Solid)",
+        "canonical": "rgb(9 22 9 / 0.97)"
       },
       "fold-ink": {
         "role": "neutral",
         "displayName": "Fold Blush",
         "canonical": "#f0b7b3",
         "tonalRamp": [
-          "oklch(15% 0.041 23.2)",
-          "oklch(26% 0.049 23.2)",
-          "oklch(37% 0.056 23.2)",
-          "oklch(48% 0.063 23.2)",
+          "oklch(15% 0.050 23.2)",
+          "oklch(26% 0.060 23.2)",
+          "oklch(37% 0.067 23.2)",
+          "oklch(48% 0.067 23.2)",
           "oklch(59% 0.067 23.2)",
           "oklch(70% 0.067 23.2)",
-          "oklch(82% 0.067 23.2)",
-          "oklch(95% 0.067 23.2)"
+          "oklch(82% 0.060 23.2)",
+          "oklch(95% 0.050 23.2)"
         ]
       },
       "danger": {
@@ -439,29 +484,29 @@
         "displayName": "Danger",
         "canonical": "#e0645f",
         "tonalRamp": [
-          "oklch(15% 0.097 24.6)",
-          "oklch(26% 0.115 24.6)",
-          "oklch(37% 0.132 24.6)",
-          "oklch(48% 0.149 24.6)",
+          "oklch(15% 0.117 24.6)",
+          "oklch(26% 0.141 24.6)",
+          "oklch(37% 0.156 24.6)",
+          "oklch(48% 0.156 24.6)",
           "oklch(59% 0.156 24.6)",
           "oklch(70% 0.156 24.6)",
-          "oklch(82% 0.150 24.6)",
-          "oklch(95% 0.130 24.6)"
+          "oklch(82% 0.141 24.6)",
+          "oklch(95% 0.117 24.6)"
         ]
       },
       "win": {
         "role": "neutral",
         "displayName": "Payout Green",
-        "canonical": "#7fcf9c",
+        "canonical": "#a6e3a1",
         "tonalRamp": [
-          "oklch(15% 0.059 155.1)",
-          "oklch(26% 0.071 155.1)",
-          "oklch(37% 0.083 155.1)",
-          "oklch(48% 0.095 155.1)",
-          "oklch(59% 0.106 155.1)",
-          "oklch(70% 0.108 155.1)",
-          "oklch(82% 0.108 155.1)",
-          "oklch(95% 0.108 155.1)"
+          "oklch(15% 0.082 142.7)",
+          "oklch(26% 0.098 142.7)",
+          "oklch(37% 0.109 142.7)",
+          "oklch(48% 0.109 142.7)",
+          "oklch(59% 0.109 142.7)",
+          "oklch(70% 0.109 142.7)",
+          "oklch(82% 0.098 142.7)",
+          "oklch(95% 0.082 142.7)"
         ]
       },
       "chip-red": {
@@ -469,14 +514,14 @@
         "displayName": "Chip Red",
         "canonical": "#c62f3b",
         "tonalRamp": [
-          "oklch(15% 0.133 22.1)",
-          "oklch(26% 0.153 22.1)",
-          "oklch(37% 0.174 22.1)",
+          "oklch(15% 0.140 22.1)",
+          "oklch(26% 0.168 22.1)",
+          "oklch(37% 0.187 22.1)",
           "oklch(48% 0.187 22.1)",
           "oklch(59% 0.187 22.1)",
-          "oklch(70% 0.178 22.1)",
-          "oklch(82% 0.156 22.1)",
-          "oklch(95% 0.131 22.1)"
+          "oklch(70% 0.187 22.1)",
+          "oklch(82% 0.168 22.1)",
+          "oklch(95% 0.140 22.1)"
         ]
       },
       "chip-blue": {
@@ -484,14 +529,14 @@
         "displayName": "Chip Blue",
         "canonical": "#2f5fb3",
         "tonalRamp": [
-          "oklch(15% 0.114 260.7)",
+          "oklch(15% 0.108 260.7)",
           "oklch(26% 0.129 260.7)",
           "oklch(37% 0.144 260.7)",
           "oklch(48% 0.144 260.7)",
           "oklch(59% 0.144 260.7)",
-          "oklch(70% 0.135 260.7)",
-          "oklch(82% 0.117 260.7)",
-          "oklch(95% 0.099 260.7)"
+          "oklch(70% 0.144 260.7)",
+          "oklch(82% 0.129 260.7)",
+          "oklch(95% 0.108 260.7)"
         ]
       },
       "chip-black": {
@@ -499,14 +544,14 @@
         "displayName": "Chip Black",
         "canonical": "#26262b",
         "tonalRamp": [
-          "oklch(15% 0.009 285.8)",
-          "oklch(26% 0.009 285.8)",
+          "oklch(15% 0.007 285.8)",
+          "oklch(26% 0.008 285.8)",
           "oklch(37% 0.009 285.8)",
           "oklch(48% 0.009 285.8)",
           "oklch(59% 0.009 285.8)",
           "oklch(70% 0.009 285.8)",
-          "oklch(82% 0.009 285.8)",
-          "oklch(95% 0.009 285.8)"
+          "oklch(82% 0.008 285.8)",
+          "oklch(95% 0.007 285.8)"
         ]
       },
       "chip-green": {
@@ -515,13 +560,13 @@
         "canonical": "#1f8a56",
         "tonalRamp": [
           "oklch(15% 0.093 156.6)",
-          "oklch(26% 0.106 156.6)",
-          "oklch(37% 0.120 156.6)",
+          "oklch(26% 0.111 156.6)",
+          "oklch(37% 0.124 156.6)",
           "oklch(48% 0.124 156.6)",
           "oklch(59% 0.124 156.6)",
           "oklch(70% 0.124 156.6)",
-          "oklch(82% 0.112 156.6)",
-          "oklch(95% 0.096 156.6)"
+          "oklch(82% 0.111 156.6)",
+          "oklch(95% 0.093 156.6)"
         ]
       },
       "chip-stripe": {
@@ -536,33 +581,57 @@
       }
     },
     "typographyMeta": {
+      "hero": {
+        "displayName": "Hero",
+        "purpose": "The product name as the landing title; the only type at this size."
+      },
       "display": {
         "displayName": "Display",
-        "purpose": "Showdown result headline on the felt plate."
+        "purpose": "The showdown result and the game winner, in cornsilk paper on a felt plate."
+      },
+      "heading": {
+        "displayName": "Heading",
+        "purpose": "The one heading of a pre-game panel: New room, Room RW8W7B, the problem and not-found titles."
       },
       "headline": {
         "displayName": "Headline",
-        "purpose": "Table-level status plates (Waiting for players) and the Final standings heading."
+        "purpose": "Table-level plates (Waiting for players, Waiting to start) and side-column headings: Invite your friends, Final standings, the settings editor title."
       },
       "title": {
         "displayName": "Title",
-        "purpose": "Product name in the header."
+        "purpose": "The product name in every 52px bar; links home on pre-game screens."
       },
       "felt-lettering": {
         "displayName": "Felt Lettering",
-        "purpose": "Name printed into the felt, uppercase, in felt-ink."
+        "purpose": "The name printed into the felt, uppercase, in felt-ink."
+      },
+      "room-code": {
+        "displayName": "Room Code",
+        "purpose": "The lobby room code, the largest figure on the screen."
+      },
+      "lede": {
+        "displayName": "Lede",
+        "purpose": "The landing's one line under the title, in ink-muted, 34ch."
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Page default: stacks, meta, status lines, tabular figures."
+        "purpose": "Page default: stacks, meta, status lines, sentences in panels; tabular figures."
       },
       "body-strong": {
         "displayName": "Body Strong",
-        "purpose": "Names, bet amounts, room code, ghost buttons."
+        "purpose": "Player names, bet amounts, field labels, the room code on the bar, ghost buttons."
+      },
+      "field": {
+        "displayName": "Field",
+        "purpose": "Text in inputs and the select; a room-code entry sets 700 20px, 0.22em, uppercase."
+      },
+      "figure": {
+        "displayName": "Figure",
+        "purpose": "Pot amounts and the winning hand line on the felt."
       },
       "action": {
         "displayName": "Action",
-        "purpose": "Action button labels; the signed net on a standings plaque."
+        "purpose": "Button labels; the signed net on a standings plaque."
       },
       "hand": {
         "displayName": "Hand",
@@ -570,55 +639,60 @@
       },
       "label": {
         "displayName": "Label",
-        "purpose": "Bet presets, the host's bot Remove control, the \"Add a bot\" line on an open seat, and the hand hint's ladder rungs."
+        "purpose": "Bet presets, the host's bot Remove control, the Add a bot line on an open seat, and the hand hint ladder rungs."
       },
       "tag": {
         "displayName": "Tag",
         "purpose": "State tags on seat and standings plaques, and the outlined bot mark (Easy bot, Medium bot, Pro bot)."
       },
-      "card-rank": {
-        "displayName": "Card Rank",
-        "purpose": "Card indices, scaled in container units."
-      },
-      "figure": {
-        "displayName": "Figure",
-        "purpose": "Pot amounts and the winning hand line on the felt."
+      "keycap": {
+        "displayName": "Keycap",
+        "purpose": "The F / C / R shortcut letters in the action buttons."
       },
       "notice": {
         "displayName": "Notice",
-        "purpose": "The header's cream status pill (Last hand)."
+        "purpose": "The bar's paper status pill (Last hand)."
+      },
+      "card-rank": {
+        "displayName": "Card Rank",
+        "purpose": "Card indices, scaled with the card in container units."
       }
     },
     "shadows": [
       {
         "name": "table-drop",
-        "value": "0 30px 60px -20px rgb(0 0 0 / 0.7), inset 0 2px 0 rgb(255 255 255 / 0.08)",
-        "purpose": "The table on the floor, with the rail highlight."
+        "value": "0 30px 60px -20px rgb(0 0 0 / 0.7), inset 0 2px 0 rgb(255 255 255 / 0.6), inset 0 -3px 6px rgb(0 0 0 / 0.18)",
+        "purpose": "The table on the floor: the cornsilk rail's bright top highlight and a soft inner shade at its lower edge; also the landing table scene."
       },
       {
         "name": "felt-well",
-        "value": "inset 0 0 0 2px #a88444, inset 0 10px 30px rgb(0 0 0 / 0.35)",
-        "purpose": "Felt inside the rail: brass trim line plus rail shade."
+        "value": "inset 0 0 0 2px var(--rail-seam), inset 0 10px 30px rgb(0 0 0 / 0.35)",
+        "purpose": "The felt inside the rail: the 2px green seam where rail meets cloth, plus rail shade."
       },
       {
         "name": "panel-float",
         "value": "0 20px 40px -12px rgb(0 0 0 / 0.7)",
-        "purpose": "The docked action panel, the hand hint, the next-game panel and the host's bot panels."
+        "purpose": "--shadow-panel: the action panel, hand hint, side panels, shell panels, settings editor, bot panels, toasts and the dialog."
       },
       {
         "name": "plaque-rest",
         "value": "0 8px 18px -6px rgb(0 0 0 / 0.6)",
-        "purpose": "Name plaques on the rail."
+        "purpose": "--shadow-plaque: name plaques on the rail, standings plaques and the reconnecting banner."
       },
       {
         "name": "card-rest",
         "value": "0 2px 4px rgb(0 0 0 / 0.35)",
-        "purpose": "Cards and the dealer button lying on felt."
+        "purpose": "Cards lying on felt (the dealer button's is 0.4)."
       },
       {
         "name": "card-lift",
-        "value": "0 0 0 2.5px #d2a54c, 0 8px 16px rgb(0 0 0 / 0.4)",
-        "purpose": "Winning cards at showdown, with an 8px rise."
+        "value": "0 0 0 2px var(--felt-edge), 0 0 0 4.5px var(--lit), 0 8px 16px rgb(0 0 0 / 0.4)",
+        "purpose": "Winning cards at showdown, with an 8px rise: a felt-edge band, then the lit ring, so the ring reads on a cornsilk card."
+      },
+      {
+        "name": "green-keyline",
+        "value": "0 0 0 1.5px var(--green)",
+        "purpose": "Paper seat tags and the dealer button: a green keyline keeps them readable where they overlap the cornsilk rail (the dealer button adds 0 2px 4px rgb(0 0 0 / 0.4))."
       },
       {
         "name": "chip-edge",
@@ -626,7 +700,7 @@
         "purpose": "Each chip in a stack."
       },
       {
-        "name": "brass-sheen",
+        "name": "lit-sheen",
         "value": "inset 0 1px 0 rgb(255 255 255 / 0.35)",
         "purpose": "Only on the live primary button."
       }
@@ -635,7 +709,7 @@
       {
         "name": "ease-out",
         "value": "cubic-bezier(0.16, 1, 0.3, 1)",
-        "purpose": "Every table motion: flights, flips, card state, dealer button, result plate."
+        "purpose": "--ease-out: every motion in the world: flights, flips, card state, dealer button, result plate, plate-in, toasts."
       },
       {
         "name": "ease-settle",
@@ -675,7 +749,17 @@
       {
         "name": "payout-delay",
         "value": "1100ms",
-        "purpose": "The pot flies to the winner after the result appears."
+        "purpose": "The pot flies to the winner after the result appears; the winner's plaque rises 7px once over 900ms."
+      },
+      {
+        "name": "turn-settle",
+        "value": "320ms",
+        "purpose": "The turn plaque settles up from 95% scale."
+      },
+      {
+        "name": "dealer-travel",
+        "value": "500ms",
+        "purpose": "The dealer button travels between seats."
       },
       {
         "name": "press",
@@ -690,7 +774,7 @@
       {
         "name": "result-in",
         "value": "400ms",
-        "purpose": "The result plate rises 6px into place."
+        "purpose": "The result plate rises into place."
       },
       {
         "name": "rest",
@@ -705,17 +789,42 @@
       {
         "name": "plate-in",
         "value": "180ms",
-        "purpose": "The host's bot panels (Add a bot, Remove confirm) fade in with a 4px drop; the hand hint fades in with a 4px rise at the start of each hand."
+        "purpose": "The host's bot panels fade in with a 4px drop; the hand hint fades in with a 4px rise at the start of each hand."
       },
       {
         "name": "rung-glide",
         "value": "360ms",
-        "purpose": "The band behind the hand hint's lit rung glides to the new rung on the ease-out curve as the hand improves."
+        "purpose": "The band behind the hand hint's lit rung glides to the new rung as the hand improves."
+      },
+      {
+        "name": "scene-deal",
+        "value": "440ms",
+        "purpose": "Landing table scene: each card drops 1.2 card widths from 92% scale, from 180ms, 80ms apart; the pot arrives 6px up in 420ms at 620ms."
+      },
+      {
+        "name": "joining-deal",
+        "value": "1600ms",
+        "purpose": "The joining screen's three face-down cards deal in on a loop, 140ms apart."
+      },
+      {
+        "name": "drop-in",
+        "value": "260ms",
+        "purpose": "Toasts and the reconnecting banner drop 8px into place."
+      },
+      {
+        "name": "wait-pulse",
+        "value": "1200ms",
+        "purpose": "The reconnecting banner's three dots pulse in turn, 150ms apart."
+      },
+      {
+        "name": "settings-mark",
+        "value": "300ms",
+        "purpose": "A just-changed setting's paper mark fades in and out."
       },
       {
         "name": "reduced-motion",
         "value": "prefers-reduced-motion: reduce",
-        "purpose": "No flights, flips, fades or settles; the new state simply renders."
+        "purpose": "Nothing flies, fades, settles, rises, deals or pulses (the banner dots rest at 60%); the new state simply renders."
       }
     ],
     "breakpoints": [
@@ -728,8 +837,20 @@
         "value": "1320px"
       },
       {
-        "name": "finished-side-column",
+        "name": "side-table-max-width",
+        "value": "1100px"
+      },
+      {
+        "name": "side-column",
         "value": "400px"
+      },
+      {
+        "name": "landing-intro-column",
+        "value": "440px"
+      },
+      {
+        "name": "landing-scene-width",
+        "value": "clamp(760px, 62vw, 1120px)"
       }
     ]
   },
@@ -738,183 +859,236 @@
       "name": "Primary Action Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "The one recommended action on your turn; brass means now.",
-      "html": "<div class=\"ds-wrap\"><button class=\"ds-act ds-act-primary\">Call<small>20</small></button></div>",
-      "css": ".ds-wrap{padding:16px;background:#180a0c}.ds-act{display:grid;place-content:center;width:120px;height:48px;border:1px solid #4a2a1d;border-radius:10px;background:#33191a;color:#f3ecdf;font:700 18px/1.1 'Barlow Semi Condensed', system-ui, sans-serif;font-variant-numeric:tabular-nums;cursor:pointer;transition:transform 90ms,background-color 150ms}.ds-act small{font-size:13px;font-weight:600;opacity:.85}.ds-act-primary{border-color:#e7c16e;background:#d2a54c;color:#2a1407;box-shadow:inset 0 1px 0 rgb(255 255 255 / .35)}.ds-act-primary:hover{background:#dfb35a}.ds-act:active{transform:translateY(1px)}.ds-act:focus-visible{outline:2px solid #d2a54c;outline-offset:3px}"
+      "description": "The one move to make: the recommended action on your turn, Create a room, Start game. Lit cornsilk means now.",
+      "html": "<div class=\"ds-wrap\"><button class=\"ds-act ds-act-primary\">Call<small>20</small><span class=\"ds-key\">C</span></button></div>",
+      "css": ".ds-wrap{padding:16px;background:var(--room,#0b1a0b)}.ds-act{position:relative;display:grid;place-content:center;width:120px;height:48px;border:1px solid var(--plaque-edge,#2e4a2c);border-radius:10px;background:var(--button,#1a331a);color:var(--ink,#faf4d3);font:700 18px/1.1 var(--font-ui,'Nunito Sans', system-ui, sans-serif);font-variant-numeric:tabular-nums;cursor:pointer;transition:transform 90ms,background-color 150ms}.ds-act small{font-size:13px;font-weight:600;opacity:.85}.ds-act-primary{border-color:var(--lit-edge,#fffbea);background:var(--lit,#faf4d3);color:var(--lit-ink,#132a13);box-shadow:inset 0 1px 0 rgb(255 255 255 / .35)}.ds-act-primary:hover{background:var(--lit-hover,#ece5c1)}.ds-act:active{transform:translateY(1px)}.ds-act:focus-visible{outline:2px solid var(--lit,#faf4d3);outline-offset:3px}.ds-key{position:absolute;top:4px;right:6px;min-width:17px;padding:0 4px;border:1px solid currentColor;border-radius:4px;font:700 13px/15px var(--font-ui,'Nunito Sans', system-ui, sans-serif);text-align:center;opacity:.45}"
     },
     {
       "name": "Action Button",
       "kind": "button",
       "refersTo": "button-action",
-      "description": "Other actions in the panel (Check, Raise); Fold uses fold-ink text.",
+      "description": "The quiet act material: Check, Raise and the pre-game secondary Button; Fold uses fold-ink text.",
       "html": "<div class=\"ds-wrap2\"><button class=\"ds-act2 ds-fold\">Fold</button><button class=\"ds-act2\">Raise<small>to 60</small></button></div>",
-      "css": ".ds-wrap2{display:flex;gap:8px;padding:16px;background:#180a0c}.ds-act2{display:grid;place-content:center;width:120px;height:48px;border:1px solid #4a2a1d;border-radius:10px;background:#33191a;color:#f3ecdf;font:700 18px/1.1 'Barlow Semi Condensed', system-ui, sans-serif;cursor:pointer;transition:transform 90ms,background-color 150ms}.ds-act2 small{font-size:13px;font-weight:600;opacity:.85}.ds-act2:hover{background:#43211f}.ds-act2:active{transform:translateY(1px)}.ds-act2:focus-visible{outline:2px solid #d2a54c;outline-offset:3px}.ds-fold{color:#f0b7b3}"
+      "css": ".ds-wrap2{display:flex;gap:8px;padding:16px;background:var(--room,#0b1a0b)}.ds-act2{display:grid;place-content:center;width:120px;height:48px;border:1px solid var(--plaque-edge,#2e4a2c);border-radius:10px;background:var(--button,#1a331a);color:var(--ink,#faf4d3);font:700 18px/1.1 var(--font-ui,'Nunito Sans', system-ui, sans-serif);font-variant-numeric:tabular-nums;cursor:pointer;transition:transform 90ms,background-color 150ms}.ds-act2 small{font-size:13px;font-weight:600;opacity:.85}.ds-act2:hover{background:var(--button-hover,#224321)}.ds-act2:active{transform:translateY(1px)}.ds-act2:focus-visible{outline:2px solid var(--lit,#faf4d3);outline-offset:3px}.ds-fold{color:var(--fold-ink,#f0b7b3)}"
     },
     {
       "name": "Ghost and Danger Buttons",
       "kind": "button",
       "refersTo": "button-ghost",
-      "description": "Quiet header controls; danger is only the confirming button of a destructive inline confirm.",
-      "html": "<div class=\"ds-wrap3\"><span class=\"ds-q\">End the game now?</span><button class=\"ds-ghost\">Keep playing</button><button class=\"ds-ghost ds-danger\">End game</button></div>",
-      "css": ".ds-wrap3{display:flex;gap:10px;align-items:center;padding:16px;background:#1f0d12;font:500 16px 'Barlow Semi Condensed', system-ui, sans-serif}.ds-q{color:#f3ecdf}.ds-ghost{padding:7px 14px;border:1px solid #4a2a1d;border-radius:8px;background:transparent;color:#c5b49c;font:600 16px 'Barlow Semi Condensed', system-ui, sans-serif;cursor:pointer}.ds-ghost:hover{border-color:#a88444;color:#f3ecdf}.ds-ghost:focus-visible{outline:2px solid #d2a54c;outline-offset:3px}.ds-danger{border-color:color-mix(in srgb,#e0645f 50%,transparent);color:#f0b7b3}.ds-danger:hover{border-color:color-mix(in srgb,#e0645f 50%,transparent);background:color-mix(in srgb,#e0645f 12%,transparent);color:#f0b7b3}"
+      "description": "Quiet controls beside a primary and in the bar; danger is only the confirming button of a destructive inline confirm.",
+      "html": "<div class=\"ds-wrap3\"><span class=\"ds-q\">End the game after this hand?</span><button class=\"ds-ghost\">Keep playing</button><button class=\"ds-ghost ds-danger\">End game</button></div>",
+      "css": ".ds-wrap3{display:flex;gap:10px;align-items:center;padding:16px;background:var(--room,#0b1a0b);font:500 16px var(--font-ui,'Nunito Sans', system-ui, sans-serif)}.ds-q{color:var(--ink,#faf4d3)}.ds-ghost{padding:7px 14px;border:1px solid var(--plaque-edge,#2e4a2c);border-radius:8px;background:transparent;color:var(--ink-muted,#c3c5a5);font:600 16px var(--font-ui,'Nunito Sans', system-ui, sans-serif);cursor:pointer;transition:border-color 150ms,color 150ms,background-color 150ms}.ds-ghost:hover{border-color:var(--trim,#868f73);color:var(--ink,#faf4d3)}.ds-ghost:focus-visible{outline:2px solid var(--lit,#faf4d3);outline-offset:3px}.ds-danger{border-color:color-mix(in srgb,var(--danger,#e0645f) 50%,transparent);color:var(--fold-ink,#f0b7b3)}.ds-danger:hover{border-color:color-mix(in srgb,var(--danger,#e0645f) 50%,transparent);background:color-mix(in srgb,var(--danger,#e0645f) 12%,transparent);color:var(--fold-ink,#f0b7b3)}"
     },
     {
       "name": "Bet Presets",
       "kind": "chip",
       "refersTo": "chip-preset",
-      "description": "Quick raise sizes under the slider.",
-      "html": "<div class=\"ds-presets\"><button>Min</button><button>½ pot</button><button>Pot</button><button>All-in</button></div>",
-      "css": ".ds-presets{display:flex;gap:6px;width:320px;padding:16px;background:#180a0c}.ds-presets button{flex:1;height:30px;border:1px solid #4a2a1d;border-radius:7px;background:transparent;color:#c5b49c;font:600 14px 'Barlow Semi Condensed', system-ui, sans-serif;cursor:pointer}.ds-presets button:hover{border-color:#a88444;color:#f3ecdf}.ds-presets button:focus-visible{outline:2px solid #d2a54c;outline-offset:3px}"
+      "description": "Quick raise sizes under the slider, in an evenly divided row.",
+      "html": "<div class=\"ds-presets\"><button>Min</button><button>1/2 pot</button><button>Pot</button><button>All-in</button></div>",
+      "css": ".ds-presets{display:flex;gap:6px;width:320px;padding:16px;background:var(--room,#0b1a0b)}.ds-presets button{flex:1;height:30px;border:1px solid var(--plaque-edge,#2e4a2c);border-radius:7px;background:transparent;color:var(--ink-muted,#c3c5a5);font:600 14px var(--font-ui,'Nunito Sans', system-ui, sans-serif);cursor:pointer;transition:border-color 150ms,color 150ms}.ds-presets button:hover{border-color:var(--trim,#868f73);color:var(--ink,#faf4d3)}.ds-presets button:focus-visible{outline:2px solid var(--lit,#faf4d3);outline-offset:3px}"
     },
     {
       "name": "Raise Amount Field",
       "kind": "input",
       "refersTo": "input-amount",
-      "description": "Sunken numeric field paired with a brass range slider.",
+      "description": "Sunken numeric field paired with a range slider tinted lit.",
       "html": "<div class=\"ds-sizer\"><input type=\"range\" value=\"40\" aria-label=\"Raise\"><input class=\"ds-amount\" value=\"60\" aria-label=\"Amount\"></div>",
-      "css": ".ds-sizer{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;width:320px;padding:16px;background:#180a0c}.ds-sizer input[type=range]{width:100%;accent-color:#d2a54c}.ds-amount{width:86px;height:34px;padding:0 8px;border:1px solid #4a2a1d;border-radius:8px;background:#1a0b0c;color:#f3ecdf;font:600 16px 'Barlow Semi Condensed', system-ui, sans-serif;text-align:right;font-variant-numeric:tabular-nums}.ds-amount:focus-visible{outline:2px solid #d2a54c;outline-offset:1px}"
+      "css": ".ds-sizer{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;width:320px;padding:16px;background:var(--room,#0b1a0b)}.ds-sizer input[type=range]{width:100%;accent-color:var(--lit,#faf4d3)}.ds-amount{width:86px;height:34px;padding:0 8px;border:1px solid var(--plaque-edge,#2e4a2c);border-radius:8px;background:var(--field,#081408);color:var(--ink,#faf4d3);font:600 16px var(--font-ui,'Nunito Sans', system-ui, sans-serif);text-align:right;font-variant-numeric:tabular-nums}.ds-amount:focus-visible{outline:2px solid var(--lit,#faf4d3);outline-offset:1px;border-color:var(--lit,#faf4d3)}"
     },
     {
       "name": "Header Strip",
       "kind": "nav",
       "refersTo": "header",
-      "description": "The shared 52px strip: name, room code, meta, and the cream Last hand notice.",
+      "description": "The shared 52px bar: name, room code, meta, and the paper Last hand notice (a status, never lit).",
       "html": "<header class=\"ds-bar\"><span class=\"ds-mark\">Private Hold'em</span><span class=\"ds-code\">RW8W7B</span><span class=\"ds-meta\">Hand <b>12</b></span><span class=\"ds-meta\">Blinds <b>5 / 10</b></span><span class=\"ds-notice\">Last hand</span></header>",
-      "css": ".ds-bar{display:flex;gap:20px;align-items:center;height:52px;padding:0 24px;background:#1f0d12;color:#f3ecdf;font:500 16px/1.35 'Barlow Semi Condensed', system-ui, sans-serif;font-variant-numeric:tabular-nums}.ds-mark{font:19px/1 'Marcellus', Georgia, serif;letter-spacing:.02em}.ds-code{padding:4px 10px;border:1px solid #4a2a1d;border-radius:6px;color:#c5b49c;font-weight:600;letter-spacing:.08em}.ds-meta{color:#c5b49c}.ds-meta b{color:#f3ecdf;font-weight:600}.ds-notice{padding:3px 12px;border-radius:999px;background:#f7f2e7;color:#1f0d12;font:700 14px/1.2 'Barlow Semi Condensed', system-ui, sans-serif;letter-spacing:.02em}"
+      "css": ".ds-bar{display:flex;gap:20px;align-items:center;height:52px;padding:0 24px;background:var(--room,#0b1a0b);color:var(--ink,#faf4d3);font:500 16px/1.35 var(--font-ui,'Nunito Sans', system-ui, sans-serif);font-variant-numeric:tabular-nums}.ds-mark{font:19px/1 var(--font-display,'Josefin Sans', system-ui, sans-serif);letter-spacing:.02em}.ds-code{padding:4px 10px;border:1px solid var(--plaque-edge,#2e4a2c);border-radius:6px;color:var(--ink-muted,#c3c5a5);font-weight:600;letter-spacing:.08em}.ds-meta{color:var(--ink-muted,#c3c5a5)}.ds-meta b{color:var(--ink,#faf4d3);font-weight:600}.ds-notice{padding:3px 12px;border-radius:999px;background:var(--paper,#faf4d3);color:var(--room,#0b1a0b);font:700 14px/1.2 var(--font-ui,'Nunito Sans', system-ui, sans-serif);letter-spacing:.02em}"
     },
     {
       "name": "Seat Plaque",
       "kind": "custom",
       "refersTo": "seat-plaque",
-      "description": "Leather name pill; the player to act gets a brass border, warmer fill and a draining timer ring; a sitting-out seat dims and quiets its plaque but keeps its tag at full contrast.",
-      "html": "<div class=\"ds-seats\"><div class=\"ds-plaque\"><span class=\"ds-av\">J</span><span class=\"ds-who\"><b>Jonas</b><span>1,005</span></span></div><div class=\"ds-plaque ds-turn\"><span class=\"ds-av\">M<svg viewBox=\"0 0 48 48\"><circle cx=\"24\" cy=\"24\" r=\"22\"/></svg></span><span class=\"ds-who\"><b>Maya</b><span>1,200</span></span></div><div class=\"ds-plaque ds-out\"><span class=\"ds-tagq\">Out of chips</span><span class=\"ds-av\">R</span><span class=\"ds-who\"><b>Ravi</b><span>0</span></span></div></div>",
-      "css": ".ds-seats{display:flex;gap:16px;padding:16px;background:#1f0d12}.ds-plaque{display:inline-grid;grid-template-columns:auto 1fr;align-items:center;gap:10px;min-width:176px;padding:7px 16px 7px 7px;border:1.5px solid #4a2a1d;border-radius:999px;background:#24110f;box-shadow:0 8px 18px -6px rgb(0 0 0 / .6);color:#f3ecdf;font:500 16px/1.15 'Barlow Semi Condensed', system-ui, sans-serif;font-variant-numeric:tabular-nums;transition:border-color 200ms,background-color 200ms}.ds-turn{border-color:#d2a54c;background:#33190f}.ds-av{position:relative;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#5a2e22;font:20px/1 'Marcellus', Georgia, serif}.ds-av svg{position:absolute;inset:-4px;width:48px;height:48px;transform:rotate(-90deg)}.ds-av circle{fill:none;stroke:#d2a54c;stroke-width:3;stroke-linecap:round;stroke-dasharray:138.2;stroke-dashoffset:40}.ds-who{display:flex;flex-direction:column}.ds-who b{font-weight:600}.ds-who span{color:#c5b49c}.ds-plaque{position:relative}.ds-out{border-color:color-mix(in srgb,#4a2a1d 60%,transparent);background:color-mix(in srgb,#24110f 55%,transparent);box-shadow:none}.ds-out>:not(.ds-tagq){opacity:.5}.ds-tagq{position:absolute;top:-10px;right:-8px;padding:1px 8px;border-radius:999px;background:#4a2a1d;color:#f3ecdf;font:700 13px 'Barlow Semi Condensed', system-ui, sans-serif;letter-spacing:.04em;white-space:nowrap}"
+      "description": "Dark green leather name pill; the player to act gets a lit border, the plaque-turn fill and a draining lit timer ring; a sitting-out seat dims and quiets its plaque but keeps its tag at full contrast.",
+      "html": "<div class=\"ds-seats\"><div class=\"ds-plaque\"><span class=\"ds-tag\">All-in</span><span class=\"ds-av\">J</span><span class=\"ds-who\"><b>Jonas</b><span>1,005</span></span></div><div class=\"ds-plaque ds-turn\"><span class=\"ds-av\">M<svg viewBox=\"0 0 48 48\"><circle cx=\"24\" cy=\"24\" r=\"22\"/></svg></span><span class=\"ds-who\"><b>Maya</b><span>1,200</span></span></div><div class=\"ds-plaque ds-out\"><span class=\"ds-tagq\">Out of chips</span><span class=\"ds-av\">R</span><span class=\"ds-who\"><b>Ravi</b><span>0</span></span></div></div>",
+      "css": ".ds-seats{display:flex;gap:16px;padding:20px 16px 16px;background:var(--room,#0b1a0b)}.ds-plaque{position:relative;display:inline-grid;grid-template-columns:auto 1fr;align-items:center;gap:10px;min-width:176px;padding:7px 16px 7px 7px;border:1.5px solid var(--plaque-edge,#2e4a2c);border-radius:999px;background:var(--plaque,#0e1f0e);box-shadow:var(--shadow-plaque,0 8px 18px -6px rgb(0 0 0 / 0.6));color:var(--ink,#faf4d3);font:500 16px/1.15 var(--font-ui,'Nunito Sans', system-ui, sans-serif);font-variant-numeric:tabular-nums;transition:border-color 200ms,background-color 200ms}.ds-turn{border-color:var(--lit,#faf4d3);background:var(--plaque-turn,#1c371b)}.ds-av{position:relative;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--avatar,#2a4a29);font:20px/1 var(--font-display,'Josefin Sans', system-ui, sans-serif)}.ds-av svg{position:absolute;inset:-4px;width:48px;height:48px;transform:rotate(-90deg)}.ds-av circle{fill:none;stroke:var(--lit,#faf4d3);stroke-width:3;stroke-linecap:round;stroke-dasharray:138.2;stroke-dashoffset:40}.ds-who{display:flex;flex-direction:column}.ds-who b{font-weight:600}.ds-who span{color:var(--ink-muted,#c3c5a5)}.ds-out{border-color:color-mix(in srgb,var(--plaque-edge,#2e4a2c) 60%,transparent);background:color-mix(in srgb,var(--plaque,#0e1f0e) 55%,transparent);box-shadow:none}.ds-out>:not(.ds-tagq){opacity:.5}.ds-tag,.ds-tagq{position:absolute;top:-10px;right:-8px;padding:1px 8px;border-radius:999px;font:700 13px var(--font-ui,'Nunito Sans', system-ui, sans-serif);letter-spacing:.04em;white-space:nowrap}.ds-tag{background:var(--paper,#faf4d3);color:var(--room,#0b1a0b);box-shadow:0 0 0 1.5px var(--green,#132a13)}.ds-tagq{background:var(--plaque-edge,#2e4a2c);color:var(--ink,#faf4d3)}"
     },
     {
       "name": "Playing Card",
       "kind": "custom",
       "refersTo": "playing-card",
-      "description": "Cream 5:7 face with an authored suit shape; winning cards lift with a brass ring; burgundy back.",
-      "html": "<div class=\"ds-cards\"><div class=\"ds-card\"><b>K</b><svg class=\"ds-big\" viewBox=\"0 0 10 10\"><path d=\"M5 9 1 4.5A2.2 2.2 0 0 1 5 2a2.2 2.2 0 0 1 4 2.5z\"/></svg></div><div class=\"ds-card ds-lift\"><b>7</b><svg class=\"ds-big\" viewBox=\"0 0 10 10\"><path d=\"M5 9 1 4.5A2.2 2.2 0 0 1 5 2a2.2 2.2 0 0 1 4 2.5z\"/></svg></div><div class=\"ds-card ds-back\"><span></span></div></div>",
-      "css": ".ds-cards{display:flex;gap:10px;padding:20px 16px 16px;background:#1c6445}.ds-card{position:relative;width:72px;aspect-ratio:5/7;border-radius:11%/7.86%;background:#f7f2e7;color:#c62f3b;box-shadow:0 2px 4px rgb(0 0 0 / .35);transition:transform 300ms cubic-bezier(0.16, 1, 0.3, 1),box-shadow 300ms cubic-bezier(0.16, 1, 0.3, 1)}.ds-card b{position:absolute;top:4px;left:7px;font:700 26px/1 'Barlow Semi Condensed', system-ui, sans-serif;letter-spacing:-.02em}.ds-big{position:absolute;right:6px;bottom:5px;width:36px;fill:currentColor}.ds-lift{transform:translateY(-8px);box-shadow:0 0 0 2.5px #d2a54c,0 8px 16px rgb(0 0 0 / .4)}.ds-back span{position:absolute;inset:3px;border-radius:6px;background:repeating-linear-gradient(45deg,rgb(210 165 76 / .24) 0 1.5px,transparent 1.5px 7px),repeating-linear-gradient(-45deg,rgb(210 165 76 / .24) 0 1.5px,transparent 1.5px 7px),#7b1d2a}"
+      "description": "Cornsilk 5:7 face with an authored suit shape; winning cards lift with a felt-edge band then a lit ring; the back is the Dark Green under a faint cornsilk crosshatch inside a paper margin.",
+      "html": "<div class=\"ds-cards\"><div class=\"ds-card\"><b>K</b><svg class=\"ds-big\" viewBox=\"0 0 10 10\"><path d=\"M5 9 1 4.5A2.2 2.2 0 0 1 5 2a2.2 2.2 0 0 1 4 2.5z\"/></svg></div><div class=\"ds-card ds-lift\"><b>7</b><svg class=\"ds-big\" viewBox=\"0 0 10 10\"><path d=\"M5 9 1 4.5A2.2 2.2 0 0 1 5 2a2.2 2.2 0 0 1 4 2.5z\"/></svg></div><div class=\"ds-card ds-blk\"><b>A</b><svg class=\"ds-big\" viewBox=\"0 0 10 10\"><path d=\"M5 1C3 3.5 1 4.6 1 6.3a1.9 1.9 0 0 0 3.4 1.1L4 9h2l-.4-1.6A1.9 1.9 0 0 0 9 6.3C9 4.6 7 3.5 5 1z\"/></svg></div><div class=\"ds-card ds-back\"><span></span></div></div>",
+      "css": ".ds-cards{display:flex;gap:10px;padding:20px 16px 16px;background:radial-gradient(ellipse 60% 70% at 50% 42%,var(--felt-hi,#356a33),var(--felt,#2a5529) 45%,var(--felt-edge,#1b3b1b))}.ds-card{position:relative;width:72px;aspect-ratio:5/7;border-radius:11%/7.86%;background:var(--paper,#faf4d3);color:var(--suit-red,#c0303a);box-shadow:0 2px 4px rgb(0 0 0 / .35);transition:transform 300ms var(--ease-out,cubic-bezier(0.16, 1, 0.3, 1)),box-shadow 300ms var(--ease-out,cubic-bezier(0.16, 1, 0.3, 1))}.ds-blk{color:var(--suit-black,#132a13)}.ds-card b{position:absolute;top:4px;left:7px;font:700 26px/1 var(--font-ui,'Nunito Sans', system-ui, sans-serif);letter-spacing:-.02em}.ds-big{position:absolute;right:6px;bottom:5px;width:36px;fill:currentColor}.ds-lift{transform:translateY(-8px);box-shadow:0 0 0 2px var(--felt-edge,#1b3b1b),0 0 0 4.5px var(--lit,#faf4d3),0 8px 16px rgb(0 0 0 / .4)}.ds-back span{position:absolute;inset:3px;border-radius:6px;background:repeating-linear-gradient(45deg,rgb(250 244 211 / .13) 0 1.5px,transparent 1.5px 7px),repeating-linear-gradient(-45deg,rgb(250 244 211 / .13) 0 1.5px,transparent 1.5px 7px),var(--card-back,#132a13)}"
     },
     {
       "name": "Chip Stack and Pot Label",
       "kind": "custom",
       "refersTo": "pot-label",
       "description": "Flat striped chips stacked by amount beside a felt-shade pot pill.",
-      "html": "<div class=\"ds-felt\"><span class=\"ds-stack\"><i class=\"ds-chip\" style=\"top:0;background:#26262b\"></i><i class=\"ds-chip\" style=\"top:-4px;background:#2f5fb3\"></i><i class=\"ds-chip\" style=\"top:-8px;background:#c62f3b\"></i></span><span class=\"ds-pot\"><span>Pot</span>280</span></div>",
-      "css": ".ds-felt{display:flex;gap:8px;align-items:center;padding:24px 16px 16px;background:#1c6445;color:#f3ecdf;font:600 17px 'Barlow Semi Condensed', system-ui, sans-serif;font-variant-numeric:tabular-nums}.ds-stack{position:relative;display:inline-block;width:26px;height:26px}.ds-chip{position:absolute;left:0;width:26px;height:26px;box-sizing:border-box;border:3px dashed rgb(255 255 255 / .85);border-radius:50%;box-shadow:0 1px 0 rgb(0 0 0 / .45)}.ds-pot{padding:3px 12px;border-radius:999px;background:rgb(8 26 17 / .62)}.ds-pot span{margin-right:6px;color:#c5b49c;font-weight:500}"
+      "html": "<div class=\"ds-felt\"><span class=\"ds-stack\"><i class=\"ds-chip ds-c1\"></i><i class=\"ds-chip ds-c2\"></i><i class=\"ds-chip ds-c3\"></i></span><span class=\"ds-pot\"><span>Pot</span>280</span></div>",
+      "css": ".ds-felt{display:flex;gap:8px;align-items:center;padding:24px 16px 16px;background:var(--felt,#2a5529);color:var(--ink,#faf4d3);font:600 17px var(--font-ui,'Nunito Sans', system-ui, sans-serif);font-variant-numeric:tabular-nums}.ds-stack{position:relative;display:inline-block;width:26px;height:26px}.ds-chip{position:absolute;left:0;width:26px;height:26px;box-sizing:border-box;border:3px dashed var(--chip-stripe,rgb(255 255 255 / 0.85));border-radius:50%;box-shadow:0 1px 0 rgb(0 0 0 / .45)}.ds-c1{top:0;background:var(--chip-black,#26262b)}.ds-c2{top:-4px;background:var(--chip-blue,#2f5fb3)}.ds-c3{top:-8px;background:var(--chip-red,#c62f3b)}.ds-pot{padding:3px 12px;border-radius:999px;background:var(--felt-label,rgb(7 20 7 / 0.6))}.ds-pot span{margin-right:6px;color:var(--ink-muted,#c3c5a5);font-weight:500}"
     },
     {
       "name": "Standings Plaque",
       "kind": "custom",
       "refersTo": "standings-plaque",
-      "description": "Finished screen: a seat plaque ranked, with a signed net; the winner takes brass, a departed player a flatter plaque.",
+      "description": "Finished screen: a seat plaque ranked, with a signed net; the winner takes the lit edge, a departed player a flatter plaque.",
       "html": "<ol class=\"ds-stand\"><li class=\"ds-row ds-top\"><span class=\"ds-rk\">1</span><span class=\"ds-av2\">J</span><span class=\"ds-w\"><b>Jonas</b><span>2,240 chips</span></span><span class=\"ds-net ds-up\">+1,240</span></li><li class=\"ds-row\"><span class=\"ds-rk\">2</span><span class=\"ds-av2\">P</span><span class=\"ds-w\"><b>Priya</b><span>1,450 chips, 1 rebuy</span></span><span class=\"ds-net ds-down\">−550</span></li><li class=\"ds-row ds-gone\"><span class=\"ds-rk\">3</span><span class=\"ds-av2\">R</span><span class=\"ds-w\"><b><i>Ravi</i><em>Left</em></b><span>1,000 chips</span></span><span class=\"ds-net\">Even</span></li></ol>",
-      "css": ".ds-stand{display:grid;gap:8px;width:400px;margin:0;padding:16px;list-style:none;background:#1f0d12;color:#f3ecdf;font:500 16px/1.15 'Barlow Semi Condensed', system-ui, sans-serif;font-variant-numeric:tabular-nums}.ds-row{display:grid;grid-template-columns:22px 40px minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 20px 7px 10px;border:1.5px solid #4a2a1d;border-radius:999px;background:#24110f;box-shadow:0 8px 18px -6px rgb(0 0 0 / .6)}.ds-top{border-color:#d2a54c;background:#33190f}.ds-rk{color:#c5b49c;font-weight:700;text-align:center}.ds-top .ds-rk{color:#d2a54c}.ds-av2{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#5a2e22;font:20px/1 'Marcellus', Georgia, serif}.ds-w{display:flex;flex-direction:column}.ds-w b{display:flex;gap:8px;align-items:center;font-weight:600}.ds-w b i{font-style:normal}.ds-w b em{padding:1px 8px;border-radius:999px;background:#4a2a1d;font:normal 700 13px 'Barlow Semi Condensed', system-ui, sans-serif;letter-spacing:.04em}.ds-w>span{color:#c5b49c}.ds-net{color:#c5b49c;font:700 18px/1 'Barlow Semi Condensed', system-ui, sans-serif}.ds-up{color:#7fcf9c}.ds-down{color:#f0b7b3}.ds-gone{background:rgb(36 17 15 / .5);box-shadow:none}.ds-gone .ds-av2{opacity:.55}.ds-gone b i{color:#c5b49c}"
+      "css": ".ds-stand{display:grid;gap:8px;width:400px;margin:0;padding:16px;list-style:none;background:var(--room,#0b1a0b);color:var(--ink,#faf4d3);font:500 16px/1.15 var(--font-ui,'Nunito Sans', system-ui, sans-serif);font-variant-numeric:tabular-nums}.ds-row{display:grid;grid-template-columns:22px 40px minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 20px 7px 10px;border:1.5px solid var(--plaque-edge,#2e4a2c);border-radius:999px;background:var(--plaque,#0e1f0e);box-shadow:var(--shadow-plaque,0 8px 18px -6px rgb(0 0 0 / 0.6))}.ds-top{border-color:var(--lit,#faf4d3);background:var(--plaque-turn,#1c371b)}.ds-rk{color:var(--ink-muted,#c3c5a5);font-weight:700;text-align:center}.ds-top .ds-rk{color:var(--lit,#faf4d3)}.ds-av2{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--avatar,#2a4a29);font:20px/1 var(--font-display,'Josefin Sans', system-ui, sans-serif)}.ds-w{display:flex;flex-direction:column}.ds-w b{display:flex;gap:8px;align-items:center;font-weight:600}.ds-w b i{font-style:normal}.ds-w b em{padding:1px 8px;border-radius:999px;background:var(--plaque-edge,#2e4a2c);font:normal 700 13px var(--font-ui,'Nunito Sans', system-ui, sans-serif);letter-spacing:.04em}.ds-w>span{color:var(--ink-muted,#c3c5a5)}.ds-net{color:var(--ink-muted,#c3c5a5);font:700 18px/1 var(--font-ui,'Nunito Sans', system-ui, sans-serif)}.ds-up{color:var(--win,#a6e3a1)}.ds-down{color:var(--fold-ink,#f0b7b3)}.ds-gone{background:color-mix(in srgb,var(--plaque,#0e1f0e) 50%,transparent);box-shadow:none}.ds-gone .ds-av2{opacity:.55}.ds-gone b i{color:var(--ink-muted,#c3c5a5)}"
     },
     {
-      "name": "Next-Game Panel",
+      "name": "Side Panel",
       "kind": "card",
-      "refersTo": "next-game-panel",
-      "description": "Finished screen: the action panel's material holding the settings sentence, a brass Start and a ghost Change settings.",
+      "refersTo": "side-panel",
+      "description": "A plate in the 400px side column (lobby and finished screen): the settings sentence, then the host's lit Start and a ghost Change settings at 1fr : auto.",
       "html": "<div class=\"ds-bg\"><div class=\"ds-next\"><p>Next game: <b>1,000</b> chips, blinds <b>5/10</b>, <b>30s</b> turns, rebuys <b>on</b>.</p><div class=\"ds-hr\"><button class=\"ds-start\">Start next game</button><button class=\"ds-gh\">Change settings</button></div></div></div>",
-      "css": ".ds-bg{padding:16px;background:#1f0d12}.ds-next{width:400px;box-sizing:border-box;padding:14px;border:1px solid #4a2a1d;border-radius:16px;background:rgb(24 10 12 / .92);box-shadow:0 20px 40px -12px rgb(0 0 0 / .7);color:#c5b49c;font:500 16px/1.35 'Barlow Semi Condensed', system-ui, sans-serif}.ds-next p{margin:0 0 12px}.ds-next b{color:#f3ecdf;font-weight:600}.ds-hr{display:grid;grid-template-columns:1fr auto;gap:8px}.ds-start{height:48px;border:1px solid #e7c16e;border-radius:10px;background:#d2a54c;color:#2a1407;font:700 18px/1.1 'Barlow Semi Condensed', system-ui, sans-serif;box-shadow:inset 0 1px 0 rgb(255 255 255 / .35);cursor:pointer;transition:transform 90ms,background-color 150ms}.ds-start:hover{background:#dfb35a}.ds-start:active{transform:translateY(1px)}.ds-gh{padding:7px 14px;border:1px solid #4a2a1d;border-radius:8px;background:transparent;color:#c5b49c;font:600 16px 'Barlow Semi Condensed', system-ui, sans-serif;cursor:pointer}.ds-gh:hover{border-color:#a88444;color:#f3ecdf}.ds-start:focus-visible,.ds-gh:focus-visible{outline:2px solid #d2a54c;outline-offset:3px}"
+      "css": ".ds-bg{padding:16px;background:var(--room,#0b1a0b)}.ds-next{width:400px;box-sizing:border-box;padding:14px;border:1px solid var(--plaque-edge,#2e4a2c);border-radius:16px;background:var(--panel,rgb(9 22 9 / 0.92));box-shadow:var(--shadow-panel,0 20px 40px -12px rgb(0 0 0 / 0.7));color:var(--ink-muted,#c3c5a5);font:500 16px/1.35 var(--font-ui,'Nunito Sans', system-ui, sans-serif)}.ds-next p{margin:0 0 12px}.ds-next b{color:var(--ink,#faf4d3);font-weight:600}.ds-hr{display:grid;grid-template-columns:1fr auto;gap:8px}.ds-start{height:48px;border:1px solid var(--lit-edge,#fffbea);border-radius:10px;background:var(--lit,#faf4d3);color:var(--lit-ink,#132a13);font:700 18px/1.1 var(--font-ui,'Nunito Sans', system-ui, sans-serif);box-shadow:inset 0 1px 0 rgb(255 255 255 / .35);cursor:pointer;transition:transform 90ms,background-color 150ms}.ds-start:hover{background:var(--lit-hover,#ece5c1)}.ds-start:active{transform:translateY(1px)}.ds-gh{padding:7px 14px;border:1px solid var(--plaque-edge,#2e4a2c);border-radius:8px;background:transparent;color:var(--ink-muted,#c3c5a5);font:600 16px var(--font-ui,'Nunito Sans', system-ui, sans-serif);cursor:pointer}.ds-gh:hover{border-color:var(--trim,#868f73);color:var(--ink,#faf4d3)}.ds-start:focus-visible,.ds-gh:focus-visible{outline:2px solid var(--lit,#faf4d3);outline-offset:3px}"
     },
     {
       "name": "Bot Seat",
       "kind": "custom",
       "refersTo": "bot-mark",
-      "description": "A bot's plaque: the outlined bot mark and the dashed chip-stripe ring on its disc say who the seat is; the host's hanging Remove control and the Add a bot panel in the action panel's material, with the three levels as full-width rows.",
+      "description": "A bot's plaque: the outlined bot mark and the dashed chip-inlay ring on its disc say who the seat is; the host's hanging Remove control and the Add a bot panel in panel-solid, with the three levels as full-width rows. No lit.",
       "html": "<div class=\"ds-bots\"><div class=\"ds-bseat\"><div class=\"ds-bplq\"><span class=\"ds-bav\">N</span><span class=\"ds-bwho\"><span class=\"ds-bname\"><b>Nora</b><span class=\"ds-bmark\">Medium bot</span></span><span class=\"ds-bstk\">1,120</span></span></div><button class=\"ds-brm\">Remove</button></div><div class=\"ds-bpanel\"><div class=\"ds-bhead\"><span>Add a bot</span><button class=\"ds-bgh\">Cancel</button></div><div class=\"ds-blv\"><button class=\"ds-bact\">Easy<small>Calls a lot</small></button><button class=\"ds-bact\">Medium<small>Plays solid poker</small></button><button class=\"ds-bact\">Pro<small>Reads you, bluffs well</small></button></div></div></div>",
-      "css": ".ds-bots{display:flex;gap:24px;align-items:flex-start;padding:16px 16px 28px;background:#1f0d12;color:#f3ecdf;font:500 16px/1.15 'Barlow Semi Condensed', system-ui, sans-serif;font-variant-numeric:tabular-nums}.ds-bseat{position:relative}.ds-bplq{display:inline-grid;grid-template-columns:auto 1fr;align-items:center;gap:10px;min-width:176px;padding:7px 16px 7px 7px;border:1.5px solid #4a2a1d;border-radius:999px;background:#24110f;box-shadow:0 8px 18px -6px rgb(0 0 0 / .6)}.ds-bav{position:relative;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#5a2e22;font:20px/1 'Marcellus', Georgia, serif}.ds-bav::after{position:absolute;inset:3px;border:1.5px dashed rgb(255 255 255 / .35);border-radius:50%;content:''}.ds-bwho{display:flex;flex-direction:column}.ds-bname{display:flex;align-items:center;gap:7px}.ds-bname b{font-weight:600}.ds-bmark{padding:0 7px;border:1px solid color-mix(in srgb,#c5b49c 45%,transparent);border-radius:999px;color:#c5b49c;font-size:13px;font-weight:700;line-height:1.35;letter-spacing:.04em;white-space:nowrap}.ds-bstk{color:#c5b49c}.ds-brm{position:absolute;top:calc(100% - 11px);left:50%;translate:-50% 0;padding:2px 10px;border:1px solid #4a2a1d;border-radius:7px;background:#24110f;color:#c5b49c;font:600 14px/1.35 'Barlow Semi Condensed', system-ui, sans-serif;cursor:pointer;transition:border-color 150ms,color 150ms}.ds-brm:hover{border-color:#a88444;color:#f3ecdf}.ds-brm:focus-visible,.ds-bgh:focus-visible,.ds-bact:focus-visible{outline:2px solid #d2a54c;outline-offset:3px}.ds-bpanel{display:grid;gap:10px;width:268px;padding:12px;border:1px solid #4a2a1d;border-radius:16px;background:rgb(24 10 12 / .96);box-shadow:0 20px 40px -12px rgb(0 0 0 / .7)}.ds-bhead{display:flex;align-items:center;justify-content:space-between;gap:12px}.ds-bhead span{font-weight:600}.ds-bgh{padding:3px 10px;border:1px solid #4a2a1d;border-radius:8px;background:transparent;color:#c5b49c;font:600 14px 'Barlow Semi Condensed', system-ui, sans-serif;cursor:pointer}.ds-bgh:hover{border-color:#a88444;color:#f3ecdf}.ds-blv{display:grid;gap:6px}.ds-bact{display:flex;align-items:center;justify-content:space-between;gap:12px;height:44px;padding:0 14px;text-align:left;border:1px solid #4a2a1d;border-radius:10px;background:#33191a;color:#f3ecdf;font:700 18px/1.1 'Barlow Semi Condensed', system-ui, sans-serif;cursor:pointer;transition:transform 90ms,background-color 150ms}.ds-bact small{color:#c5b49c;font-size:13px;font-weight:600}.ds-bact:hover{background:#43211f}.ds-bact:active{transform:translateY(1px)}"
+      "css": ".ds-bots{display:flex;gap:24px;align-items:flex-start;padding:16px 16px 28px;background:var(--room,#0b1a0b);color:var(--ink,#faf4d3);font:500 16px/1.15 var(--font-ui,'Nunito Sans', system-ui, sans-serif);font-variant-numeric:tabular-nums}.ds-bseat{position:relative}.ds-bplq{display:inline-grid;grid-template-columns:auto 1fr;align-items:center;gap:10px;min-width:176px;padding:7px 16px 7px 7px;border:1.5px solid var(--plaque-edge,#2e4a2c);border-radius:999px;background:var(--plaque,#0e1f0e);box-shadow:var(--shadow-plaque,0 8px 18px -6px rgb(0 0 0 / 0.6))}.ds-bav{position:relative;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--avatar,#2a4a29);font:20px/1 var(--font-display,'Josefin Sans', system-ui, sans-serif)}.ds-bav::after{position:absolute;inset:3px;border:1.5px dashed var(--chip-inlay,rgb(255 255 255 / 0.35));border-radius:50%;content:''}.ds-bwho{display:flex;flex-direction:column}.ds-bname{display:flex;align-items:center;gap:7px}.ds-bname b{font-weight:600}.ds-bmark{padding:0 7px;border:1px solid color-mix(in srgb,var(--ink-muted,#c3c5a5) 45%,transparent);border-radius:999px;color:var(--ink-muted,#c3c5a5);font-size:13px;font-weight:700;line-height:1.35;letter-spacing:.04em;white-space:nowrap}.ds-bstk{color:var(--ink-muted,#c3c5a5)}.ds-brm{position:absolute;top:calc(100% - 11px);left:50%;translate:-50% 0;padding:2px 10px;border:1px solid var(--plaque-edge,#2e4a2c);border-radius:7px;background:var(--plaque,#0e1f0e);color:var(--ink-muted,#c3c5a5);font:600 14px/1.35 var(--font-ui,'Nunito Sans', system-ui, sans-serif);cursor:pointer;transition:border-color 150ms,color 150ms}.ds-brm:hover{border-color:var(--trim,#868f73);color:var(--ink,#faf4d3)}.ds-brm:focus-visible,.ds-bgh:focus-visible,.ds-bact:focus-visible{outline:2px solid var(--lit,#faf4d3);outline-offset:3px}.ds-bpanel{display:grid;gap:10px;width:268px;padding:12px;border:1px solid var(--plaque-edge,#2e4a2c);border-radius:16px;background:var(--panel-solid,rgb(9 22 9 / 0.97));box-shadow:var(--shadow-panel,0 20px 40px -12px rgb(0 0 0 / 0.7))}.ds-bhead{display:flex;align-items:center;justify-content:space-between;gap:12px}.ds-bhead span{font-weight:600}.ds-bgh{padding:3px 10px;border:1px solid var(--plaque-edge,#2e4a2c);border-radius:8px;background:transparent;color:var(--ink-muted,#c3c5a5);font:600 14px var(--font-ui,'Nunito Sans', system-ui, sans-serif);cursor:pointer}.ds-bgh:hover{border-color:var(--trim,#868f73);color:var(--ink,#faf4d3)}.ds-blv{display:grid;gap:6px}.ds-bact{display:flex;align-items:center;justify-content:space-between;gap:12px;height:44px;padding:0 14px;text-align:left;border:1px solid var(--plaque-edge,#2e4a2c);border-radius:10px;background:var(--button,#1a331a);color:var(--ink,#faf4d3);font:700 18px/1.1 var(--font-ui,'Nunito Sans', system-ui, sans-serif);cursor:pointer;transition:transform 90ms,background-color 150ms}.ds-bact small{color:var(--ink-muted,#c3c5a5);font-size:13px;font-weight:600}.ds-bact:hover{background:var(--button-hover,#224321)}.ds-bact:active{transform:translateY(1px)}"
     },
     {
       "name": "Hand Hint",
       "kind": "card",
       "refersTo": "hand-hint",
-      "description": "Docked bottom-left opposite the action panel: the kind of hand you hold, its detail and notes, over the nine-rung ladder with a plaque-turn band behind your rung. Information, so no brass.",
+      "description": "Docked bottom-left opposite the action panel: the kind of hand you hold, its detail and notes, over the nine-rung ladder with a plaque-turn band behind your rung. Information, so no lit.",
       "html": "<div class=\"ds-hbg\"><aside class=\"ds-hint\" aria-label=\"Your hand\"><p class=\"ds-hh\" aria-live=\"polite\">Two Pair<span class=\"ds-hd\">Kings and Sevens</span></p><p class=\"ds-hn\">Drawing to a flush.</p><div class=\"ds-lad\"><span class=\"ds-band\"></span><ol><li>Straight flush</li><li>Four of a kind</li><li>Full house</li><li class=\"ds-dr\">Flush<i>draw</i></li><li>Straight</li><li>Three of a kind</li><li class=\"ds-lit\" aria-current=\"true\">Two pair</li><li>Pair</li><li>High card</li></ol></div></aside></div>",
-      "css": ".ds-hbg{padding:16px;background:#1f0d12}.ds-hint{width:188px;box-sizing:border-box;padding:12px 12px 10px;border:1px solid #4a2a1d;border-radius:16px;background:rgb(24 10 12 / .92);box-shadow:0 20px 40px -12px rgb(0 0 0 / .7);font-family:'Barlow Semi Condensed', system-ui, sans-serif;font-variant-numeric:tabular-nums}.ds-hh{margin:0;color:#f3ecdf;font:700 20px/1.15 'Barlow Semi Condensed', system-ui, sans-serif}.ds-hd{display:block;margin-top:1px;color:#c5b49c;font:600 16px/1.25 'Barlow Semi Condensed', system-ui, sans-serif}.ds-hn{margin:4px 0 0;color:#c5b49c;font-size:16px;line-height:1.3}.ds-lad{position:relative;margin-top:10px;padding-top:8px;border-top:1px solid #4a2a1d}.ds-lad ol{position:relative;margin:0;padding:0;list-style:none}.ds-lad li{display:flex;align-items:baseline;justify-content:space-between;height:19px;padding:0 8px;color:#c5b49c;font:600 14px/19px 'Barlow Semi Condensed', system-ui, sans-serif}.ds-lad li.ds-lit{color:#f3ecdf;font-weight:700}.ds-lad li.ds-dr{color:#f3ecdf}.ds-lad i{color:#c5b49c;font-size:13px;font-weight:600}.ds-band{position:absolute;top:8px;left:0;right:0;height:19px;border-radius:6px;background:#33190f;box-shadow:inset 0 0 0 1px #4a2a1d;transform:translateY(114px);transition:transform 360ms cubic-bezier(0.16, 1, 0.3, 1)}"
+      "css": ".ds-hbg{padding:16px;background:var(--room,#0b1a0b)}.ds-hint{width:188px;box-sizing:border-box;padding:12px 12px 10px;border:1px solid var(--plaque-edge,#2e4a2c);border-radius:16px;background:var(--panel,rgb(9 22 9 / 0.92));box-shadow:var(--shadow-panel,0 20px 40px -12px rgb(0 0 0 / 0.7));font-family:var(--font-ui,'Nunito Sans', system-ui, sans-serif);font-variant-numeric:tabular-nums}.ds-hh{margin:0;color:var(--ink,#faf4d3);font:700 20px/1.15 var(--font-ui,'Nunito Sans', system-ui, sans-serif)}.ds-hd{display:block;margin-top:1px;color:var(--ink-muted,#c3c5a5);font:600 16px/1.25 var(--font-ui,'Nunito Sans', system-ui, sans-serif)}.ds-hn{margin:4px 0 0;color:var(--ink-muted,#c3c5a5);font-size:16px;line-height:1.3}.ds-lad{position:relative;margin-top:10px;padding-top:8px;border-top:1px solid var(--plaque-edge,#2e4a2c)}.ds-lad ol{position:relative;margin:0;padding:0;list-style:none}.ds-lad li{display:flex;align-items:baseline;justify-content:space-between;height:19px;padding:0 8px;color:var(--ink-muted,#c3c5a5);font:600 14px/19px var(--font-ui,'Nunito Sans', system-ui, sans-serif)}.ds-lad li.ds-lit{color:var(--ink,#faf4d3);font-weight:700}.ds-lad li.ds-dr{color:var(--ink,#faf4d3)}.ds-lad i{color:var(--ink-muted,#c3c5a5);font-size:13px;font-weight:600}.ds-band{position:absolute;top:8px;left:0;right:0;height:19px;border-radius:6px;background:var(--plaque-turn,#1c371b);box-shadow:inset 0 0 0 1px var(--plaque-edge,#2e4a2c);transform:translateY(114px);transition:transform 360ms var(--ease-out,cubic-bezier(0.16, 1, 0.3, 1))}"
+    },
+    {
+      "name": "Action Row with Keycaps",
+      "kind": "button",
+      "refersTo": "keycap",
+      "description": "Fold, Call/Check, Raise at 1 : 1.2 : 1.3; each carries its shortcut as a small keycap in its top-right corner, in currentColor at 45%, so it never competes with the label.",
+      "html": "<div class=\"ds-krow\"><button class=\"ds-kb ds-kfold\">Fold<span class=\"ds-kc\">F</span></button><button class=\"ds-kb ds-kprim\">Call<small>20</small><span class=\"ds-kc\">C</span></button><button class=\"ds-kb\">Raise<small>to 60</small><span class=\"ds-kc\">R</span></button></div>",
+      "css": ".ds-krow{display:grid;grid-template-columns:1fr 1.2fr 1.3fr;gap:8px;width:344px;padding:16px;background:var(--room,#0b1a0b)}.ds-kb{position:relative;display:grid;place-content:center;height:48px;border:1px solid var(--plaque-edge,#2e4a2c);border-radius:10px;background:var(--button,#1a331a);color:var(--ink,#faf4d3);font:700 18px/1.1 var(--font-ui,'Nunito Sans', system-ui, sans-serif);font-variant-numeric:tabular-nums;cursor:pointer;transition:transform 90ms,background-color 150ms}.ds-kb small{font-size:13px;font-weight:600;opacity:.85}.ds-kb:hover{background:var(--button-hover,#224321)}.ds-kb:active{transform:translateY(1px)}.ds-kb:focus-visible{outline:2px solid var(--lit,#faf4d3);outline-offset:3px}.ds-kfold{color:var(--fold-ink,#f0b7b3)}.ds-kprim{border-color:var(--lit-edge,#fffbea);background:var(--lit,#faf4d3);color:var(--lit-ink,#132a13);box-shadow:inset 0 1px 0 rgb(255 255 255 / .35)}.ds-kprim:hover{background:var(--lit-hover,#ece5c1)}.ds-kc{position:absolute;top:4px;right:6px;min-width:17px;padding:0 4px;border:1px solid currentColor;border-radius:4px;font:700 13px/15px var(--font-ui,'Nunito Sans', system-ui, sans-serif);text-align:center;opacity:.45}"
+    },
+    {
+      "name": "Toast and Reconnecting Banner",
+      "kind": "custom",
+      "refersTo": "toast",
+      "description": "Fixed at the top centre in the 52px bar. A toast is a panel-solid plate with a danger-mixed border and a ghost Dismiss; the reconnecting banner is a paper status pill with three pulsing room-dark dots, never lit.",
+      "html": "<div class=\"ds-tstack\"><div class=\"ds-toast\" role=\"status\"><span>The table moved on before that arrived. Try again.</span><button class=\"ds-tclose\">Dismiss</button></div><div class=\"ds-banner\" role=\"status\"><span class=\"ds-dots\"><i></i><i></i><i></i></span>Connection lost. Reconnecting<span class=\"ds-aside\">Your seat is kept while you’re away.</span></div></div>",
+      "css": ".ds-tstack{display:grid;justify-items:center;gap:8px;padding:8px 16px 16px;background:var(--room,#0b1a0b);color:var(--ink,#faf4d3);font:500 16px/1.35 var(--font-ui,'Nunito Sans', system-ui, sans-serif)}.ds-toast{display:flex;gap:14px;align-items:center;max-width:560px;min-height:36px;padding:4px 4px 4px 16px;border:1px solid color-mix(in srgb,var(--danger,#e0645f) 60%,var(--plaque-edge,#2e4a2c));border-radius:10px;background:var(--panel-solid,rgb(9 22 9 / 0.97));box-shadow:var(--shadow-panel,0 20px 40px -12px rgb(0 0 0 / 0.7));animation:ds-drop 260ms var(--ease-out,cubic-bezier(0.16, 1, 0.3, 1)) both}.ds-tclose{flex:none;padding:3px 10px;border:1px solid var(--plaque-edge,#2e4a2c);border-radius:8px;background:transparent;color:var(--ink-muted,#c3c5a5);font:600 16px var(--font-ui,'Nunito Sans', system-ui, sans-serif);cursor:pointer;transition:border-color 150ms,color 150ms}.ds-tclose:hover{border-color:var(--trim,#868f73);color:var(--ink,#faf4d3)}.ds-tclose:focus-visible{outline:2px solid var(--lit,#faf4d3);outline-offset:3px}.ds-banner{display:flex;gap:10px;align-items:center;min-height:36px;padding:4px 16px 4px 12px;border-radius:999px;background:var(--paper,#faf4d3);box-shadow:var(--shadow-plaque,0 8px 18px -6px rgb(0 0 0 / 0.6));color:var(--room,#0b1a0b);font-weight:700;white-space:nowrap;animation:ds-drop 260ms var(--ease-out,cubic-bezier(0.16, 1, 0.3, 1)) both}.ds-aside{padding-left:10px;border-left:1px solid color-mix(in srgb,var(--room,#0b1a0b) 30%,transparent);font-weight:500}.ds-dots{display:flex;gap:4px}.ds-dots i{width:8px;height:8px;border-radius:50%;background:var(--room,#0b1a0b);animation:ds-wait 1200ms ease-in-out infinite both}.ds-dots i:nth-child(2){animation-delay:150ms}.ds-dots i:nth-child(3){animation-delay:300ms}@keyframes ds-wait{0%,60%,100%{opacity:.25}30%{opacity:1}}@keyframes ds-drop{from{opacity:0;transform:translateY(-8px)}}@media (prefers-reduced-motion:reduce){.ds-toast,.ds-banner,.ds-dots i{animation:none}.ds-dots i{opacity:.6}}"
+    },
+    {
+      "name": "Landing Table Scene",
+      "kind": "custom",
+      "refersTo": "table-scene",
+      "description": "The landing's picture: a corner of the real table (cornsilk rail, lit felt with its green seam, felt-label pot pill, keylined paper dealer button) with a flop, two empty dashed slots and your two hole cards over the near rail, dealt in once on load. Decorative (aria-hidden).",
+      "html": "<div class=\"ds-scene\" aria-hidden=\"true\"><div class=\"ds-stable\"><div class=\"ds-sfelt\"><div class=\"ds-spot\"><span class=\"ds-schips\"><i></i><i></i></span><span class=\"ds-splabel\"><span>Pot</span>240</span></div><div class=\"ds-sboard\"><div class=\"ds-scard ds-sdealt\" style=\"--i:0\"><b>Q</b><svg viewBox=\"0 0 10 10\"><path d=\"M5 1C3 3.5 1 4.6 1 6.3a1.9 1.9 0 0 0 3.4 1.1L4 9h2l-.4-1.6A1.9 1.9 0 0 0 9 6.3C9 4.6 7 3.5 5 1z\"/></svg></div><div class=\"ds-scard ds-sred ds-sdealt\" style=\"--i:1\"><b>9</b><svg viewBox=\"0 0 10 10\"><path d=\"M5 9 1 4.5A2.2 2.2 0 0 1 5 2a2.2 2.2 0 0 1 4 2.5z\"/></svg></div><div class=\"ds-scard ds-sdealt\" style=\"--i:2\"><b>4</b><svg viewBox=\"0 0 10 10\"><path d=\"M5 1C3 3.5 1 4.6 1 6.3a1.9 1.9 0 0 0 3.4 1.1L4 9h2l-.4-1.6A1.9 1.9 0 0 0 9 6.3C9 4.6 7 3.5 5 1z\"/></svg></div><div class=\"ds-sslot\"></div><div class=\"ds-sslot\"></div></div><span class=\"ds-sdealer\">D</span><div class=\"ds-shole\"><div class=\"ds-scard ds-sbig ds-sred ds-sdealt\" style=\"--i:3\"><b>A</b><svg viewBox=\"0 0 10 10\"><path d=\"M5 9 1 4.5A2.2 2.2 0 0 1 5 2a2.2 2.2 0 0 1 4 2.5z\"/></svg></div><div class=\"ds-scard ds-sbig ds-sdealt\" style=\"--i:4\"><b>K</b><svg viewBox=\"0 0 10 10\"><path d=\"M5 1C3 3.5 1 4.6 1 6.3a1.9 1.9 0 0 0 3.4 1.1L4 9h2l-.4-1.6A1.9 1.9 0 0 0 9 6.3C9 4.6 7 3.5 5 1z\"/></svg></div></div></div></div></div>",
+      "css": ".ds-scene{--scene-w:520px;--card-w:calc(var(--scene-w) * .085);padding:24px 24px 48px;background:radial-gradient(ellipse 80% 70% at 50% 45%,var(--room-2,#132a13),var(--room,#0b1a0b) 70%);overflow:hidden}.ds-stable{position:relative;width:var(--scene-w);height:calc(var(--scene-w) / 2.05);padding:calc(var(--scene-w) * .028);box-sizing:border-box;border-radius:999px;background:linear-gradient(180deg,var(--rail-hi,#fdf8e0),var(--rail,#f3ecc6) 40%,var(--rail-lo,#cfc69c));box-shadow:0 30px 60px -20px rgb(0 0 0 / .7),inset 0 2px 0 rgb(255 255 255 / .6),inset 0 -3px 6px rgb(0 0 0 / .18)}.ds-sfelt{position:relative;width:100%;height:100%;border-radius:999px;background:radial-gradient(ellipse 60% 70% at 50% 42%,var(--felt-hi,#356a33),var(--felt,#2a5529) 45%,var(--felt-edge,#1b3b1b));box-shadow:inset 0 0 0 2px var(--rail-seam,rgb(19 42 19 / 0.55)),inset 0 10px 30px rgb(0 0 0 / .35)}.ds-sboard{position:absolute;top:50%;left:50%;display:flex;gap:calc(var(--card-w) * .14);transform:translate(-50%,-52%)}.ds-scard,.ds-sslot{position:relative;width:var(--card-w);aspect-ratio:5/7}.ds-scard{border-radius:11%/7.86%;background:var(--paper,#faf4d3);color:var(--suit-black,#132a13);box-shadow:0 2px 4px rgb(0 0 0 / .35)}.ds-sred{color:var(--suit-red,#c0303a)}.ds-scard b{position:absolute;top:3%;left:10%;font:700 calc(var(--card-w) * .36)/1 var(--font-ui,'Nunito Sans', system-ui, sans-serif);letter-spacing:-.02em}.ds-sbig b{font-size:calc(var(--card-w) * 1.35 * .36)}.ds-scard svg{position:absolute;right:8%;bottom:6%;width:50%;fill:currentColor}.ds-sslot{border:1.5px dashed rgb(250 244 211 / .14);border-radius:8px;box-sizing:border-box}.ds-spot{position:absolute;bottom:calc(50% + var(--card-w) * 1.4 * .52 + 12px);left:50%;display:flex;gap:8px;align-items:center;transform:translateX(-50%);color:var(--ink,#faf4d3);animation:ds-arrive 420ms var(--ease-out,cubic-bezier(0.16, 1, 0.3, 1)) 620ms both}.ds-splabel{padding:3px 12px;border-radius:999px;background:var(--felt-label,rgb(7 20 7 / 0.6));font:600 17px var(--font-ui,'Nunito Sans', system-ui, sans-serif);font-variant-numeric:tabular-nums}.ds-splabel span{margin-right:6px;color:var(--ink-muted,#c3c5a5);font-weight:500}.ds-schips{position:relative;width:20px;height:20px}.ds-schips i{position:absolute;left:0;width:20px;height:20px;box-sizing:border-box;border:2.5px dashed var(--chip-stripe,rgb(255 255 255 / 0.85));border-radius:50%;background:var(--chip-red,#c62f3b);box-shadow:0 1px 0 rgb(0 0 0 / .45)}.ds-schips i+i{top:-4px;background:var(--chip-black,#26262b)}.ds-sdealer{position:absolute;top:70%;left:67%;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--paper,#faf4d3);box-shadow:0 0 0 1.5px var(--green,#132a13),0 2px 4px rgb(0 0 0 / .4);color:var(--room,#0b1a0b);font:700 13px/1 var(--font-ui,'Nunito Sans', system-ui, sans-serif)}.ds-shole{position:absolute;bottom:calc(var(--card-w) * -.55);left:50%;display:flex;gap:10px;transform:translateX(-50%)}.ds-sbig{width:calc(var(--card-w) * 1.35)}.ds-shole .ds-scard:first-child{rotate:-5deg}.ds-shole .ds-scard:last-child{rotate:4deg;translate:0 4px}.ds-sdealt{animation:ds-deal 440ms var(--ease-out,cubic-bezier(0.16, 1, 0.3, 1)) both;animation-delay:calc(180ms + var(--i,0) * 80ms)}@keyframes ds-deal{from{opacity:0;transform:translateY(calc(var(--card-w) * -1.2)) scale(.92)}}@keyframes ds-arrive{from{opacity:0;transform:translate(-50%,6px)}}@media (prefers-reduced-motion:reduce){.ds-sdealt,.ds-spot{animation:none}}"
+    },
+    {
+      "name": "Pre-Game Shell Panel",
+      "kind": "card",
+      "refersTo": "shell-panel",
+      "description": "The pre-game plate centred where the felt would be: a Josefin Sans Heading, a muted line, a text field with its label, an info Notice with values in ink, and the one lit primary. Error notices mix danger into the border.",
+      "html": "<div class=\"ds-shell\"><section class=\"ds-spanel\"><h2 class=\"ds-sh\">New room</h2><p class=\"ds-ssub\">Pick the stakes. You can change them in the lobby.</p><label class=\"ds-fld\"><span>Your name</span><input value=\"Maya\" aria-label=\"Your name\"></label><p class=\"ds-note\">Everyone starts with <b>1,000</b> chips.</p><p class=\"ds-note ds-note-err\">That room is full.</p><button class=\"ds-sprim\">Create room</button></section></div>",
+      "css": ".ds-shell{display:grid;place-items:center;padding:24px 24px 40px;background:radial-gradient(ellipse 80% 70% at 50% 45%,var(--room-2,#132a13),var(--room,#0b1a0b) 70%);color:var(--ink,#faf4d3);font:500 16px/1.35 var(--font-ui,'Nunito Sans', system-ui, sans-serif);font-variant-numeric:tabular-nums}.ds-spanel{display:grid;gap:16px;width:440px;box-sizing:border-box;padding:28px;border:1px solid var(--plaque-edge,#2e4a2c);border-radius:16px;background:var(--panel,rgb(9 22 9 / 0.92));box-shadow:var(--shadow-panel,0 20px 40px -12px rgb(0 0 0 / 0.7))}.ds-sh{margin:0;font:400 30px/1.15 var(--font-display,'Josefin Sans', system-ui, sans-serif)}.ds-ssub{margin:-10px 0 0;color:var(--ink-muted,#c3c5a5)}.ds-fld{display:grid;gap:6px}.ds-fld span{color:var(--ink-muted,#c3c5a5);font-weight:600}.ds-fld input{height:48px;box-sizing:border-box;padding:0 14px;border:1px solid var(--plaque-edge,#2e4a2c);border-radius:10px;background:var(--field,#081408);color:var(--ink,#faf4d3);font:600 18px/1 var(--font-ui,'Nunito Sans', system-ui, sans-serif);caret-color:var(--lit,#faf4d3);transition:border-color 150ms}.ds-fld input:hover{border-color:var(--trim,#868f73)}.ds-fld input:focus-visible{outline:2px solid var(--lit,#faf4d3);outline-offset:1px;border-color:var(--lit,#faf4d3)}.ds-note{margin:0;padding:10px 14px;border:1px solid var(--plaque-edge,#2e4a2c);border-radius:10px;color:var(--ink-muted,#c3c5a5)}.ds-note b{color:var(--ink,#faf4d3);font-weight:600}.ds-note-err{border-color:color-mix(in srgb,var(--danger,#e0645f) 55%,var(--plaque-edge,#2e4a2c));color:var(--ink,#faf4d3)}.ds-sprim{height:48px;border:1px solid var(--lit-edge,#fffbea);border-radius:10px;background:var(--lit,#faf4d3);color:var(--lit-ink,#132a13);font:700 18px/1.1 var(--font-ui,'Nunito Sans', system-ui, sans-serif);box-shadow:inset 0 1px 0 rgb(255 255 255 / .35);cursor:pointer;transition:transform 90ms,background-color 150ms}.ds-sprim:hover{background:var(--lit-hover,#ece5c1)}.ds-sprim:active{transform:translateY(1px)}.ds-sprim:focus-visible{outline:2px solid var(--lit,#faf4d3);outline-offset:3px}"
+    },
+    {
+      "name": "Lobby Side Column",
+      "kind": "custom",
+      "refersTo": "room-code-display",
+      "description": "The 400px column beside the lobby table: the invite (Headline, the 52px room code as the largest figure on screen, a muted hint, Copy invite link), then the side panel with the settings sentence and the host's Start and Edit settings.",
+      "html": "<div class=\"ds-lside\"><div class=\"ds-inv\"><h2 class=\"ds-lt\">Invite your friends</h2><div class=\"ds-lcode\">RW8W7B</div><p class=\"ds-lhint\">They enter this code on the home page, or open your link.</p><button class=\"ds-lsec\">Copy invite link</button></div><div class=\"ds-lpanel\"><p>Everyone starts with <b>1,000</b> chips, blinds <b>5/10</b>, <b>30s</b> turns, rebuys <b>on</b>.</p><div class=\"ds-lrow\"><button class=\"ds-lprim\">Start game</button><button class=\"ds-lgh\">Edit settings</button></div></div></div>",
+      "css": ".ds-lside{display:flex;flex-direction:column;gap:22px;width:448px;box-sizing:border-box;padding:24px;background:var(--room,#0b1a0b);color:var(--ink,#faf4d3);font:500 16px/1.35 var(--font-ui,'Nunito Sans', system-ui, sans-serif);font-variant-numeric:tabular-nums}.ds-inv{display:flex;flex-direction:column}.ds-lt{margin:0;font:400 24px/1.2 var(--font-display,'Josefin Sans', system-ui, sans-serif)}.ds-lcode{margin-top:10px;font:700 52px/1 var(--font-ui,'Nunito Sans', system-ui, sans-serif);letter-spacing:.16em}.ds-lhint{margin:10px 0 0;color:var(--ink-muted,#c3c5a5)}.ds-lsec{align-self:flex-start;margin-top:16px;height:48px;padding:0 20px;border:1px solid var(--plaque-edge,#2e4a2c);border-radius:10px;background:var(--button,#1a331a);color:var(--ink,#faf4d3);font:700 18px/1.1 var(--font-ui,'Nunito Sans', system-ui, sans-serif);cursor:pointer;transition:transform 90ms,background-color 150ms}.ds-lsec:hover{background:var(--button-hover,#224321)}.ds-lsec:active,.ds-lprim:active{transform:translateY(1px)}.ds-lpanel{padding:14px;border:1px solid var(--plaque-edge,#2e4a2c);border-radius:16px;background:var(--panel,rgb(9 22 9 / 0.92));box-shadow:var(--shadow-panel,0 20px 40px -12px rgb(0 0 0 / 0.7));color:var(--ink-muted,#c3c5a5)}.ds-lpanel p{margin:0 0 12px}.ds-lpanel b{color:var(--ink,#faf4d3);font-weight:600}.ds-lrow{display:grid;grid-template-columns:1fr auto;gap:8px}.ds-lprim{height:48px;border:1px solid var(--lit-edge,#fffbea);border-radius:10px;background:var(--lit,#faf4d3);color:var(--lit-ink,#132a13);font:700 18px/1.1 var(--font-ui,'Nunito Sans', system-ui, sans-serif);box-shadow:inset 0 1px 0 rgb(255 255 255 / .35);cursor:pointer;transition:transform 90ms,background-color 150ms}.ds-lprim:hover{background:var(--lit-hover,#ece5c1)}.ds-lgh{padding:7px 14px;border:1px solid var(--plaque-edge,#2e4a2c);border-radius:8px;background:transparent;color:var(--ink-muted,#c3c5a5);font:600 16px var(--font-ui,'Nunito Sans', system-ui, sans-serif);cursor:pointer}.ds-lgh:hover{border-color:var(--trim,#868f73);color:var(--ink,#faf4d3)}.ds-lsec:focus-visible,.ds-lprim:focus-visible,.ds-lgh:focus-visible{outline:2px solid var(--lit,#faf4d3);outline-offset:3px}"
+    },
+    {
+      "name": "Settings Facts Mark",
+      "kind": "custom",
+      "refersTo": "settings-changed-mark",
+      "description": "The settings sentence: muted text with values in ink 600. A value the host just changed is marked as a status (paper fill, room-dark text, 4px corners), fading over 300ms; never lit or trim.",
+      "html": "<div class=\"ds-fbg\"><p class=\"ds-facts\">Everyone starts with <b>1,000</b> chips, blinds <b data-changed>10/20</b>, <b>30s</b> turns, rebuys <b>on</b>.</p><p class=\"ds-fwho\">Jonas changed the settings.</p></div>",
+      "css": ".ds-fbg{width:400px;box-sizing:border-box;padding:16px;background:var(--room,#0b1a0b);font:500 16px/1.35 var(--font-ui,'Nunito Sans', system-ui, sans-serif);font-variant-numeric:tabular-nums}.ds-facts{margin:0;color:var(--ink-muted,#c3c5a5)}.ds-facts b{margin:0 -3px;padding:0 3px;border-radius:4px;color:var(--ink,#faf4d3);font-weight:600;transition:background-color 300ms,color 300ms}.ds-facts b[data-changed]{background:var(--paper,#faf4d3);color:var(--room,#0b1a0b)}.ds-fwho{margin:8px 0 0;color:var(--ink,#faf4d3)}"
     }
   ],
   "narrative": {
     "northStar": "The Table Is the Room",
-    "overview": "A real card-room table seen from your own chair. A deep wine room recedes into shadow, a padded mahogany rail carries a single brass trim line, and the green felt is lit from above so the centre of the table, where the board and pot sit, is the brightest thing on screen. Everything the player needs (whose turn, what a call costs, what is in the pot, who won) lives on or around the felt, not in sidebars.\n\nThe world is warm, calm, and physical. Cards are cream paper with authored suit shapes, chips are flat striped discs, name plaques are dark leather pills. Motion is the table's own: cards slide from the dealer spot and turn over, chips slide to a bet, sweep into the pot when a street closes, and fly to the winner. It explains what happened and then stops. The owner confirmed two rejections: the online-casino look (glow, neon, stat sidebars, chip clutter) and the flat grey software table.\n\nDensity is low and sized for arm's length on a laptop: 16px is the smallest routine text, cards scale with the table, and the whole screen fits a 1280x680 window with no scrolling.\n\n**Scope.** Two screens use this world today: the in-game table and the finished-game screen. The landing, create-room, lobby and room screens still carry an early placeholder style (green/gold tokens in `src/styles/global.css`) that is not this system; they are due to be restyled to match it in the polish phase. The tokens live in `src/styles/cardRoom.module.css` on its `.world` class (which both in-game screens put on their root), together with the shared controls (action, primary, ghost and danger buttons, and the bar error line). They are scoped to `.world` rather than `:root` so the world stays self-contained until the other screens move over.",
+    "overview": "A real card-room table seen from your own chair, made from two colours the owner chose: Dark Green (#132a13) and Cornsilk (#faf4d3). The room is the darkest green and recedes into shadow, a padded cornsilk rail rings the table with a thin green seam where it meets the cloth, and the green felt is lit from above so the centre of the table, where the board and pot sit, is the brightest large surface on screen. Everything light (text, cards, the move to make) is cornsilk. Everything the player needs (whose turn, what a call costs, what is in the pot, who won) lives on or around the felt, not in sidebars; even the lobby is the table itself with nothing dealt yet.\n\nThe world is calm and physical. Cards are cornsilk paper with authored suit shapes, chips are flat striped discs, name plaques are dark green leather pills. Motion is the table's own: cards slide from the dealer spot and turn over, chips slide to a bet, sweep into the pot when a street closes, and fly to the winner. It explains what happened and then stops. The owner confirmed two rejections: the online-casino look (glow, neon, stat sidebars, chip clutter) and the flat grey software table.\n\nDensity is low and sized for arm's length on a laptop: 16px is the smallest routine text, cards scale with the table, and every in-room screen fits a 1280x680 window with no scrolling. Every screen uses this world, from the landing and pre-game shell to the lobby, table and finished screen; tokens live on :root in src/styles/global.css. Desktop only; there are no mobile layouts.",
     "keyCharacteristics": [
-      "One accent, brass, and it always means \"now\": the turn, the primary action, the winning cards.",
+      "Two colours, green and cornsilk; suits, chips and the signal colours are the only other hues.",
+      "Lit cornsilk, as an edge, a ring or a button's fill, always means \"now\": the turn, the primary action, the winning cards and player.",
       "Depth comes from light and material (lit felt, graded rail, soft drop shadows), never from glow.",
-      "Marcellus is lettering on the felt and in results; Barlow Semi Condensed with tabular figures carries every name and number.",
+      "Josefin Sans is lettering on the felt, in results and on screen headings; Nunito Sans with tabular figures carries every name and number.",
       "Pills and ovals for things that sit on the table; modest rounded rectangles for controls you press.",
       "Motion is physical and quick, and disappears entirely under reduced motion."
     ],
     "rules": [
       {
-        "name": "The Brass Means Now Rule",
-        "body": "Brass (brass) marks the one thing that is live right now: whose turn, the action you can take, the cards that won, and at game end the player who won. Statuses (All-in, Last hand, Out of chips) are never brass. When nothing is actionable, even the primary button's ghost drops to neutral oxblood. Decorative brass uses brass-trim, never brass.",
-        "section": "colors"
+        "name": "The Lit Cornsilk Means Now Rule",
+        "section": "colors",
+        "body": "Lit marks the one thing that is live right now: whose turn, the action you can take, the cards that won, and the player who won. It always arrives as an edge, a ring or the fill of a full-size button, attached to the live thing itself. Statuses (All-in, Last hand, Out of chips, Reconnecting, a just-changed setting) are also cornsilk, because paper and lit are the same colour, so they are told apart by form: a status is a small filled paper label with room-dark text (a 13-14px tag, a pill, a 4px mark), never an edge, a ring or a button. When nothing is actionable, even the primary button's ghost drops to the neutral green control. Decoration uses trim, never lit, and trim never marks state."
       },
       {
-        "name": "The Lit Centre Rule",
-        "body": "The felt is the brightest large surface and the board sits in its light pool. The room and rail stay darker than the felt; nothing outside the table may out-shine it.",
-        "section": "colors"
+        "name": "The Two-Colour Balance Rule",
+        "section": "colors",
+        "body": "Neither colour may take over the screen. The room and felt are green; the rail, cards, text, tags and the primary button are cornsilk, so every screen with the table shows a real share of both. The board still sits in the felt's light pool, framed by the rail."
       },
       {
         "name": "The Signed Net Rule",
-        "body": "Payout green (win) and fold blush (fold-ink) are the only up and down colours, and they only ever colour a signed figure: \"+1,240\" in win, \"−550\" in fold-ink, \"Even\" in ink-muted. The sign carries the meaning; the colour repeats it. Neither colour fills a surface or marks anything that is not a chip change.",
-        "section": "colors"
+        "section": "colors",
+        "body": "Payout green (win) and fold blush (fold-ink) are the only up and down colours, and they only ever colour a signed figure: \"+1,240\" in win, \"−550\" in fold-ink, \"Even\" in ink-muted. The sign carries the meaning; the colour repeats it. Neither colour fills a surface or marks anything that is not a chip change."
       },
       {
         "name": "The Tabular Rule",
-        "body": "Every number on the table uses tabular figures (set once on the page root). Numbers that jump width as chips move are a defect.",
-        "section": "typography"
+        "section": "typography",
+        "body": "Every number uses tabular figures (set once on the body). Numbers that jump width as chips move are a defect."
       },
       {
         "name": "The Lettering Rule",
-        "body": "Marcellus is for things a card room would letter or engrave: the felt, the result, the room's name, a table-level heading such as \"Final standings\", and the initial on an avatar disc. It never sets names, numbers, buttons or controls.",
-        "section": "typography"
+        "section": "typography",
+        "body": "Josefin Sans is for things a card room would letter or engrave: the felt, the result, the room's name, a screen or table-level heading such as \"New room\" or \"Final standings\", and the initial on an avatar disc. It never sets names, numbers, codes, buttons or controls."
       },
       {
         "name": "The No-Glow Rule",
-        "body": "Shadows are dark and fall downward. No coloured blurs, halos or neon, on brass or anything else.",
-        "section": "elevation"
+        "section": "elevation",
+        "body": "Shadows are dark and fall downward. No coloured blurs, halos or neon, on lit or anything else."
       },
       {
         "name": "The Sitting-Out Rule",
-        "body": "A seat that is out of the hand but still at the table (out of chips, joining next hand, left) dims its cards, avatar and name to 50% and quiets its plaque (edge at 60%, fill at 55%, no shadow), while its state tag stays at full contrast. The reason a seat is out must always be readable even when the seat is not.",
-        "section": "components"
+        "section": "components",
+        "body": "A seat that is out of the hand but still at the table (out of chips, joining next hand, left) dims its cards, avatar and name to 50% and quiets its plaque (edge at 60%, fill at 55%, no shadow), while its state tag stays at full contrast. The reason a seat is out must always be readable even when the seat is not."
       },
       {
         "name": "The Mark-Versus-Tag Rule",
-        "body": "An outlined pill says who a seat is (a bot, and how it plays); a filled tag says what the seat is doing (All-in, Away, Left). A mark never fills and never takes brass, and a state never goes outlined.",
-        "section": "components"
+        "section": "components",
+        "body": "An outlined pill says who a seat is (a bot, and how it plays); a filled tag says what the seat is doing (All-in, Away, Left). A mark never fills and never takes lit, and a state never goes outlined."
       }
     ],
     "dos": [
-      "**Do** reserve brass (#d2a54c) for what is live now: the turn, the primary action, the winning cards and the game's winner; use brass-trim for decoration.",
-      "**Do** keep the felt the brightest large surface and put hand state (board, pot, result) in its centre.",
-      "**Do** set every name and number in Barlow Semi Condensed with tabular figures, at 16px or larger for routine text.",
-      "**Do** use Marcellus only for lettering: the felt, the result, the product name.",
-      "**Do** express depth with dark, downward shadows and lit gradients, from the Shadow Vocabulary.",
-      "**Do** size table contents from the table width (cards at 6.6%) so the screen fits 1280x680 without scrolling.",
-      "**Do** make motion physical and quick with the shared ease-out curve, and drop it entirely under reduced motion.",
-      "**Do** pair every colour signal with text or shape (tags, timer ring, suit symbols, the sign on a net).",
-      "**Do** keep a sitting-out seat's state tag at full contrast while the rest of the seat dims.",
-      "**Do** mark a bot as who the seat is, with the outlined bot mark and the dashed ring on its disc; keep filled tags for states.",
-      "**Do** dress shared forms for the card room by remapping their tokens onto card-room tokens, with no browser-default steppers or arrows."
+      "Do build every surface from the two colours, Dark Green (#132a13) and Cornsilk (#faf4d3), and the tokens on :root in src/styles/global.css; suits, chips and the signal colours are the only other hues.",
+      "Do reserve lit for what is live now, as an edge, a ring or a primary button's fill: the turn, the primary action, the winning cards and the winner; use trim for decoration.",
+      "Do mark statuses as small filled paper labels with room-dark text (tags, the Last hand pill, the reconnecting banner, a just-changed setting).",
+      "Do keep the felt the brightest large surface and put hand state (board, pot, result) in its centre.",
+      "Do set every name and number in Nunito Sans with tabular figures, at 16px or larger for routine text.",
+      "Do use Josefin Sans only for lettering: the felt, the result, the product name, screen and table-level headings.",
+      "Do express depth with dark, downward shadows and lit gradients, from the Shadow Vocabulary.",
+      "Do size table contents from the table width (cards at 6.6%) so the room screens fit 1280x680 without scrolling.",
+      "Do make motion physical and quick with the shared ease-out curve, and drop it entirely under reduced motion.",
+      "Do pair every colour signal with text or shape (tags, timer ring, suit symbols, the sign on a net, a keycap's letter).",
+      "Do keep a sitting-out seat's state tag at full contrast while the rest of the seat dims.",
+      "Do mark a bot as who the seat is, with the outlined bot mark and the dashed ring on its disc; keep filled tags for states.",
+      "Do send errors from table and room requests to toasts, and keep form mistakes inline next to their field.",
+      "Do draw every form control in the card room's materials, with no browser-default steppers or arrows."
     ],
     "donts": [
-      "**Don't** use glow, neon, coloured halos or casino lighting effects.",
-      "**Don't** add stat sidebars, HUDs or chip clutter around the table.",
-      "**Don't** fall back to a flat grey software table or generic UI chrome.",
-      "**Don't** use brass as decoration; decorative brass is brass-trim.",
-      "**Don't** put brass on a status such as \"Last hand\", \"Out of chips\" or \"Left\"; statuses are cream or quiet plaque-edge tags.",
-      "**Don't** put brass or an eyebrow label on the hand hint; it is information, not the move.",
-      "**Don't** use payout green or fold blush without a signed figure beside them.",
-      "**Don't** use a dashed border for anything but an empty place, except the chip-stripe rings on chips and a bot's avatar disc.",
-      "**Don't** use money language (deposit, cash, jackpot, win big); chips are virtual and never bought.",
-      "**Don't** treat the green/gold tokens in `src/styles/global.css` as the system; they belong to the unmigrated placeholder screens."
+      "Don't use glow, neon, coloured halos or casino lighting effects.",
+      "Don't add stat sidebars, HUDs or chip clutter around the table.",
+      "Don't fall back to a flat grey software table or generic UI chrome.",
+      "Don't use lit as decoration; decorative cornsilk is trim.",
+      "Don't mark state with trim, including a just-changed value; a change is a paper mark.",
+      "Don't put a lit edge, ring or fill on a status such as \"Last hand\", \"Out of chips\", \"Left\" or \"Reconnecting\"; statuses are paper or quiet plaque-edge tags.",
+      "Don't put lit or an eyebrow label on the hand hint; it is information, not the move.",
+      "Don't put a cornsilk ring straight onto a cornsilk card; separate it with a band of felt.",
+      "Don't use payout green or fold blush without a signed figure beside them.",
+      "Don't use a dashed border for anything but an empty place, except the chip-stripe rings on chips and a bot's avatar disc.",
+      "Don't use money language (deposit, cash, jackpot, win big); chips are virtual and never bought."
     ]
   }
 }

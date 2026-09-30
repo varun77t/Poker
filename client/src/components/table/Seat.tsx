@@ -96,7 +96,7 @@ export function Seat({ model, highlight, clock, removable = false }: Props) {
   );
 }
 
-/** The brass ring around the avatar that runs down as the turn's time passes. */
+/** The lit ring around the avatar that runs down as the turn's time passes. */
 function TurnRing({ clock }: { clock: TurnClock }) {
   return (
     <svg className={styles.ring} viewBox="0 0 48 48" key={clock.key}>

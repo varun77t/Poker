@@ -92,15 +92,19 @@ poker/
 │       ├── main.tsx, App.tsx    router: /, /create, /room/:code (+ /dev/table in development only)
 │       ├── socket/              socket singleton (typed), session bootstrap, request()
 │       ├── state/store.ts       latest snapshot (by version), connection status, server clock offset
-│       ├── pages/               Landing, CreateRoom, Room (renders Lobby | TablePage | FinishedPage),
-│       │                        TablePage, FinishedPage (results + next game), DevTable
-│       ├── components/          Layout, Button, TextField, SettingsForm, ConnectionOverlay
-│       │   └── table/           PokerTable, Seat, PlayingCard, ChipStack, ActionPanel, RoomBar,
+│       ├── state/toasts.ts      short-lived error toasts from turned-down requests
+│       ├── pages/               Landing, CreateRoom, Room (joining, invite prompt, problems; renders
+│       │                        Lobby | TablePage | FinishedPage), Lobby (the table before the first
+│       │                        hand), TablePage, FinishedPage (results + next game), NotFound, DevTable
+│       ├── components/          Layout (pre-game shell, panel), Button, TextField, SettingsForm,
+│       │                        SettingsEditor, SettingsFacts, TableScene (landing picture),
+│       │                        Toasts (toasts + reconnecting banner), ConnectionOverlay (another tab)
+│       │   └── table/           PokerTable, Seat, PlayingCard, ChipStack, ActionPanel (F/C/R keys), RoomBar, HandHint,
 │       │                        BotControls (host's add-bot panel and remove confirm) (+ .module.css)
 │       ├── table/               model.ts (display derivations), motionPlan.ts (what moves between
 │       │                        two snapshots), useTableMotion.ts (plays it); unit tested with Vitest
-│       └── styles/              global.css (placeholder screens); cardRoom.module.css (the in-game world's
-│                                tokens and shared controls, used by TablePage and FinishedPage)
+│       └── styles/              global.css (the design tokens on :root, Dark Green + Cornsilk);
+│                                cardRoom.module.css (the fixed table stage, side-column layout, shared controls)
 └── e2e/                         Playwright tests (Phase 9)
 ```
 
@@ -409,7 +413,7 @@ interface GameView {
 
 ### 8.4 Client state
 - The store (`client/src/state/store.ts`) holds the latest snapshot and **ignores any snapshot whose `version` ≤ the current one**. It also keeps `clockOffset = serverTime − Date.now()` from each snapshot, so `turnDeadline` and `nextHandAt` count down correctly even when a laptop's clock is off.
-- React never computes poker values. `client/src/table/model.ts` only arranges server values for display: seat rotation so "me" sits at the bottom, seat tags, pot totals, the ½-pot and pot shortcuts (clamped to the server's `minTo`/`maxTo`), and the wording of a result.
+- React never computes poker values. `client/src/table/model.ts` only arranges server values for display: seat rotation so "me" sits at the bottom, seat tags, pot totals, the ½-pot and pot shortcuts (clamped to the server's `minTo`/`maxTo`), the wording of a result, and which legal button a key (F/C/R) presses.
 - The action panel sends `{ handId, seq }` from the snapshot it rendered. After sending, it disables itself until a newer snapshot arrives (it is keyed by `seq`) or the ack returns an error, which it shows inline.
 - **Motion:** the screen always renders the newest snapshot. After each render, `planMotion(previous, next)` lists what visibly changed (cards dealt, bets placed, bets swept into the pot, cards turned over, pots paid out), and `useTableMotion` flies copies of cards and chips between named anchors (`data-anchor`) on an overlay, hiding each target until its copy lands. It never changes state, is skipped for reconnects mid-hand, and is off under `prefers-reduced-motion`.
 
@@ -543,7 +547,7 @@ Only results are written, and only at key moments: room created, hand finished, 
 | Bots | Vitest + fast-check | `test/bots/`: every decision is legal (property), decisions depend only on what the bot may see, fast ranker = evaluator, Medium beats Easy and Pro beats Medium over seeded matches, Pro reads ranges (folds to a tight player's barrels, bluffs players who fold, not calling stations), < 50 ms per decision; room rules, pauses, rebuys and leaves with bots (`botTable.test.ts`), fallback on a failing strategy |
 | Socket integration | Vitest + in-process server + `socket.io-client` | Multi-client flows, all error codes, **no hole-card leakage in any emitted payload**, reconnect restores the view; 50 hands of one person against three bots (`botSync.test.ts`) |
 | E2E | Playwright (3 browser contexts) | Create → invite link join → play hands → disconnect/reconnect → finish |
-| Client display logic | Vitest | `table/model.ts` and `table/motionPlan.ts` (seat rotation, tags, bet-size shortcuts, result wording, final standings, animation choreography) |
+| Client display logic | Vitest | `table/model.ts` and `table/motionPlan.ts` (seat rotation, tags, bet-size shortcuts, keyboard shortcuts, result wording, final standings, animation choreography) |
 | Manual | 3 browser profiles on a laptop/desktop screen (the app is desktop-only); `/dev/table?state=...` renders the in-game screens from sample data (turn, flop, showdown, waiting, busted, busted-off, ending, finished, finished-guest, bots, bots-waiting, bots-finished) | Feel, layout, timing |
 
 **CI gate** (local script until CI exists): `npm run typecheck && npm run lint && npm test && npm run build`.

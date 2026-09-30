@@ -1,124 +1,63 @@
-import {
-  BOT_LEVELS,
-  MAX_SEATS,
-  MIN_PLAYERS_TO_START,
-  changedSettingKeys,
-  type BotLevel,
-  type RoomSettings,
-  type SeatView,
-  type TableSnapshot,
-} from '@poker/shared';
-import { useEffect, useRef, useState } from 'react';
+import { MAX_SEATS, MIN_PLAYERS_TO_START, type SeatView, type TableSnapshot } from '@poker/shared';
+import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { useNavigate } from 'react-router';
-import { Button } from '../components/Button';
-import { Brand, Card, Notice, Page } from '../components/Layout';
-import { SettingsForm } from '../components/SettingsForm';
+import { SettingsEditor } from '../components/SettingsEditor';
+import { SettingsFacts } from '../components/SettingsFacts';
+import { useChangedSettings } from '../components/useChangedSettings';
+import { SuitSymbols } from '../components/table/PlayingCard';
+import { PokerTable } from '../components/table/PokerTable';
+import { BarMeta, RoomBar } from '../components/table/RoomBar';
+import { cx } from '../lib/cx';
 import { request } from '../socket/connection';
-import { setState, useAppState } from '../state/store';
-import { BOT_LEVEL_TEXT } from '../table/model';
+import { setState } from '../state/store';
+import { notifyError } from '../state/toasts';
+import room from '../styles/cardRoom.module.css';
+import { buildTableModel } from '../table/model';
 import styles from './Lobby.module.css';
 
 const isSeat = (s: SeatView | null): s is SeatView => s !== null;
 
-function initial(name: string): string {
-  return ([...name][0] ?? '?').toLocaleUpperCase();
-}
-
-/** Shown to everyone for a few seconds after the host changes the settings. */
-interface SettingsNote {
-  text: string;
-  changed: (keyof RoomSettings)[];
-}
-
-const SETTINGS_NOTE_MS = 8000;
-
-export function Lobby({ snapshot }: { snapshot: TableSnapshot }) {
-  const { room } = snapshot;
+/**
+ * Before the first hand (room status `waiting`): everyone already sits at the table, so the lobby
+ * is the table itself with nothing dealt. The host fills open seats with bots from the seats
+ * themselves; the side column carries the invite, the settings and the Start button.
+ */
+export function Lobby({ snapshot, startEditing = false }: { snapshot: TableSnapshot; startEditing?: boolean }) {
+  const { room: roomView } = snapshot;
   const navigate = useNavigate();
-  const connected = useAppState((s) => s.connection === 'connected');
-  const [busy, setBusy] = useState<'start' | 'leave' | 'bot' | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [editing, setEditing] = useState(false);
+  const model = useMemo(() => buildTableModel(snapshot), [snapshot]);
+  const [editing, setEditing] = useState(startEditing);
+  const [leaving, setLeaving] = useState(false);
   const editButton = useRef<HTMLButtonElement>(null);
 
-  const seated = room.seats.filter(isSeat);
-  const isHost = room.hostId === room.youId;
-  const hostName = seated.find((s) => s.playerId === room.hostId)?.displayName ?? 'the host';
-  const enoughPlayers = seated.length >= MIN_PLAYERS_TO_START;
-  const { settings } = room;
-  const canEdit = isHost && room.status !== 'playing';
-  const showEditor = editing && canEdit;
+  const seated = roomView.seats.filter(isSeat);
+  const isHost = roomView.hostId === roomView.youId;
+  const hostName = seated.find((s) => s.playerId === roomView.hostId)?.displayName ?? 'the host';
+  const enough = seated.length >= MIN_PLAYERS_TO_START;
+  const showEditor = editing && isHost;
 
-  // Detect setting changes between snapshots (adjusting state during render, not in an effect).
-  const [seenSettings, setSeenSettings] = useState(settings);
-  const [settingsNote, setSettingsNote] = useState<SettingsNote | null>(null);
-  const changed = changedSettingKeys(seenSettings, settings);
-  if (changed.length > 0) {
-    setSeenSettings(settings);
-    const stacksReset = changed.includes('startingStack') && room.status === 'waiting';
-    setSettingsNote({
-      changed,
-      text:
-        (isHost ? 'Settings saved.' : `${hostName} changed the settings.`) +
-        (stacksReset ? ` Everyone now starts with ${settings.startingStack.toLocaleString()} chips.` : ''),
-    });
-  }
-
-  useEffect(() => {
-    if (!settingsNote) return;
-    const timer = window.setTimeout(() => setSettingsNote(null), SETTINGS_NOTE_MS);
-    return () => window.clearTimeout(timer);
-  }, [settingsNote]);
-
-  // Return focus to the Edit button when the editor closes.
+  // Return focus to Edit settings when the editor closes.
   const editorWasOpen = useRef(false);
   useEffect(() => {
     if (editorWasOpen.current && !showEditor) editButton.current?.focus();
     editorWasOpen.current = showEditor;
   }, [showEditor]);
 
-  const highlight = (...keys: (keyof RoomSettings)[]) =>
-    settingsNote?.changed.some((k) => keys.includes(k)) ? true : undefined;
-
-  async function saveSettings(next: RoomSettings): Promise<string | null> {
-    const res = await request('room:updateSettings', { settings: next });
-    if (!res.ok) return res.message;
-    setEditing(false);
-    return null;
-  }
-
-  async function start() {
-    setBusy('start');
-    setError(null);
-    const res = await request('game:start', {});
-    setBusy(null);
-    if (!res.ok) setError(res.message);
-  }
-
-  /** Host only (§3.7): seat a bot in an open seat, or take one away. The next snapshot shows it. */
-  async function addBot(seat: number, level: BotLevel) {
-    setBusy('bot');
-    setError(null);
-    const res = await request('room:addBot', { level, seat });
-    setBusy(null);
-    if (!res.ok) setError(res.message);
-  }
-
-  async function removeBot(seat: number) {
-    setBusy('bot');
-    setError(null);
-    const res = await request('room:removeBot', { seat });
-    setBusy(null);
-    if (!res.ok) setError(res.message);
-  }
+  const plate = {
+    title: 'Waiting to start',
+    text: isHost
+      ? enough
+        ? 'Start the game when everyone is seated.'
+        : 'Invite a friend, or press an open seat to add a bot.'
+      : `${hostName} starts the game when everyone is here.`,
+  };
 
   async function leave() {
-    setBusy('leave');
-    setError(null);
+    setLeaving(true);
     const res = await request('room:leave', {});
-    setBusy(null);
+    setLeaving(false);
     if (!res.ok && res.error !== 'NOT_IN_ROOM') {
-      setError(res.message);
+      notifyError(res.message);
       return;
     }
     navigate('/');
@@ -126,159 +65,53 @@ export function Lobby({ snapshot }: { snapshot: TableSnapshot }) {
   }
 
   return (
-    <Page>
-      <Brand />
-
-      <Card>
-        <div className={styles.header}>
-          <div>
-            <p className={styles.eyebrow}>Room code</p>
-            <p className={styles.code} data-testid="room-code">
-              {room.code}
-            </p>
-          </div>
-          <InviteLink code={room.code} />
-        </div>
-
-        {showEditor ? (
-          <div className={styles.editor}>
-            <div>
-              <h2 className={styles.editorTitle}>Room settings</h2>
-              {room.status === 'waiting' && (
-                <p className={styles.editorHint}>Changing the starting chips resets everyone's chips to the new amount.</p>
-              )}
-            </div>
-            <SettingsForm
-              initial={settings}
-              submitLabel="Save settings"
-              submitDisabled={!connected}
-              onSubmit={saveSettings}
-              autoFocus
-              footer={
-                <Button variant="ghost" fullWidth onClick={() => setEditing(false)}>
-                  Cancel
-                </Button>
-              }
+    <div className={cx(room.world, room.withSide)}>
+      <SuitSymbols />
+      <RoomBar
+        code={roomView.code}
+        meta={<BarMeta label="Players" value={`${seated.length} / ${MAX_SEATS}`} testId="player-count" />}
+        actions={
+          <button type="button" className={room.ghost} onClick={() => void leave()} disabled={leaving}>
+            Leave room
+          </button>
+        }
+      />
+      <main className={room.sideStage}>
+        <section className={room.tableArea} aria-label="The table">
+          <PokerTable snapshot={snapshot} model={model} result={null} clock={null} plate={plate} />
+        </section>
+        <aside className={cx(room.side, !showEditor && styles.side)}>
+          {showEditor ? (
+            <SettingsEditor
+              settings={roomView.settings}
+              title="Room settings"
+              hint="Changing the starting chips resets everyone's chips to the new amount."
+              onDone={() => setEditing(false)}
             />
-          </div>
-        ) : (
-          <ul className={styles.settings} aria-label="Room settings">
-            <li data-changed={highlight('smallBlind', 'bigBlind')}>
-              Blinds {settings.smallBlind.toLocaleString()}/{settings.bigBlind.toLocaleString()}
-            </li>
-            <li data-changed={highlight('startingStack')}>{settings.startingStack.toLocaleString()} chips</li>
-            <li data-changed={highlight('turnSeconds')}>{settings.turnSeconds}s per turn</li>
-            <li data-changed={highlight('rebuys')}>Rebuys {settings.rebuys ? 'on' : 'off'}</li>
-            {canEdit && (
-              <li className={styles.editItem}>
-                <button ref={editButton} type="button" className={styles.editButton} onClick={() => setEditing(true)}>
-                  Edit settings
-                </button>
-              </li>
-            )}
-          </ul>
-        )}
-
-        {settingsNote && !showEditor && <Notice>{settingsNote.text}</Notice>}
-      </Card>
-
-      <Card>
-        <div className={styles.playersHeader}>
-          <h2 className={styles.playersTitle}>Players</h2>
-          <span className={styles.count} data-testid="player-count">
-            {seated.length}/{MAX_SEATS}
-          </span>
-        </div>
-
-        <ol className={styles.seats}>
-          {room.seats.map((seat, index) =>
-            seat ? (
-              <li key={seat.playerId} className={styles.seat} data-connected={seat.connected}>
-                <span className={styles.avatar} aria-hidden="true">
-                  {initial(seat.displayName)}
-                </span>
-                <span className={styles.name}>{seat.displayName}</span>
-                <span className={styles.badges}>
-                  {seat.playerId === room.hostId && <span className={styles.hostBadge}>Host</span>}
-                  {seat.playerId === room.youId && <span className={styles.badge}>You</span>}
-                  {seat.botLevel && <span className={styles.botBadge}>{BOT_LEVEL_TEXT[seat.botLevel].name} bot</span>}
-                  {seat.waitingForNextHand && <span className={styles.badge}>Next hand</span>}
-                  {!seat.connected && <span className={styles.offline}>Reconnecting…</span>}
-                </span>
-                {isHost && seat.isBot && (
-                  <button
-                    type="button"
-                    className={styles.rowButton}
-                    disabled={busy !== null}
-                    onClick={() => void removeBot(index)}
-                    aria-label={`Remove ${seat.displayName}`}
-                  >
-                    Remove
-                  </button>
-                )}
-              </li>
-            ) : (
-              <li key={`open-${index}`} className={styles.openSeat}>
-                <span className={styles.name}>Open seat</span>
-                {isHost && (
-                  <span className={styles.addBot} role="group" aria-label={`Add a bot to seat ${index + 1}`}>
-                    <span>Add a bot</span>
-                    {BOT_LEVELS.map((level) => (
-                      <button
-                        key={level}
-                        type="button"
-                        className={styles.rowButton}
-                        disabled={busy !== null}
-                        onClick={() => void addBot(index, level)}
-                        title={BOT_LEVEL_TEXT[level].blurb}
-                      >
-                        {BOT_LEVEL_TEXT[level].name}
-                      </button>
-                    ))}
-                  </span>
-                )}
-              </li>
-            ),
+          ) : (
+            <>
+              <Invite code={roomView.code} />
+              <StartPanel
+                snapshot={snapshot}
+                hostName={hostName}
+                enough={enough}
+                onEdit={() => setEditing(true)}
+                editButton={editButton}
+              />
+            </>
           )}
-        </ol>
-      </Card>
-
-      {error && <Notice tone="error">{error}</Notice>}
-
-      <div className={styles.actions}>
-        {isHost ? (
-          <>
-            <Button
-              fullWidth
-              busy={busy === 'start'}
-              disabled={!enoughPlayers || busy !== null || showEditor}
-              onClick={() => void start()}
-            >
-              Start game
-            </Button>
-            {showEditor ? (
-              <p className={styles.hint}>Save or cancel your settings changes to start.</p>
-            ) : (
-              !enoughPlayers && <p className={styles.hint}>Invite a friend or add a bot to start.</p>
-            )}
-          </>
-        ) : (
-          <p className={styles.waiting}>Waiting for {hostName} to start the game…</p>
-        )}
-        <Button variant="ghost" fullWidth busy={busy === 'leave'} disabled={busy !== null} onClick={() => void leave()}>
-          Leave room
-        </Button>
-      </div>
-    </Page>
+        </aside>
+      </main>
+    </div>
   );
 }
 
-function InviteLink({ code }: { code: string }) {
+function Invite({ code }: { code: string }) {
   const [copied, setCopied] = useState<'yes' | 'failed' | null>(null);
   const link = `${window.location.origin}/room/${code}`;
 
   useEffect(() => {
-    if (!copied) return;
+    if (copied !== 'yes') return;
     const timer = window.setTimeout(() => setCopied(null), 2000);
     return () => window.clearTimeout(timer);
   }, [copied]);
@@ -294,10 +127,17 @@ function InviteLink({ code }: { code: string }) {
   }
 
   return (
-    <div className={styles.invite}>
-      <Button variant="secondary" onClick={() => void copy()}>
+    <section className={styles.invite} aria-labelledby="invite-title">
+      <h2 id="invite-title" className={styles.title}>
+        Invite your friends
+      </h2>
+      <p className={styles.code} data-testid="room-code" aria-label={`Room code ${code.split('').join(' ')}`}>
+        {code}
+      </p>
+      <p className={styles.hint}>They enter the code on the home screen, or open the link.</p>
+      <button type="button" className={cx(room.act, styles.copy)} onClick={() => void copy()}>
         {copied === 'yes' ? 'Link copied' : 'Copy invite link'}
-      </Button>
+      </button>
       {copied === 'failed' && (
         <input
           className={styles.linkFallback}
@@ -308,6 +148,57 @@ function InviteLink({ code }: { code: string }) {
           autoFocus
         />
       )}
-    </div>
+    </section>
+  );
+}
+
+interface StartProps {
+  snapshot: TableSnapshot;
+  hostName: string;
+  enough: boolean;
+  onEdit: () => void;
+  editButton: RefObject<HTMLButtonElement | null>;
+}
+
+function StartPanel({ snapshot, hostName, enough, onEdit, editButton }: StartProps) {
+  const { settings, hostId, youId } = snapshot.room;
+  const isHost = hostId === youId;
+  const changed = useChangedSettings(settings);
+  const [busy, setBusy] = useState(false);
+
+  async function start() {
+    setBusy(true);
+    const res = await request('game:start', {});
+    // On success the room is playing and the table screen takes over.
+    if (!res.ok) {
+      setBusy(false);
+      notifyError(res.message);
+    }
+  }
+
+  return (
+    <section className={cx(room.sidePanel, styles.start)} aria-label="Start the game">
+      <SettingsFacts settings={settings} changed={changed} lead="Everyone starts with" />
+      {changed.length > 0 && !isHost && (
+        <p className={styles.note} role="status">
+          {hostName} changed the settings.
+        </p>
+      )}
+      {isHost ? (
+        <>
+          <div className={styles.hostRow}>
+            <button type="button" className={cx(room.act, room.primary)} disabled={!enough || busy} onClick={() => void start()}>
+              Start game
+            </button>
+            <button ref={editButton} type="button" className={room.ghost} onClick={onEdit} disabled={busy}>
+              Edit settings
+            </button>
+          </div>
+          {!enough && <p className={styles.hint}>A game needs two players. Invite a friend or add a bot.</p>}
+        </>
+      ) : (
+        <p className={styles.waitingFor}>Waiting for {hostName} to start the game.</p>
+      )}
+    </section>
   );
 }

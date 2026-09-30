@@ -24,9 +24,9 @@ export function RoomBar({ code, meta, actions }: Props) {
   );
 }
 
-export function BarMeta({ label, value }: { label: string; value?: ReactNode }) {
+export function BarMeta({ label, value, testId }: { label: string; value?: ReactNode; testId?: string }) {
   return (
-    <span className={styles.meta}>
+    <span className={styles.meta} data-testid={testId}>
       {label}
       {value !== undefined && <> <b>{value}</b></>}
     </span>

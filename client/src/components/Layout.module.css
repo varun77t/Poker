@@ -1,100 +1,57 @@
-.page {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-  width: 100%;
-  max-width: 440px;
+.shell {
+  display: grid;
+  grid-template-rows: 52px 1fr;
   min-height: 100dvh;
-  margin: 0 auto;
-  padding: var(--space-6) var(--space-4) var(--space-8);
 }
 
-.wide {
-  max-width: 560px;
-}
-
-.card {
+.bar {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  padding: var(--space-6) var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-}
-
-@media (min-width: 480px) {
-  .card {
-    padding: var(--space-6);
-  }
-}
-
-.brandLarge {
-  margin-top: 8vh;
-  text-align: center;
-}
-
-.markLarge {
-  display: inline-grid;
-  place-items: center;
-  width: 56px;
-  height: 56px;
-  margin-bottom: var(--space-4);
-  border-radius: var(--radius-md);
-  background: var(--color-felt);
-  color: var(--color-card-face);
-  font-size: 32px;
-  line-height: 1;
-}
-
-.title {
-  margin: 0;
-  font-size: clamp(1.75rem, 6vw, 2.25rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.tagline {
-  margin: var(--space-2) 0 0;
-  color: var(--color-text-muted);
-}
-
-.brandSmall {
-  display: inline-flex;
+  gap: 20px;
   align-items: center;
-  gap: var(--space-2);
-  align-self: flex-start;
-  color: var(--color-text);
-  font-weight: 700;
-  text-decoration: none;
+  padding: 0 24px;
 }
 
-.markSmall {
-  display: inline-grid;
+.mark {
+  font: 19px / 1 var(--font-display);
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.spacer {
+  flex: 1;
+}
+
+/* The screen's one plate sits a little above the middle, where the table's felt would be. */
+.main {
+  display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-sm);
-  background: var(--color-felt);
-  color: var(--color-card-face);
-  font-size: 16px;
-  line-height: 1;
+  padding: 24px 24px 76px;
+}
+
+.panel {
+  padding: 28px;
+  border: 1px solid var(--plaque-edge);
+  border-radius: 16px;
+  background: var(--panel);
+  box-shadow: var(--shadow-panel);
 }
 
 .noticeInfo,
 .noticeError {
-  margin: 0;
-  padding: var(--space-3);
-  border-radius: var(--radius-sm);
-  font-size: 0.9375rem;
+  padding: 10px 14px;
+  border: 1px solid var(--plaque-edge);
+  border-radius: 10px;
+  color: var(--ink-muted);
 }
 
-.noticeInfo {
-  background: var(--color-surface-raised);
-  color: var(--color-text-muted);
+.noticeInfo b,
+.noticeInfo strong {
+  color: var(--ink);
+  font-weight: 600;
 }
 
 .noticeError {
-  background: var(--color-danger-bg);
-  color: var(--color-danger);
+  border-color: color-mix(in srgb, var(--danger) 55%, var(--plaque-edge));
+  color: var(--ink);
 }

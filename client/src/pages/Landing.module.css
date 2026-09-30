@@ -1,36 +1,64 @@
-.divider {
-  display: flex;
+/* The home screen: who you are and where to sit on the left, a corner of the table on the right. */
+.page {
+  display: grid;
+  grid-template-columns: clamp(380px, 29vw, 440px) minmax(0, 1fr);
+  gap: clamp(40px, 5vw, 96px);
   align-items: center;
-  gap: var(--space-3);
-  color: var(--color-text-faint);
-  font-size: 0.875rem;
+  min-height: 100dvh;
+  padding: 40px clamp(40px, 5vw, 96px) 64px clamp(40px, 7vw, 160px);
+  overflow: hidden;
 }
 
-.divider::before,
-.divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--color-border);
-}
-
-.joinRow {
+.intro {
   display: flex;
-  align-items: flex-start;
-  gap: var(--space-2);
+  flex-direction: column;
+  gap: 16px;
 }
 
-.codeField {
-  flex: 1;
+.title {
+  font: 60px / 1.05 var(--font-display);
+  letter-spacing: -0.01em;
 }
 
+.lede {
+  max-width: 34ch;
+  margin-bottom: 12px;
+  color: var(--ink-muted);
+  font-size: 20px;
+  line-height: 1.4;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.start {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.join {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  margin-top: 8px;
+  padding-top: 22px;
+  border-top: 1px solid var(--plaque-edge);
+}
+
+/* Level with the input, under the field's label. */
 .joinButton {
-  /* Line up with the input, below the field label. */
-  margin-top: calc(0.875rem * 1.5 + var(--space-2));
+  align-self: start;
+  margin-top: calc(1.35em + 6px);
+  padding: 0 28px;
 }
 
-.inlineCode {
-  font-family: var(--font-mono);
-  letter-spacing: 0.1em;
-  color: var(--color-text);
+/* The whole table fits the column: the scene sizes itself from the column's width (a size container). */
+.scene {
+  display: grid;
+  align-items: center;
+  container-type: inline-size;
 }

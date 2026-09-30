@@ -1,9 +1,15 @@
 /* The table screen. The card-room tokens and shared controls live in styles/cardRoom.module.css. */
 .page {
-  /* The table scales with the window: width-bound on narrow screens, height-bound on short ones. */
-  --table-w: min(calc(100vw - 360px), calc((100dvh - 256px) * 2.05), 1320px);
-  --table-h: calc(var(--table-w) / 2.05);
-  --card-w: calc(var(--table-w) * 0.066);
+  /*
+   * The table fills the stage. Its height is what the window leaves under the bar and above your own
+   * seat; its width stretches the oval sideways (up to 2.6 : 1) into what the side seats leave, so a
+   * short laptop window has no empty bands left and right of the table. It never gets taller than
+   * 2.05 : 1 allows, and cards size from whichever dimension is tighter.
+   */
+  --table-h-max: min(calc(100dvh - 248px), 600px);
+  --table-w: min(calc(100vw - 400px), calc(var(--table-h-max) * 2.6), 1480px);
+  --table-h: min(var(--table-h-max), calc(var(--table-w) / 2.05));
+  --card-w: min(calc(var(--table-w) * 0.066), calc(var(--table-h) * 0.15));
 }
 
 .stage {

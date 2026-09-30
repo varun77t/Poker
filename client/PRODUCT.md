@@ -32,7 +32,7 @@ A private table for one group of friends, not a poker site: no accounts, no lobb
 - Direction confirmed with the owner (after reviewing mock tables): a real card-room table with warmth and presence, taken from a casino table look but with glow and neon removed, combined with lively, purposeful motion (dealt cards, chips moving to the pot and to the winner). Card dealing should be quick and calm, not spinning or slow. Chips are classic flat poker chips with edge stripes. Unclear state and cramped, stat-heavy layouts are explicitly unwanted.
 
 ## Evidence on Hand
-No logo, photography or brand artwork exists yet; the current home and lobby screens use an early placeholder style that will be restyled to match the table later (Phase 8). There are no testimonials, statistics or customers, and none should be invented.
+No logo, photography or brand artwork exists yet. The owner chose the colours, Dark Green #132A13 and Cornsilk #FAF4D3, and the fonts, Josefin Sans and Nunito Sans, used across every screen (Phase 8). There are no testimonials, statistics or customers, and none should be invented.
 
 ## Product Principles
 1. The state of the hand is always legible at a glance: whose turn, what it costs, what is in the pot, who won.

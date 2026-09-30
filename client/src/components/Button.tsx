@@ -10,7 +10,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   busy?: boolean;
 }
 
-export function Button({ variant = 'primary', fullWidth, busy, disabled, className, children, ...rest }: ButtonProps) {
+export function Button({ variant = 'secondary', fullWidth, busy, disabled, className, children, ...rest }: ButtonProps) {
   const classes = [styles.button, styles[variant], fullWidth && styles.full, className].filter(Boolean).join(' ');
   return (
     <button type="button" className={classes} disabled={disabled || busy} aria-busy={busy || undefined} {...rest}>

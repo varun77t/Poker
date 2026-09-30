@@ -1,33 +1,86 @@
-.eyebrow {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: 0.875rem;
+.panel {
+  width: 440px;
 }
 
 .heading {
-  margin: 0;
-  font-size: 1.5rem;
-  letter-spacing: -0.01em;
+  font: 30px / 1.15 var(--font-display);
 }
 
+/* Codes are set like the room code on the bar: tracked capitals in the working face. */
 .code {
-  font-family: var(--font-mono);
-  letter-spacing: 0.12em;
+  font: 700 0.9em / 1 var(--font-ui);
+  letter-spacing: 0.14em;
+}
+
+.sub {
+  margin: 8px 0 22px;
+  color: var(--ink-muted);
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: 16px;
 }
 
-.joining {
-  margin: 0;
-  color: var(--color-text-muted);
-  text-align: center;
+.problemActions {
+  display: flex;
+  gap: 20px;
+  align-items: center;
 }
 
 .homeLink {
-  align-self: center;
-  color: var(--color-text-muted);
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+
+/* Joining: three backs dealt face down while the seat is found. */
+.joining {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+
+.joining .sub {
+  margin-bottom: 0;
+}
+
+.backs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 26px;
+}
+
+.back {
+  width: 64px;
+  animation: settle 1600ms var(--ease-out) infinite both;
+}
+
+.back:nth-child(2) {
+  animation-delay: 140ms;
+}
+
+.back:nth-child(3) {
+  animation-delay: 280ms;
+}
+
+@keyframes settle {
+  0% {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+  30%,
+  80% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .back {
+    animation: none;
+  }
 }

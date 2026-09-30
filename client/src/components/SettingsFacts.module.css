@@ -1,0 +1,20 @@
+.facts {
+  color: var(--ink-muted);
+}
+
+.facts b {
+  padding: 0 3px;
+  margin: 0 -3px;
+  border-radius: 4px;
+  color: var(--ink);
+  font-weight: 600;
+  transition:
+    background-color 300ms,
+    color 300ms;
+}
+
+/* Just changed: marked like a seat tag (paper, a status), never the lit accent or the rail trim. */
+.facts b[data-changed] {
+  background: var(--paper);
+  color: var(--room);
+}

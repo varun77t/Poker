@@ -1,16 +1,18 @@
+.panel {
+  width: 480px;
+}
+
 .heading {
-  margin: 0;
-  font-size: 1.5rem;
-  letter-spacing: -0.01em;
+  font: 30px / 1.15 var(--font-display);
 }
 
 .sub {
-  margin: var(--space-1) 0 0;
-  color: var(--color-text-muted);
+  margin: 6px 0 22px;
+  color: var(--ink-muted);
 }
 
 .back {
   align-self: center;
-  color: var(--color-text-muted);
-  font-size: 0.9375rem;
+  color: var(--ink-muted);
+  font-weight: 600;
 }

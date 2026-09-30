@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { game, player, seat, snapshot } from './fixtures';
 import type { FinalResult } from '@poker/shared';
-import { buildStandings, buildTableModel, chipColors, formatNet, potTotal, sizingPresets, slotOf, summarizeGame, summarizeResult, waitingHint, hintNotes, HAND_LADDER, type SeatModel } from './model';
+import { buildStandings, buildTableModel, chipColors, formatNet, potTotal, sizingPresets, slotOf, summarizeGame, summarizeResult, waitingHint, hintNotes, HAND_LADDER, shortcutAction, type SeatModel } from './model';
 
 const seated = (m: ReturnType<typeof buildTableModel>) => m.seats.filter((s): s is SeatModel => !('empty' in s));
 
@@ -220,5 +220,24 @@ describe('hand hint text', () => {
 
   it('ranks all nine kinds of hand, best first', () => {
     expect(HAND_LADDER.map((r) => r.category)).toEqual(['straightFlush', 'quads', 'fullHouse', 'flush', 'straight', 'trips', 'twoPair', 'pair', 'highCard']);
+  });
+});
+
+describe('keyboard shortcuts', () => {
+  const legal = { canFold: true, canCheck: false, canCall: true, callAmount: 20, canBet: false, canRaise: true, minTo: 40, maxTo: 990 };
+
+  it('maps F, C and R to the legal fold, check-or-call and bet-or-raise', () => {
+    expect(shortcutAction('f', legal)).toBe('fold');
+    expect(shortcutAction('C', legal)).toBe('call');
+    expect(shortcutAction('r', legal)).toBe('raise');
+    expect(shortcutAction('c', { ...legal, canCheck: true, canCall: false, callAmount: 0 })).toBe('check');
+    expect(shortcutAction('R', { ...legal, canRaise: false, canBet: true })).toBe('bet');
+  });
+
+  it('ignores other keys and actions that are not legal now', () => {
+    expect(shortcutAction('x', legal)).toBeNull();
+    expect(shortcutAction('Enter', legal)).toBeNull();
+    expect(shortcutAction('r', { ...legal, canRaise: false })).toBeNull();
+    expect(shortcutAction('c', { ...legal, canCall: false })).toBeNull();
   });
 });

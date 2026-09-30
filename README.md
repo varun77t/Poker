@@ -21,6 +21,8 @@ Open http://localhost:5173. The Vite dev server proxies `/api`, `/health` and `/
 `PORT` always means "the port you open in the browser": Vite's port in development, the Node server's port in production. See `.env.example`.
 
 ### Looking at the table without a game (development only)
+Browser tests: `npm run e2e` builds the app and plays real games in Chromium (three players, and a solo game against bots). The first run needs `npx playwright install chromium`.
+
 `http://localhost:5173/dev/table?state=turn` renders the real table from sample data. Other states: `flop` (side pot, all-in, away and left seats), `showdown`, `waiting`, `busted` (rebuy prompt), `busted-off`, `ending` (host ended the game), `finished` and `finished-guest` (the game-over screen; add `&edit=1` for the settings editor), `bots` (two bots at the table, open seats for more), `bots-waiting` (only bots have chips, so the table waits), `bots-finished`, `draw` / `board` (the hand hint with two draws, and with a hand the board makes), and `lobby`, `lobby-guest` and `lobby-alone` (before the first hand; `&edit=1` opens the settings editor). The other screens are at `?screen=create`, `invite`, `joining`, `problem` and `toast` (a toast with the reconnecting banner). The approved design prototype is `client/prototypes/table-prototype.html`.
 
 ### Testing several players in one browser (development only)

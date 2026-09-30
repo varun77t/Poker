@@ -70,6 +70,7 @@ export function createAppServer(options: AppServerOptions): AppServer {
   const limiter = (l: { count: number; windowMs: number }) => new RateLimiter(clock, l.count, l.windowMs);
   const eventLimiter = limiter(limits.socketEvents);
   const joinLimiter = limiter(limits.roomJoins);
+  const createLimiter = limiter(limits.roomCreates);
   const sessionLimiter = limiter(limits.sessionCreates);
 
   // HTTP
@@ -117,14 +118,14 @@ export function createAppServer(options: AppServerOptions): AppServer {
     connections,
     broadcaster,
     guard,
-    eventLimiter,
     joinLimiter,
+    createLimiter,
   });
 
   // Housekeeping: expire idle sessions (dropping any seat they still hold) and prune idle rate-limit buckets.
   const stopSweeper = scheduleEvery(clock, timings.sessionSweepIntervalMs, () => {
     for (const playerId of sessions.sweep((id) => connections.has(id))) rooms.removePlayer(playerId);
-    for (const l of [eventLimiter, joinLimiter, sessionLimiter]) l.sweep();
+    for (const l of [eventLimiter, joinLimiter, createLimiter, sessionLimiter]) l.sweep();
   });
 
   const close = () =>

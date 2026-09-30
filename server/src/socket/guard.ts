@@ -32,7 +32,8 @@ export function createGuard(deps: GuardDeps) {
       handler: (ctx: HandlerContext, payload: z.output<S>) => EventAckData<E>,
     ): void {
       const listener = (payload: unknown, ack: unknown): void => {
-        if (!deps.limiter.take(socket.id)) {
+        // Keyed by player, not by connection: reconnecting must not buy a fresh allowance.
+        if (!deps.limiter.take(socket.data.playerId)) {
           strikes += 1;
           if (strikes >= deps.maxStrikes) {
             deps.logger.warn(`Disconnecting ${socket.data.playerId}: sustained rate-limit violations`);

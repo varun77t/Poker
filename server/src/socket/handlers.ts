@@ -24,11 +24,12 @@ export interface HandlerDeps {
   broadcaster: Broadcaster;
   guard: ReturnType<typeof createGuard>;
   joinLimiter: RateLimiter;
+  createLimiter: RateLimiter;
 }
 
 /** Thin mapping from events to domain calls. No business rules here. */
 export function registerHandlers(socket: IoSocket, deps: HandlerDeps): void {
-  const { rooms, sessions, broadcaster, joinLimiter, clock } = deps;
+  const { rooms, sessions, broadcaster, joinLimiter, createLimiter, clock } = deps;
   const on = deps.guard(socket);
 
   const playerRef = (playerId: PlayerId): PlayerRef => {
@@ -46,6 +47,9 @@ export function registerHandlers(socket: IoSocket, deps: HandlerDeps): void {
   });
 
   on('room:create', CreateRoomPayloadSchema, ({ playerId }, { settings, bots }) => {
+    if (!createLimiter.take(playerId)) {
+      throw new DomainError('RATE_LIMITED', 'Too many new rooms. Wait a minute and try again.');
+    }
     const room = rooms.create(playerRef(playerId), settings, bots);
     return { code: room.code };
   });

@@ -396,6 +396,12 @@ play several hands, disconnect/reconnect one player. Add one solo E2E: play agai
 Run unit, property, integration, E2E, typecheck, and build. Produce /docs/security-report.md.
 ```
 
+**Phase 9 decisions (made during the build):**
+- Every attack in the prompt has a test in `server/test/security.test.ts` (S1 to S17); the results are in `docs/security-report.md`.
+- Two fixes: the event rate limit is now kept per player instead of per connection (reconnecting used to reset it), and `room:create` is limited to 5 a minute per player (each create could leave an empty room behind for 10 minutes).
+- E2E runs against the production build (`npm run e2e`, port 4173): three browser contexts (create, invite-link join, several hands, one player drops and comes back) and a solo game against bots that uses the C shortcut and ends the game. The phone check is dropped (desktop only).
+- Phases 11 (persistence) and 12 (Google sign-in) are dropped by the owner; the code is pushed to GitHub after this phase.
+
 ---
 
 # PHASE 10 — Production Deployment
@@ -413,7 +419,7 @@ Note hosting caveats (free tiers that sleep will drop live games).
 
 ---
 
-# PHASE 11 (Optional) — Persistence
+# PHASE 11 (Optional) — Persistence (dropped by the owner)
 
 ```text
 Read /CLAUDE.md. Add PostgreSQL (Neon) + Drizzle.
@@ -424,7 +430,7 @@ DB failures must not break live gameplay (log and continue). Migrations + update
 
 ---
 
-# PHASE 12 (Optional) — Google Authentication
+# PHASE 12 (Optional) — Google Authentication (dropped by the owner)
 
 ```text
 Read /CLAUDE.md. Add Google sign-in as an alternative way to obtain a session token.

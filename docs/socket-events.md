@@ -37,7 +37,7 @@ This is the live reference for everything the client and server exchange. The ty
 | Code | Meaning |
 |---|---|
 | `INVALID_PAYLOAD` | Payload failed schema validation (wrong type, unknown key, out-of-range value) |
-| `RATE_LIMITED` | Too many events (per socket) or join attempts (per player) |
+| `RATE_LIMITED` | Too many events, join attempts or new rooms (all per player) |
 | `ROOM_NOT_FOUND` | No live room with that code (also returned for malformed codes) |
 | `ROOM_FULL` | All 5 seats are taken |
 | `NOT_IN_ROOM` | The action needs a seat and the player has none |
@@ -263,8 +263,9 @@ Players waiting for the next hand also get the `game` (without anyone's hole car
 
 | Limit | Value |
 |---|---|
-| Socket events | 20 per 5 s per socket (token bucket). After 50 consecutive rejected events the socket is disconnected. |
+| Socket events | 20 per 5 s per player (token bucket, kept across reconnects). After 50 consecutive rejected events the socket is disconnected. |
 | `room:join` | 10 per minute per player |
+| `room:create` | 5 per minute per player |
 | `POST /api/session` | 10 per minute per IP |
 | Socket payload size | 10 KB (`maxHttpBufferSize`) |
 | HTTP JSON body | 10 KB |

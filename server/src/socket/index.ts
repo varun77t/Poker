@@ -1,5 +1,4 @@
 import type { Logger } from '../logger';
-import type { RateLimiter } from '../rateLimiter';
 import type { RoomManager } from '../rooms/roomManager';
 import type { SessionStore } from '../sessions/sessionStore';
 import type { Broadcaster } from './broadcaster';
@@ -16,11 +15,10 @@ export interface SocketDeps extends HandlerDeps {
   connections: Connections;
   broadcaster: Broadcaster;
   guard: ReturnType<typeof createGuard>;
-  eventLimiter: RateLimiter;
 }
 
 export function registerSocketHandlers(io: IoServer, deps: SocketDeps): void {
-  const { logger, sessions, rooms, connections, broadcaster, eventLimiter } = deps;
+  const { logger, sessions, rooms, connections, broadcaster } = deps;
 
   io.use(authMiddleware(sessions));
 
@@ -44,7 +42,6 @@ export function registerSocketHandlers(io: IoServer, deps: SocketDeps): void {
 
     socket.on('disconnect', (reason) => {
       logger.debug(`player ${playerId} disconnected (${socket.id}: ${reason})`);
-      eventLimiter.delete(socket.id);
       sessions.touch(playerId);
       if (connections.release(playerId, socket)) rooms.setConnected(playerId, false);
     });

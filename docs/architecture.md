@@ -105,7 +105,8 @@ poker/
 │       │                        two snapshots), useTableMotion.ts (plays it); unit tested with Vitest
 │       └── styles/              global.css (the design tokens on :root, Dark Green + Cornsilk);
 │                                cardRoom.module.css (the fixed table stage, side-column layout, shared controls)
-└── e2e/                         Playwright tests (Phase 9)
+└── e2e/                         Playwright tests (Phase 9): playwright.config.ts starts the production build on
+                                 port 4173; tests/friends.spec.ts (3 browsers), tests/solo.spec.ts (bots)
 ```
 
 **Dependency rule:**
@@ -422,8 +423,8 @@ interface GameView {
 ## 9. Validation & security pipeline
 Every client→server event passes through `guard()`:
 1. **Rate limit:**
-   - Token bucket per socket: 20 events per 5 s.
-   - `room:join`: 10 per minute per session.
+   - Token bucket per player (kept across reconnects): 20 events per 5 s.
+   - `room:join`: 10 per minute per player. `room:create`: 5 per minute per player.
    - Exceeding the limit returns `RATE_LIMITED`. Sustained abuse disconnects the socket.
 2. **Schema:** zod `.strict()` parse.
    - Integers only, `amount ≥ 0`, amounts capped at 1e9, room code capped at 6–10 characters.
@@ -546,7 +547,8 @@ Only results are written, and only at key moments: room created, hand finished, 
 | Room-level simulation | Vitest + fast-check | Random joins, leaves, disconnects, actions, rebuys, bots added and removed, host ends and restarts, with rebuys on and off: a zero-sum chip ledger (seated + departed players), finished results that sum to zero, no stuck table, no leaked cards |
 | Bots | Vitest + fast-check | `test/bots/`: every decision is legal (property), decisions depend only on what the bot may see, fast ranker = evaluator, Medium beats Easy and Pro beats Medium over seeded matches, Pro reads ranges (folds to a tight player's barrels, bluffs players who fold, not calling stations), < 50 ms per decision; room rules, pauses, rebuys and leaves with bots (`botTable.test.ts`), fallback on a failing strategy |
 | Socket integration | Vitest + in-process server + `socket.io-client` | Multi-client flows, all error codes, **no hole-card leakage in any emitted payload**, reconnect restores the view; 50 hands of one person against three bots (`botSync.test.ts`) |
-| E2E | Playwright (3 browser contexts) | Create → invite link join → play hands → disconnect/reconnect → finish |
+| Security | Vitest + socket.io-client | `server/test/security.test.ts`: one test per attack in `docs/security-report.md` |
+| E2E | Playwright (`npm run e2e`) | 3 browser contexts: create → invite link join → play hands → disconnect/reconnect; solo game against bots with the C key → end game |
 | Client display logic | Vitest | `table/model.ts` and `table/motionPlan.ts` (seat rotation, tags, bet-size shortcuts, keyboard shortcuts, result wording, final standings, animation choreography) |
 | Manual | 3 browser profiles on a laptop/desktop screen (the app is desktop-only); `/dev/table?state=...` renders the in-game screens from sample data (turn, flop, showdown, waiting, busted, busted-off, ending, finished, finished-guest, bots, bots-waiting, bots-finished) | Feel, layout, timing |
 

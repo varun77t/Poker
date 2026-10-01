@@ -16,6 +16,6 @@ services:
     envVars:
       # Render puts one proxy in front of the app; trust it so rate limits see each visitor's address.
       - key: TRUST_PROXY
-        value: "1"
+        value: "3"
       - key: LOG_LEVEL
         value: info

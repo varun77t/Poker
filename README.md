@@ -139,9 +139,11 @@ All tabs normally share one identity (a second tab takes over the first). To pla
 | `npm run build` | Bundle the server (tsup) and build the client (Vite) |
 | `npm start` | Run the production build: one server on `PORT` serving the client, API and Socket.IO |
 | `npm run check` | typecheck + lint + test + build |
-| `npm run e2e` | Build, start the production server on port 4173, and play real games in Chromium (Playwright) |
+| `npm run e2e` | Build, start the production server on port 4173, and play real games in Chromium (Playwright). With `E2E_BASE_URL=<address>` it plays against a live deployment instead |
 
-**Deploying:** one Render web service from `render.yaml`. See [docs/deployment.md](docs/deployment.md) for the steps, the environment variables and the one-instance rule (games live in memory, so a deploy ends them).
+**Live at <https://private-holdem.onrender.com>** (free plan: the first visit after about 15 idle minutes takes about a minute to wake the server).
+
+**Deploying:** one Render web service from `render.yaml`; every push to `main` redeploys. See [docs/deployment.md](docs/deployment.md) for the steps, the environment variables and the one-instance rule (games live in memory, so a deploy ends them).
 
 The poker engine's property test plays 1,500 random hands on every run, and the table simulation plays 150 random games (joins, leaves, disconnects, timeouts). For a longer soak:
 ```bash

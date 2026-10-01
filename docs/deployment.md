@@ -36,7 +36,7 @@ The repo contains a Render Blueprint, `render.yaml`, with every setting below al
 | Start command | `npm start` | Runs `node server/dist/index.js` with `NODE_ENV=production` |
 | Health check path | `/health` | Render only switches traffic to a new deploy once it answers |
 | Instances | 1 | See the rule above |
-| `TRUST_PROXY` | `1` | Render puts one proxy in front of the app. Trusting it lets the rate limits see each visitor's real address instead of the proxy's. |
+| `TRUST_PROXY` | `3` | A request to Render passes three proxies: Cloudflare's edge, then two Render proxies. Trusting exactly three lets the rate limits see each visitor's real address. Measured on the live service (see *Checking the proxy setting*). |
 | `LOG_LEVEL` | `info` | Logs are JSON, one object per line, in Render's log viewer |
 | Node version | 22 (from `.node-version`) | Matches `engines` in `package.json` |
 | Region | Singapore | The closest Render region to India; change it in `render.yaml` if your friends are elsewhere |
@@ -73,7 +73,7 @@ In the service's **Settings → Custom Domains**, add your domain and create the
    - **Start command:** `npm start`.
    - **Healthcheck path:** `/health`.
    - **Replicas:** 1.
-3. **Variables:** add `TRUST_PROXY=1` (Railway also has one proxy in front). Railway sets `PORT` itself.
+3. **Variables:** add `TRUST_PROXY`. Railway's proxy count has not been measured for this app: start with `1` and run *Checking the proxy setting* below. Railway sets `PORT` itself.
 4. **Settings → Networking → Generate Domain** to get a public address.
 
 ## Environment variables
@@ -82,7 +82,7 @@ In the service's **Settings → Custom Domains**, add your domain and create the
 |---|---|---|---|
 | `PORT` | 3000 | set by the platform | The port the server listens on in production |
 | `NODE_ENV` | development | `production` (set by `npm start`) | Production serves `client/dist` and writes JSON logs |
-| `TRUST_PROXY` | 0 | `1` on Render and Railway | Number of proxies in front. Keep it 0 when nothing is in front, so a forged `X-Forwarded-For` header cannot dodge the per-IP limits. |
+| `TRUST_PROXY` | 0 | `3` on Render | Number of proxies in front. Keep it 0 when nothing is in front. Too low, and every request looks like it comes from a proxy, so the per-IP limits never trigger. Too high, and a forged `X-Forwarded-For` header dodges them. |
 | `LOG_LEVEL` | info | `info` | `fatal`, `error`, `warn`, `info` or `debug` |
 | `LOG_FORMAT` | json in production, else pretty | (leave unset) | `json` or `pretty` |
 | `API_PORT` | 3000 | (unused) | Development only: the API port behind the Vite proxy |
@@ -120,9 +120,30 @@ Open `http://localhost:4180`. Check `http://localhost:4180/health`, and play a h
 
 `npm run e2e` does the same automatically: it builds, starts the production server on port 4173, and plays real games in Chromium.
 
+## Checking a live deployment
+
+The same Playwright tests run against the live site (no local server is started):
+
+```bash
+E2E_BASE_URL=https://private-holdem.onrender.com npm run e2e
+```
+
+### Checking the proxy setting
+
+New guest sessions are limited to 10 a minute per visitor. Create 12 in a row from one computer (Git Bash):
+
+```bash
+for i in $(seq 1 12); do curl -s -o /dev/null -w "%{http_code} " -X POST -H "content-type: application/json" -d '{"displayName":"Probe"}' https://private-holdem.onrender.com/api/session; done
+```
+
+Wait a minute, then run it again with a forged header added: `-H "x-forwarded-for: 10.9.$i.$i"`. Both runs must end in `429`. If the first run never reaches `429`, `TRUST_PROXY` is too low. If only the forged run never reaches `429`, it is too high.
+
+On Render, `TRUST_PROXY=1` failed the first run and `3` passes both.
+
 ## Troubleshooting
 
 - **The page loads but says "Connection lost. Reconnecting"** → the socket can't connect. Check the service logs. Behind a custom proxy or CDN, make sure WebSockets are allowed.
-- **Everyone gets "Too many requests" when creating a name** → `TRUST_PROXY` is missing, so every visitor looks like the proxy's one address. Set it to `1`.
+- **Everyone gets "Too many requests" when creating a name** → `TRUST_PROXY` is missing, so every visitor looks like the proxy's one address. Set it to `3` on Render.
+- **The per-IP limits never trigger** → `TRUST_PROXY` is too low (this happened with `1` on Render). Run *Checking the proxy setting*.
 - **"Room not found" after a deploy** → expected: the restart ended that game. Create a new room.
 - **Build fails with an engine error** → the Node version must be 22.12 or later (`.node-version`).

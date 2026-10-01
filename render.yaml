@@ -14,7 +14,9 @@ services:
     numInstances: 1
     autoDeploy: true
     envVars:
-      # Render puts one proxy in front of the app; trust it so rate limits see each visitor's address.
+      # Render requests pass three proxies (Cloudflare's edge, then two Render proxies), measured on the
+      # live service. Trusting exactly three makes the per-IP limits see each visitor's real address,
+      # and a forged X-Forwarded-For entry cannot move it. See docs/deployment.md.
       - key: TRUST_PROXY
         value: "3"
       - key: LOG_LEVEL

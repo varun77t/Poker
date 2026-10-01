@@ -1,5 +1,9 @@
 # Private Hold'em
 
+**▶ Play now: <https://private-holdem.onrender.com>**
+
+It runs on Render's free plan: after about 15 minutes with no visitors the server sleeps, and the next visit takes up to about a minute to wake it.
+
 Private multiplayer Texas Hold'em for 2–5 friends. Virtual chips only.
 
 Create a room, share the six-character code, and play in the browser. Empty seats can be filled with bots (Easy, Medium or Pro), or you can play a solo game against bots. The server deals every card and settles every pot; the browser only shows what the server sends it.
@@ -140,8 +144,6 @@ All tabs normally share one identity (a second tab takes over the first). To pla
 | `npm start` | Run the production build: one server on `PORT` serving the client, API and Socket.IO |
 | `npm run check` | typecheck + lint + test + build |
 | `npm run e2e` | Build, start the production server on port 4173, and play real games in Chromium (Playwright). With `E2E_BASE_URL=<address>` it plays against a live deployment instead |
-
-**Live at <https://private-holdem.onrender.com>** (free plan: the first visit after about 15 idle minutes takes about a minute to wake the server).
 
 **Deploying:** one Render web service from `render.yaml`; every push to `main` redeploys. See [docs/deployment.md](docs/deployment.md) for the steps, the environment variables and the one-instance rule (games live in memory, so a deploy ends them).
 

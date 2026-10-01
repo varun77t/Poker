@@ -6,7 +6,7 @@ related_targets: ["src/components/table"]
 ---
 
 ## Scope
-The in-game table screen (room status `playing`): Operate mode. Desktop only, must fit a 1280x680 browser viewport without scrolling and scale up to large monitors.
+The in-game table screen (room status `playing`): Operate mode. Must fit a 1280x680 browser viewport without scrolling and scale up to large monitors, and fit a phone screen upright or sideways (client/DESIGN.md, Phones).
 
 ## Audience, job and constraints
 Remote friends on a voice call, one laptop each. Job: follow the hand at a glance and act in one click. States that must read instantly: whose turn (and time left), cost to call, pot and side pots, each player's bet, folded / all-in / away / waiting / busted seats, showdown winner and hand. The client renders server snapshots only; buttons and bet bounds come from `legalActions`.

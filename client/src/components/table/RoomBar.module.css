@@ -60,3 +60,63 @@
   letter-spacing: 0.02em;
   white-space: nowrap;
 }
+
+/* Phone-width labels: hidden facts, bare values and short control names. */
+.short {
+  display: none;
+}
+
+/* Phones: the bar takes its own row above the table, a little shorter. */
+@media (orientation: portrait) and (max-width: 900px), (orientation: landscape) and (max-height: 540px) {
+  .bar {
+    position: relative;
+    grid-column: 1 / -1;
+    gap: 12px;
+    height: 48px;
+    padding: 0 12px;
+  }
+
+  .code {
+    padding: 3px 8px;
+    font-size: 15px;
+    letter-spacing: 0.06em;
+  }
+
+  .bar :global(button) {
+    padding: 6px 11px;
+    font-size: 15px;
+  }
+
+  /* The inline confirm drops under the bar as a plate, so its question has room. */
+  .confirm {
+    position: absolute;
+    top: calc(100% + 2px);
+    right: 10px;
+    left: 10px;
+    z-index: 7;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    padding: 12px;
+    border: 1px solid var(--plaque-edge);
+    border-radius: 12px;
+    background: var(--panel-solid);
+    box-shadow: var(--shadow-panel);
+    white-space: normal;
+  }
+
+  .confirm > span {
+    flex: 1 1 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .mark,
+  .minor,
+  .long {
+    display: none;
+  }
+
+  .short {
+    display: inline;
+  }
+}

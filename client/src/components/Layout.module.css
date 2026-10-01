@@ -55,3 +55,24 @@
   border-color: color-mix(in srgb, var(--danger) 55%, var(--plaque-edge));
   color: var(--ink);
 }
+
+/* Phones: the plate takes the width of the screen, less a gutter. */
+@media (max-width: 600px) {
+  .shell {
+    grid-template-rows: auto 1fr;
+  }
+
+  .bar {
+    min-height: 52px;
+    padding: env(safe-area-inset-top) 16px 0;
+  }
+
+  .main {
+    place-items: start center;
+    padding: 12px 12px max(32px, env(safe-area-inset-bottom));
+  }
+
+  .panel {
+    padding: 22px 18px;
+  }
+}

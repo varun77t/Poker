@@ -1,5 +1,6 @@
 import type { GameView, TableSnapshot } from '@poker/shared';
-import { formatChips, SLOTS, waitingHint, type ResultSummary, type TableModel } from '../../table/model';
+import type { CSSProperties } from 'react';
+import { formatChips, slotPosition, waitingHint, type ResultSummary, type TableModel } from '../../table/model';
 import { ChipStack } from './ChipStack';
 import { cx } from '../../lib/cx';
 import { PlayingCard } from './PlayingCard';
@@ -17,7 +18,7 @@ interface Props {
   plate?: { title: string; text: string } | null;
 }
 
-const at = ([x, y]: [number, number]) => ({ left: `${x * 100}%`, top: `${y * 100}%` });
+const at = (slot: number, part: 'bet' | 'dealer') => slotPosition(slot, part) as CSSProperties;
 
 /** The oval table: rail, felt, board, pots, bets, dealer button and the five seats around it. */
 export function PokerTable({ snapshot, model, result, clock, resting = false, plate = null }: Props) {
@@ -35,7 +36,7 @@ export function PokerTable({ snapshot, model, result, clock, resting = false, pl
         </div>
         <span className={styles.deck} data-anchor="deck" aria-hidden="true" />
 
-        <div className={styles.center} data-anchor="pot">
+        <div className={cx(styles.center, result && styles.showingResult)} data-anchor="pot">
           {result ? (
             <div className={styles.result} role="status">
               <h2>{result.title}</h2>
@@ -64,21 +65,21 @@ export function PokerTable({ snapshot, model, result, clock, resting = false, pl
 
         {/* Fixed spots where each seat's bet sits, so chips always have somewhere to fly. */}
         {model.seats.map((s) => (
-          <span key={`spot-${s.seat}`} className={styles.spot} style={at(SLOTS[s.slot]?.bet ?? [0.5, 0.5])} data-anchor={`bet-${s.seat}`} />
+          <span key={`spot-${s.seat}`} className={styles.spot} style={at(s.slot, 'bet')} data-anchor={`bet-${s.seat}`} />
         ))}
         {game &&
           !game.result &&
           game.players
             .filter((p) => p.committed > 0)
             .map((p) => (
-              <div key={`bet-${p.seat}`} className={styles.bet} style={at(SLOTS[slotOfSeat(p.seat)]?.bet ?? [0.5, 0.5])} data-bet-visual={p.seat}>
+              <div key={`bet-${p.seat}`} className={styles.bet} style={at(slotOfSeat(p.seat), 'bet')} data-bet-visual={p.seat}>
                 <ChipStack amount={p.committed} />
                 <span>{formatChips(p.committed)}</span>
               </div>
             ))}
 
         {game && (
-          <span className={styles.dealer} style={at(SLOTS[slotOfSeat(game.buttonSeat)]?.dealer ?? [0.5, 0.5])} aria-label="Dealer button">
+          <span className={styles.dealer} style={at(slotOfSeat(game.buttonSeat), 'dealer')} aria-label="Dealer button">
             D
           </span>
         )}

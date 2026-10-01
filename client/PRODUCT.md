@@ -16,7 +16,7 @@ Private Hold'em lets one friend create a room, share a 6-character code or invit
 A private table for one group of friends, not a poker site: no accounts, no lobby of strangers, no real money, no ads, no statistics. The server is authoritative and hides every card a player may not see, so friends can trust it even when a player is on the same call.
 
 ## Operating Context
-- Played on laptops and desktop monitors only; the smallest screen in use is a 13-14 inch laptop (browser window about 1280-1440 px wide). The table must fit that window without scrolling. Phones and tablets are not supported.
+- Played mostly on laptops and desktop monitors; the owner's screen is a 14 inch laptop (browser window about 1536 x 700), and the table must fit such a window without scrolling. Friends also play on phones, upright or sideways, so every screen adapts to the window: the in-game table fits a phone screen without scrolling too.
 - Mouse and keyboard. Players talk over a separate voice call, so the app has no chat.
 - Turn timer (15-120 s, default 30 s), short pauses between streets, about 5 s to show each hand's result, then the next hand starts on its own.
 

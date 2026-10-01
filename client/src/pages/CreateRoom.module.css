@@ -1,5 +1,5 @@
 .panel {
-  width: 480px;
+  width: min(480px, 100%);
 }
 
 .heading {

@@ -37,6 +37,30 @@ export const SLOTS: readonly SlotGeometry[] = [
   { seat: [0.98, 0.5], bet: [0.79, 0.52], dealer: [0.88, 0.3] }, // right side
 ];
 
+/**
+ * The same five slots on a phone held upright, where the table stands as a tall oval (1 : 1.15). The
+ * side seats sit low on the rail so the board can run almost the full width of the felt above them.
+ * The top seats' bets sit wide, clear of the pot above the board.
+ */
+export const PORTRAIT_SLOTS: readonly SlotGeometry[] = [
+  { seat: [0.5, 1.0], bet: [0.5, 0.715], dealer: [0.34, 0.77] }, // you, at the bottom
+  { seat: [0.01, 0.69], bet: [0.3, 0.6], dealer: [0.14, 0.5] }, // left side, low
+  { seat: [0.23, 0.0], bet: [0.19, 0.25], dealer: [0.34, 0.165] }, // top left
+  { seat: [0.77, 0.0], bet: [0.81, 0.25], dealer: [0.66, 0.165] }, // top right
+  { seat: [0.99, 0.69], bet: [0.7, 0.6], dealer: [0.86, 0.5] }, // right side, low
+];
+
+/**
+ * Where a slot's seat, bet or dealer button sits, as CSS variables: `--x`/`--y` for the wide table and
+ * `--px`/`--py` for the upright one. The stylesheets pick a pair by screen shape.
+ */
+export function slotPosition(slot: number, part: keyof SlotGeometry): Record<'--x' | '--y' | '--px' | '--py', string> {
+  const [x, y] = SLOTS[slot]?.[part] ?? [0.5, 0.5];
+  const [px, py] = PORTRAIT_SLOTS[slot]?.[part] ?? [0.5, 0.5];
+  const pct = (n: number) => `${n * 100}%`;
+  return { '--x': pct(x), '--y': pct(y), '--px': pct(px), '--py': pct(py) };
+}
+
 /** Seats run clockwise with increasing index, so rotating by the viewer's seat puts them at the bottom. */
 export function slotOf(seat: number, viewerSeat: number): number {
   return (seat - viewerSeat + MAX_SEATS) % MAX_SEATS;

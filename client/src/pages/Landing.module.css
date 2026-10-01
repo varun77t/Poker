@@ -62,3 +62,42 @@
   align-items: center;
   container-type: inline-size;
 }
+
+/* Narrow screens: one column, the form first, then the table as the picture under it. */
+@media (max-width: 860px) {
+  .page {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 36px;
+    align-content: start;
+    padding: max(32px, env(safe-area-inset-top)) 20px max(56px, env(safe-area-inset-bottom));
+  }
+
+  .intro {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .title {
+    font-size: clamp(40px, 11vw, 60px);
+  }
+
+  .lede {
+    margin-bottom: 4px;
+    font-size: 18px;
+  }
+
+  .scene {
+    width: 100%;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 0 4px;
+  }
+}
+
+/* Too narrow for the two start buttons side by side. */
+@media (max-width: 520px) {
+  .start {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

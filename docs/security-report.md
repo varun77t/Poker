@@ -71,6 +71,9 @@ Transport:
   - "Play against bots" seats three Medium bots.
   - The player answers with the **C** key while the bots act on their own.
   - After three hands the host ends the game and the final standings appear.
+- **Phone** (`e2e/tests/phone.spec.ts`, added after Phase 10):
+  - The same solo game at an iPhone 14 Pro's window (393 x 660, touch), played by tapping.
+  - No screen runs off the sides, and every seat and the action panel fit, upright and turned sideways.
 
 ## Residual risks (closed in Phase 10)
 

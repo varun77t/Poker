@@ -58,3 +58,34 @@
 .waitingFor {
   font-weight: 600;
 }
+
+@media (orientation: portrait) and (max-width: 900px) {
+  /* Invite, then Start, then the table with its open seats. */
+  .start {
+    order: 1;
+  }
+
+  .code {
+    font-size: 44px;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 540px) {
+  .side {
+    justify-content: flex-start;
+    padding-bottom: 12px;
+  }
+
+  .code {
+    margin-top: 6px;
+    font-size: 36px;
+  }
+
+  .hint {
+    margin-top: 6px;
+  }
+
+  .copy {
+    margin-top: 10px;
+  }
+}

@@ -162,3 +162,62 @@
     animation: none;
   }
 }
+
+/* Phones: a smaller open seat, and panels that open toward the middle of the screen so they stay on it. */
+@media (orientation: portrait) and (max-width: 900px), (orientation: landscape) and (max-height: 540px) {
+  .openSeat {
+    min-width: 96px;
+    height: 44px;
+    padding: 0 14px;
+    font-size: 14px;
+  }
+
+  .openHint {
+    font-size: 12px;
+  }
+
+  .panel {
+    width: min(268px, calc(100vw - 24px));
+  }
+
+  .confirm {
+    width: min(232px, calc(100vw - 24px));
+  }
+
+  :global([data-slot='1']) .panel,
+  :global([data-slot='2']) .panel {
+    left: 0;
+    translate: 0 0;
+  }
+
+  :global([data-slot='3']) .panel,
+  :global([data-slot='4']) .panel {
+    right: 0;
+    left: auto;
+    translate: 0 0;
+  }
+
+  /* Your own seat is at the bottom, so its panel opens upward. */
+  :global([data-slot='0']) .panel {
+    top: auto;
+    bottom: calc(100% + 10px);
+  }
+
+  .levels > button {
+    height: 48px;
+  }
+
+  /* Hung just under the smaller plaque, clear of its chip count. */
+  .removeTab {
+    top: calc(100% - 3px);
+    padding: 1px 9px;
+    font-size: 13px;
+  }
+}
+
+/* No hover on a touch screen: the host's Remove tab is always there. */
+@media (hover: none) {
+  .removeTab {
+    opacity: 1;
+  }
+}

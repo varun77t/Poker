@@ -31,3 +31,42 @@
   font-weight: 700;
   white-space: nowrap;
 }
+
+/*
+ * Phones held upright: the bar, then the table filling what is left, then your controls full width
+ * along the bottom where a thumb reaches them. The stage is a size container, and the table takes the
+ * largest tall oval (1 : 1.15) that leaves room for the side seats' plaques and your own cards.
+ */
+@media (orientation: portrait) and (max-width: 900px) {
+  .page {
+    --table-w: min(calc(100cqw - 96px), calc((100cqh - 104px) / 1.15), 480px);
+    --table-h: calc(var(--table-w) * 1.15);
+    --card-w: calc(var(--table-w) * 0.132);
+
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
+  }
+}
+
+/* A phone on its side: the wide table on the left, your controls in a column on the right. */
+@media (orientation: landscape) and (max-height: 540px) {
+  .page {
+    --table-w: min(calc(100cqw - 140px), calc((100cqh - 92px) * 2.05), 900px);
+    --table-h: calc(var(--table-w) / 2.05);
+    --card-w: calc(var(--table-w) * 0.072);
+
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
+  }
+}
+
+@media (orientation: portrait) and (max-width: 900px), (orientation: landscape) and (max-height: 540px) {
+  .stage {
+    position: relative;
+    inset: auto;
+    container-type: size;
+  }
+}

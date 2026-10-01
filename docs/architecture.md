@@ -552,7 +552,7 @@ Only results are written, and only at key moments: room created, hand finished, 
 | Security | Vitest + socket.io-client | `server/test/security.test.ts`: one test per attack in `docs/security-report.md` |
 | E2E | Playwright (`npm run e2e`) | 3 browser contexts: create → invite link join → play hands → disconnect/reconnect; solo game against bots with the C key → end game |
 | Client display logic | Vitest | `table/model.ts` and `table/motionPlan.ts` (seat rotation, tags, bet-size shortcuts, keyboard shortcuts, result wording, final standings, animation choreography) |
-| Manual | 3 browser profiles on a laptop/desktop screen (the app is desktop-only); `/dev/table?state=...` renders the in-game screens from sample data (turn, flop, showdown, waiting, busted, busted-off, ending, finished, finished-guest, bots, bots-waiting, bots-finished) | Feel, layout, timing |
+| Manual | 3 browser profiles on a laptop/desktop screen, and a phone (or the browser's phone view); `/dev/table?state=...` renders the in-game screens from sample data (turn, flop, showdown, waiting, busted, busted-off, ending, finished, finished-guest, bots, bots-waiting, bots-finished) | Feel, layout, timing |
 
 **CI gate** (local script until CI exists): `npm run typecheck && npm run lint && npm test && npm run build`.
 

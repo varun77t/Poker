@@ -5,7 +5,7 @@ import { ActionPanel, type OutOfChips } from '../components/table/ActionPanel';
 import { HandHintPlate } from '../components/table/HandHint';
 import { SuitSymbols } from '../components/table/PlayingCard';
 import { PokerTable } from '../components/table/PokerTable';
-import { BarConfirm, BarMeta, BarNotice, RoomBar } from '../components/table/RoomBar';
+import { BarConfirm, BarLabel, BarMeta, BarNotice, RoomBar } from '../components/table/RoomBar';
 import type { TurnClock } from '../components/table/Seat';
 import { cx } from '../lib/cx';
 import { request } from '../socket/connection';
@@ -46,8 +46,8 @@ export function TablePage({ snapshot }: { snapshot: TableSnapshot }) {
       <main className={styles.stage} ref={stage}>
         <PokerTable snapshot={snapshot} model={model} result={result} clock={clock} />
         <div className={styles.overlay} ref={overlay} aria-hidden="true" />
+        {game?.yourHand && <HandHintPlate key={game.handId} hint={game.yourHand} />}
       </main>
-      {game?.yourHand && <HandHintPlate key={game.handId} hint={game.yourHand} />}
       <ActionPanel game={game} status={statusLine(snapshot, model, nameOf)} secondsLeft={secondsLeft} outOfChips={outOfChips} />
     </div>
   );
@@ -165,7 +165,7 @@ function Header({ snapshot }: { snapshot: TableSnapshot }) {
           )
         )}
         <button type="button" className={room.ghost} onClick={() => (inLiveHand ? setConfirming('leave') : void leave())} disabled={busy}>
-          Leave table
+          <BarLabel long="Leave table" short="Leave" />
         </button>
       </>
     );
@@ -176,9 +176,10 @@ function Header({ snapshot }: { snapshot: TableSnapshot }) {
       code={roomView.code}
       meta={
         <>
-          {game && <BarMeta label="Hand" value={game.handId} />}
+          {game && <BarMeta label="Hand" value={game.handId} narrow="hide" />}
           <BarMeta
             label="Blinds"
+            narrow="bare"
             value={`${roomView.settings.smallBlind.toLocaleString('en-US')} / ${roomView.settings.bigBlind.toLocaleString('en-US')}`}
           />
         </>

@@ -7,6 +7,8 @@
   gap: 6px;
   /* Sized to its content: a seat near the table's right edge must not be squeezed by its position. */
   width: max-content;
+  left: var(--x);
+  top: var(--y);
   transform: translate(-50%, -50%);
   transition: opacity 300ms var(--ease-out);
 }
@@ -248,4 +250,122 @@
   background: color-mix(in srgb, var(--plaque) 94%, transparent);
   color: var(--ink-muted);
   font-size: 16px;
+}
+
+/*
+ * Phones (upright, or on their side): smaller plaques and avatars so five seats fit round a small
+ * table, larger cards for the other seats so a showdown can still be read, and your own cards large.
+ */
+@media (orientation: portrait) and (max-width: 900px), (orientation: landscape) and (max-height: 540px) {
+  .seat {
+    gap: 4px;
+  }
+
+  .hole {
+    gap: 3px;
+    height: calc(var(--card-w) * 0.82 * 1.4);
+  }
+
+  .theirs {
+    width: calc(var(--card-w) * 0.82);
+  }
+
+  .you .hole {
+    gap: 6px;
+    height: calc(var(--card-w) * 1.6 * 1.4);
+    margin-bottom: -12px;
+  }
+
+  .mine {
+    width: calc(var(--card-w) * 1.6);
+  }
+
+  .foldedMine {
+    transform: translateY(6px);
+  }
+
+  .plaque {
+    gap: 7px;
+    min-width: 0;
+    max-width: 136px;
+    padding: 4px 12px 4px 4px;
+  }
+
+  .you .plaque {
+    min-width: 148px;
+    max-width: 180px;
+  }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+
+  .ring {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* Name on its own line; a bot's level moves down beside its chips. */
+  .who {
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: start;
+    column-gap: 5px;
+    align-items: center;
+  }
+
+  .nameRow {
+    display: contents;
+  }
+
+  .name {
+    grid-column: 1 / -1;
+  }
+
+  .stack {
+    grid-row: 2;
+    grid-column: 1;
+  }
+
+  .botMark {
+    grid-row: 2;
+    grid-column: 2;
+  }
+
+  .name,
+  .stack {
+    font-size: 14px;
+  }
+
+  /* The dashed disc already says "bot"; the mark keeps only the level. */
+  .botMark {
+    padding: 0 5px;
+    font-size: 11px;
+  }
+
+  .botWord {
+    display: none;
+  }
+
+  .tag {
+    top: -9px;
+    right: -6px;
+    padding: 0 6px;
+    font-size: 12px;
+  }
+
+  .emptyPlaque {
+    min-width: 96px;
+    height: 42px;
+    font-size: 14px;
+  }
+}
+
+@media (orientation: portrait) and (max-width: 900px) {
+  .seat {
+    left: var(--px);
+    top: var(--py);
+  }
 }

@@ -86,6 +86,13 @@ body {
   margin: 0;
 }
 
+/* Phones: keep text at the sizes set here when turned sideways, and no grey flash on tap. */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
   min-height: 100dvh;
   background: radial-gradient(ellipse 80% 70% at 50% 45%, var(--room-2), var(--room) 70%) fixed var(--room);
@@ -132,4 +139,13 @@ input,
 select {
   font: inherit;
   color: inherit;
+}
+
+/* A tap acts at once: no double-tap zoom delay on controls. */
+a,
+button,
+input,
+select,
+label {
+  touch-action: manipulation;
 }

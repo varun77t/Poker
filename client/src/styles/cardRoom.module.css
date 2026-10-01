@@ -130,3 +130,67 @@ button.primary:hover:not(:disabled) {
   cursor: default;
   opacity: 0.5;
 }
+
+/*
+ * Phones held upright: the lobby and the finished screen become one scrolling column (bar, then the
+ * side column's blocks, with the table among them), the table standing as the same tall oval as in
+ * play. The pages order their own blocks around the table (order 2).
+ */
+@media (orientation: portrait) and (max-width: 900px) {
+  .world {
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
+  }
+
+  .withSide {
+    --table-w: min(calc(100vw - 112px), 330px);
+    --table-h: calc(var(--table-w) * 1.15);
+    --card-w: calc(var(--table-w) * 0.132);
+  }
+
+  .sideStage {
+    position: relative;
+    inset: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding: 8px 16px max(28px, env(safe-area-inset-bottom));
+  }
+
+  /* Room above and below the oval for the top seats' cards and your own seat. */
+  .tableArea {
+    flex: none;
+    order: 2;
+    height: calc(var(--table-h) + 120px);
+  }
+
+  .side {
+    display: contents;
+  }
+}
+
+/* A phone on its side: the table on the left, a narrower column on the right that scrolls. */
+@media (orientation: landscape) and (max-height: 540px) {
+  .withSide {
+    --side-w: 300px;
+    --table-w: min(calc(100cqw - 140px), calc((100cqh - 92px) * 2.05), 900px);
+    --table-h: calc(var(--table-w) / 2.05);
+    --card-w: calc(var(--table-w) * 0.072);
+  }
+
+  .sideStage {
+    inset: calc(48px + env(safe-area-inset-top)) env(safe-area-inset-right) 0 env(safe-area-inset-left);
+    gap: 16px;
+    padding: 6px 12px 12px;
+  }
+
+  .tableArea {
+    container-type: size;
+  }
+
+  .side {
+    overflow-y: auto;
+    padding-bottom: 12px;
+  }
+}

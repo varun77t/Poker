@@ -106,7 +106,7 @@ Blinds do not increase over time (no tournament structure in the MVP).
 
 ## 7. Non-functional requirements
 - **Real time:** other players see an action within ~200 ms on a normal connection.
-- **Desktop only:** designed for laptop and desktop screens (about 1280 px wide and up) with a mouse and keyboard. Phones and tablets are not supported.
+- **Laptops, desktops and phones:** designed first for laptop and desktop screens (about 1280 px wide and up) with a mouse and keyboard; every screen also adapts to phones, held upright or sideways, played by touch.
 - **Server authority:** the client never decides cards, legality, pots, turns, or winners (see `/CLAUDE.md`).
 - **Fairness:** shuffles use a cryptographically secure RNG, and no hidden card data ever reaches a client.
 - **Deployment:** one server instance, same origin for the web app and the socket.
@@ -124,5 +124,5 @@ Real money, chip purchases, tournaments and blind levels, leaderboards, friends 
 7. Default settings: 1,000 stack, 5/10 blinds, 30 s timer, rebuys on.
 8. Room settings are editable by the host until the game starts (added after Phase 2).
 9. Bots (Phase 7): added by the host, three levels (Easy, Medium, Pro), never host, never play without a connected human, auto-rebuy when rebuys are on.
-10. Desktop only (decided before Phase 4): the UI targets laptop/desktop screens; no phone or tablet layout.
+10. Screens: desktop only at first (decided before Phase 4); after Phase 10 the owner asked for phone support, so every screen now also adapts to phones.
 11. Colours (Phase 8): the owner chose a two-colour scheme for the whole app, Dark Green #132A13 and Cornsilk #FAF4D3 (see `client/DESIGN.md`).

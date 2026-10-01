@@ -11,7 +11,7 @@ Revision of the original `poker_webapp_phase_prompts.md`. Key changes:
 - Styling: CSS Modules (shadcn/ui removed — it requires Tailwind).
 - "Ready" state removed — host starts the game.
 - Bots (Phase 7): the host can fill open seats with computer players, so one person can play alone.
-- Desktop only: the app is played on laptops/desktops, so there is no mobile or phone layout work.
+- Screens: built desktop-first; after Phase 10 the owner asked for phones too, so every screen also adapts to phones held upright or sideways (see "After Phase 10" below).
 
 Non-negotiable rules live in `/CLAUDE.md` and apply to every phase automatically.
 
@@ -253,7 +253,7 @@ DealerButton, BlindMarkers, GameStatus (street, winner + hand label).
 
 - The viewing player is always rendered at the bottom seat.
 - Disable action buttons after sending until the next snapshot arrives (prevents double-sends).
-- Desktop only: lay out for laptop/desktop screens (about 1280px wide and up). No phone or tablet layout.
+- Lay out for laptop/desktop screens first (about 1280px wide and up). Phone layouts were added after Phase 10.
 - Motion (approved by the owner in Phase 5): cards deal from the dealer spot and turn over, chips slide to bets,
   sweep into the pot and fly to the winner. Driven only by differences between snapshots; off under
   prefers-reduced-motion.
@@ -360,7 +360,7 @@ Tests:
 Read /CLAUDE.md. Implement PHASE 8: polish only — do not change game logic or events.
 Improve landing, create/join, lobby, table, cards, chip visualization, turn indicator,
 winner highlight/animation, dealing/chip-to-pot animations (subtle), loading/error/empty states,
-toasts for errors from acks, reconnecting banner, keyboard shortcuts (F/C/R). Desktop screens only (no mobile layout).
+toasts for errors from acks, reconnecting banner, keyboard shortcuts (F/C/R). Desktop screens first; phone layouts came after Phase 10.
 Respect prefers-reduced-motion. Keep CSS Modules. Run the full test suite after changes.
 ```
 
@@ -399,7 +399,7 @@ Run unit, property, integration, E2E, typecheck, and build. Produce /docs/securi
 **Phase 9 decisions (made during the build):**
 - Every attack in the prompt has a test in `server/test/security.test.ts` (S1 to S17); the results are in `docs/security-report.md`.
 - Two fixes: the event rate limit is now kept per player instead of per connection (reconnecting used to reset it), and `room:create` is limited to 5 a minute per player (each create could leave an empty room behind for 10 minutes).
-- E2E runs against the production build (`npm run e2e`, port 4173): three browser contexts (create, invite-link join, several hands, one player drops and comes back) and a solo game against bots that uses the C shortcut and ends the game. The phone check is dropped (desktop only).
+- E2E runs against the production build (`npm run e2e`, port 4173): three browser contexts (create, invite-link join, several hands, one player drops and comes back) and a solo game against bots that uses the C shortcut and ends the game. The phone check was dropped at the time (desktop only) and added after Phase 10.
 - Phases 11 (persistence) and 12 (Google sign-in) are dropped by the owner; the code is pushed to GitHub after this phase.
 
 ---
@@ -424,6 +424,13 @@ Note hosting caveats (free tiers that sleep will drop live games).
 - Logs are JSON lines in production (`LOG_FORMAT`). Crashes are logged as fatal before exit.
 - Shutdown sends `sys:shutdown` to every client (a new server→client event) before closing, and the client shows a toast that games in progress have ended.
 - `cross-env` moved to runtime dependencies (the start script needs it). `.node-version` pins Node 22.
+
+**After Phase 10: phones (requested by the owner).**
+- Every screen adapts to the window instead of assuming a laptop. Three shapes, chosen in CSS only: the desktop layout (unchanged); a phone held upright (`orientation: portrait` up to 900px wide); and a phone on its side (`orientation: landscape` up to 540px tall).
+- Upright, the table stands as a tall oval (1 : 1.15) with its own seat, bet and dealer spots (`PORTRAIT_SLOTS` in `client/src/table/model.ts`; seats carry both sets as CSS variables). The bar, the table and a full-width action panel stack top to bottom, and the table sizes itself from the space left (a size container). The pot sits above the board and a hand's result under it.
+- Sideways, the wide table sits left of a 280px action column, with the pot moved to the felt left of your cards.
+- On phones: smaller plaques (a bot's mark shows only its level), larger cards for other seats, 52px action buttons, no F/C/R keycaps on touch screens, the hand hint without its ladder, short bar labels ("Leave"), and the bar's confirms drop below it as a plate. The lobby and finished screen become one scrolling column. The lobby's invite button opens the phone's share sheet.
+- `e2e/tests/phone.spec.ts` plays a solo game at an iPhone 14 Pro's size by tapping, checks nothing runs off the screen, and turns the phone sideways mid-game.
 
 ---
 

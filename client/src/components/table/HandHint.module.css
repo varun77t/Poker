@@ -119,3 +119,43 @@
     transition: none;
   }
 }
+
+/* Phones: a small plate in the stage's corner beside your seat; the ladder is left to the big screen. */
+@media (orientation: portrait) and (max-width: 900px), (orientation: landscape) and (max-height: 540px) {
+  .plate {
+    bottom: 8px;
+    left: 10px;
+    padding: 8px 10px 9px;
+    border-radius: 12px;
+  }
+
+  .hand {
+    font-size: 15px;
+  }
+
+  .detail,
+  .note {
+    font-size: 13px;
+  }
+
+  .note {
+    margin-top: 2px;
+  }
+
+  .ladder {
+    display: none;
+  }
+}
+
+@media (orientation: portrait) and (max-width: 900px) {
+  .plate {
+    /* What your plaque (about 150px) leaves on its left. */
+    width: min(calc(50% - 94px), 220px);
+  }
+}
+
+@media (orientation: landscape) and (max-height: 540px) {
+  .plate {
+    width: 150px;
+  }
+}

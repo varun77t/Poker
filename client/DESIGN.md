@@ -435,7 +435,7 @@ Density is low and sized for arm's length on a laptop: 16px is the smallest rout
 - Pills and ovals for things that sit on the table; modest rounded rectangles for controls you press.
 - Motion is physical and quick, and disappears entirely under reduced motion.
 
-**Scope.** Every screen uses this world: the landing, create room, the invite name prompt, the joining and problem states (including not-found), the lobby, the in-game table and the finished-game screen. The tokens live on `:root` in `src/styles/global.css`, which also sets the page itself: the room gradient on the body, ink text, Nunito Sans 500 16px/1.35 with tabular figures, a lit caret, a lit 2px focus outline (3px offset) and lit text selection. The fonts are imported once in `src/main.tsx`. `src/styles/cardRoom.module.css` holds no tokens: its `.world` class is the fixed, non-scrolling stage of the room screens, its `.withSide`, `.sideStage`, `.tableArea`, `.side` and `.sidePanel` classes lay out the lobby and the finished screen, and it carries the table's shared controls (action, primary, ghost and danger buttons). The pre-game screens are built from the Shell, Panel and Notice in `components/Layout.tsx` and the shared Button, TextField and SettingsForm. Desktop only; there are no mobile layouts.
+**Scope.** Every screen uses this world: the landing, create room, the invite name prompt, the joining and problem states (including not-found), the lobby, the in-game table and the finished-game screen. The tokens live on `:root` in `src/styles/global.css`, which also sets the page itself: the room gradient on the body, ink text, Nunito Sans 500 16px/1.35 with tabular figures, a lit caret, a lit 2px focus outline (3px offset) and lit text selection. The fonts are imported once in `src/main.tsx`. `src/styles/cardRoom.module.css` holds no tokens: its `.world` class is the fixed, non-scrolling stage of the room screens, its `.withSide`, `.sideStage`, `.tableArea`, `.side` and `.sidePanel` classes lay out the lobby and the finished screen, and it carries the table's shared controls (action, primary, ghost and danger buttons). The pre-game screens are built from the Shell, Panel and Notice in `components/Layout.tsx` and the shared Button, TextField and SettingsForm. Phones get their own arrangements of the same world (see Layout, Phones).
 
 ## Colors
 
@@ -513,7 +513,17 @@ The landing is two columns, a clamp(380px, 29vw, 440px) intro and the table scen
 
 The other pre-game screens use the Shell: the same 52px bar with the product name linking home, and one panel centred a little above the middle of the room (24px 24px 76px padding), where the felt would be. Create room's panel is 480px, the invite prompt and problem panels 440px.
 
-Spacing is small-step and tight: 6, 8 and 10px inside controls and stacks, 12px action-panel padding, 14px side panels, 16-18px between form rows, 28px in shell panels, 20-24px at the page frame. Desktop only; there are no mobile breakpoints.
+Spacing is small-step and tight: 6, 8 and 10px inside controls and stacks, 12px action-panel padding, 14px side panels, 16-18px between form rows, 28px in shell panels, 20-24px at the page frame.
+
+### Phones
+
+Every screen adapts by shape, in CSS only. Upright (`orientation: portrait`, up to 900px wide) and on its side (`orientation: landscape`, up to 540px tall) are the two phone shapes; anything else gets the desktop layout above.
+
+- **Table, upright:** the bar (48px, no product name under 600px, short labels such as "Leave", the Hand fact hidden and Blinds shown as a bare value), then the table, then the action panel full width along the bottom (10px gutters, safe-area aware). The stage between them is a size container: the table is the largest tall oval (1 : 1.15) that leaves room for the side seats' plaques and your seat, at most 480px wide. Seats use their upright spots (side seats low on the rail, the top seats straddling the top rail); the board runs nearly the felt's width at 44% height, the pot sits above it with side pots stacked, and a result plate sits under it (one line for the hand). The felt lettering is hidden. The hand hint sits in the stage's bottom-left corner beside your plaque, without its ladder.
+- **Table, sideways:** the bar across the top, the wide table on the left (sized from its stage), the action panel as a 280px column on the right. The pot moves to the felt left of your cards; the result keeps its place above the board.
+- **Seats on phones:** 32px avatars, 14px names and stacks, plaques at most 136px (yours 148-180px), a bot's level beside its chips ("Medium"), other seats' cards at 0.82 card widths and yours at 1.6. Action buttons are 52px tall; touch screens show no F / C / R keycaps, and the host's Remove tab is always shown. Bot panels open toward the middle of the screen.
+- **Lobby and finished screen, upright:** one scrolling column: invite, Start panel, then the table (lobby); standings, next game, then the table (finished). Sideways they keep the split with a 300px column that scrolls.
+- **Landing:** one column under 860px wide (form first, the table picture under it); the two start buttons stack under 520px. **Shell panels** take the screen's width less a 12px gutter.
 
 ## Elevation & Depth
 

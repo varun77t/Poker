@@ -5,7 +5,7 @@ import { SettingsEditor } from '../components/SettingsEditor';
 import { SettingsFacts } from '../components/SettingsFacts';
 import { useChangedSettings } from '../components/useChangedSettings';
 import { PokerTable } from '../components/table/PokerTable';
-import { BarMeta, RoomBar } from '../components/table/RoomBar';
+import { BarLabel, BarMeta, RoomBar } from '../components/table/RoomBar';
 import { cx } from '../lib/cx';
 import { request } from '../socket/connection';
 import { setState } from '../state/store';
@@ -58,7 +58,7 @@ export function FinishedPage({ snapshot, startEditing = false }: { snapshot: Tab
         meta={<BarMeta label="Game over" />}
         actions={
           <button type="button" className={room.ghost} onClick={() => void leave()} disabled={leaving}>
-            Leave table
+            <BarLabel long="Leave table" short="Leave" />
           </button>
         }
       />

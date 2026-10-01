@@ -6,7 +6,7 @@ import { SettingsFacts } from '../components/SettingsFacts';
 import { useChangedSettings } from '../components/useChangedSettings';
 import { SuitSymbols } from '../components/table/PlayingCard';
 import { PokerTable } from '../components/table/PokerTable';
-import { BarMeta, RoomBar } from '../components/table/RoomBar';
+import { BarLabel, BarMeta, RoomBar } from '../components/table/RoomBar';
 import { cx } from '../lib/cx';
 import { request } from '../socket/connection';
 import { setState } from '../state/store';
@@ -72,7 +72,7 @@ export function Lobby({ snapshot, startEditing = false }: { snapshot: TableSnaps
         meta={<BarMeta label="Players" value={`${seated.length} / ${MAX_SEATS}`} testId="player-count" />}
         actions={
           <button type="button" className={room.ghost} onClick={() => void leave()} disabled={leaving}>
-            Leave room
+            <BarLabel long="Leave room" short="Leave" />
           </button>
         }
       />
@@ -126,6 +126,16 @@ function Invite({ code }: { code: string }) {
     }
   }
 
+  // On a phone the system share sheet sends the link straight to a chat; elsewhere it is copied.
+  const canShare = typeof navigator.share === 'function' && window.matchMedia('(pointer: coarse)').matches;
+  async function share() {
+    try {
+      await navigator.share({ title: "Private Hold'em", text: `Join my poker table, room ${code}`, url: link });
+    } catch (error) {
+      if ((error as Error).name !== 'AbortError') await copy();
+    }
+  }
+
   return (
     <section className={styles.invite} aria-labelledby="invite-title">
       <h2 id="invite-title" className={styles.title}>
@@ -135,8 +145,8 @@ function Invite({ code }: { code: string }) {
         {code}
       </p>
       <p className={styles.hint}>They enter the code on the home screen, or open the link.</p>
-      <button type="button" className={cx(room.act, styles.copy)} onClick={() => void copy()}>
-        {copied === 'yes' ? 'Link copied' : 'Copy invite link'}
+      <button type="button" className={cx(room.act, styles.copy)} onClick={() => void (canShare ? share() : copy())}>
+        {copied === 'yes' ? 'Link copied' : canShare ? 'Share invite link' : 'Copy invite link'}
       </button>
       {copied === 'failed' && (
         <input

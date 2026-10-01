@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { cx } from '../../lib/cx';
 import styles from './RoomBar.module.css';
 
 interface Props {
@@ -24,12 +25,30 @@ export function RoomBar({ code, meta, actions }: Props) {
   );
 }
 
-export function BarMeta({ label, value, testId }: { label: string; value?: ReactNode; testId?: string }) {
+interface BarMetaProps {
+  label: string;
+  value?: ReactNode;
+  testId?: string;
+  /** On a phone-width bar: `hide` drops the fact, `bare` keeps only its value. */
+  narrow?: 'hide' | 'bare';
+}
+
+export function BarMeta({ label, value, testId, narrow }: BarMetaProps) {
   return (
-    <span className={styles.meta} data-testid={testId}>
-      {label}
+    <span className={cx(styles.meta, narrow === 'hide' && styles.minor)} data-testid={testId}>
+      <span className={cx(narrow === 'bare' && styles.long)}>{label}</span>
       {value !== undefined && <> <b>{value}</b></>}
     </span>
+  );
+}
+
+/** A control's label, with a shorter one for a phone-width bar ("Leave table" becomes "Leave"). */
+export function BarLabel({ long, short }: { long: string; short: string }) {
+  return (
+    <>
+      <span className={styles.long}>{long}</span>
+      <span className={styles.short}>{short}</span>
+    </>
   );
 }
 

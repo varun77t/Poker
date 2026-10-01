@@ -1,6 +1,6 @@
 import type { Card } from '@poker/shared';
 import type { CSSProperties } from 'react';
-import { BOT_LEVEL_TEXT, formatChips, SLOTS, type SeatModel, type SeatTag } from '../../table/model';
+import { BOT_LEVEL_TEXT, formatChips, slotPosition, type SeatModel, type SeatTag } from '../../table/model';
 import { cx } from '../../lib/cx';
 import { AddBotSeat, RemoveBot } from './BotControls';
 import { PlayingCard } from './PlayingCard';
@@ -38,7 +38,6 @@ interface Props {
 export function Seat({ model, highlight, clock, removable = false }: Props) {
   const { seat, slot, view, player, isYou, isTurn, isWinner, folded, sittingOut, tag, stack } = model;
   const botText = view.botLevel ? `${BOT_LEVEL_TEXT[view.botLevel].name} bot` : null;
-  const [x, y] = SLOTS[slot]?.seat ?? [0.5, 0.5];
   const tone = (card: Card) => (highlight ? (highlight.has(card) ? 'lift' : 'dim') : undefined);
 
   let cards: (Card | null)[] = [];
@@ -60,7 +59,8 @@ export function Seat({ model, highlight, clock, removable = false }: Props) {
       className={cx(styles.seat, isYou && styles.you, folded && styles.folded, isTurn && styles.turn, isWinner && styles.winner, sittingOut && styles.out)}
       data-winner={isWinner || undefined}
       data-seat={seat}
-      style={{ left: `${x * 100}%`, top: `${y * 100}%` } as CSSProperties}
+      data-slot={slot}
+      style={slotPosition(slot, 'seat') as CSSProperties}
     >
       <div className={styles.hole}>
         {cards.map((card, i) => (
@@ -81,7 +81,12 @@ export function Seat({ model, highlight, clock, removable = false }: Props) {
         <span className={styles.who} aria-hidden="true">
           <span className={styles.nameRow}>
             <span className={styles.name}>{isYou ? 'You' : view.displayName}</span>
-            {botText && <span className={styles.botMark}>{botText}</span>}
+            {view.botLevel && (
+              <span className={styles.botMark}>
+                {BOT_LEVEL_TEXT[view.botLevel].name}
+                <span className={styles.botWord}> bot</span>
+              </span>
+            )}
           </span>
           <span className={styles.stack}>{formatChips(stack)}</span>
         </span>
@@ -112,9 +117,8 @@ function TurnRing({ clock }: { clock: TurnClock }) {
 
 /** An open seat. The host can seat a bot in it (§3.7); everyone else just sees it is free. */
 export function EmptySeat({ seat, slot, canAddBot = false }: { seat: number; slot: number; canAddBot?: boolean }) {
-  const [x, y] = SLOTS[slot]?.seat ?? [0.5, 0.5];
   return (
-    <div className={cx(styles.seat, styles.empty)} style={{ left: `${x * 100}%`, top: `${y * 100}%` }}>
+    <div className={cx(styles.seat, styles.empty)} data-slot={slot} style={slotPosition(slot, 'seat') as CSSProperties}>
       {canAddBot ? <AddBotSeat seat={seat} /> : <div className={styles.emptyPlaque}>Open seat</div>}
     </div>
   );

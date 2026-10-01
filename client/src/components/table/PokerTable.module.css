@@ -169,6 +169,14 @@
   font-size: 16px;
 }
 
+/* Seats, bets and the dealer button are placed by --x/--y (the wide table) or --px/--py (upright). */
+.spot,
+.bet,
+.dealer {
+  left: var(--x);
+  top: var(--y);
+}
+
 .spot {
   position: absolute;
   width: 1px;
@@ -265,5 +273,200 @@
   .resting .felt::before,
   .resting .seats > * {
     animation: none;
+  }
+}
+
+/*
+ * Phones. Held upright (and narrow upright windows) the table stands as a tall oval, 1 : 1.15, and
+ * the pages size it from the stage it sits in. The board runs nearly the width of the felt, a little
+ * above the middle, with the side seats low on the rail beneath it.
+ */
+@media (orientation: portrait) and (max-width: 900px) {
+  .table,
+  .table.centred {
+    /* More of your seat hangs below the rail than the top seats' cards stand above it. */
+    top: calc(50% - 8px);
+    padding: calc(var(--table-w) * 0.045);
+  }
+
+  .felt {
+    --board-w: calc(var(--table-w) * 0.152);
+  }
+
+  .spot,
+  .bet,
+  .dealer {
+    left: var(--px);
+    top: var(--py);
+  }
+
+  /* The printed name would sit under the top seats' bets on an upright table. */
+  .wordmark {
+    display: none;
+  }
+
+  .board {
+    top: 44%;
+    gap: calc(var(--board-w) * 0.09);
+    transform: translate(-50%, -50%);
+  }
+
+  .slot {
+    border-radius: 6px;
+  }
+
+  /* The pot sits above the board (board top = 44% - 0.7 board widths), side pots stacked under it. */
+  .center {
+    bottom: calc(56% + var(--board-w) * 0.7 + 8px);
+    min-width: 0;
+  }
+
+  .pots {
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  /* A result needs more room than the top seats leave, and the bets have gone by then, so it sits
+     under the board instead, between the side seats. */
+  .center.showingResult {
+    top: calc(44% + var(--board-w) * 0.7 + 8px);
+    bottom: auto;
+    z-index: 3; /* over the side seats' tags, which may reach it */
+  }
+
+  .resting .center,
+  .resting .center.showingResult {
+    top: 44%;
+  }
+
+  .potLabel {
+    padding: 2px 10px;
+    font-size: 15px;
+  }
+
+  /* Narrow enough to clear the side seats' cards, short enough to clear yours: the hand on one line. */
+  .result {
+    width: max-content;
+    max-width: calc(var(--table-w) * 0.76);
+    padding: 4px 12px 6px;
+    white-space: normal;
+  }
+
+  .result h2 {
+    font-size: 18px;
+    text-wrap: balance;
+  }
+
+  .result p {
+    overflow: hidden;
+    font-size: 13px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .waiting {
+    top: 44%;
+    width: 84%;
+    padding: 12px 14px;
+  }
+
+  .waiting h2 {
+    font-size: 20px;
+  }
+
+  .waiting p {
+    font-size: 15px;
+  }
+
+  .bet {
+    gap: 4px;
+    font-size: 14px;
+  }
+
+  .dealer {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+}
+
+/* A phone on its side: the wide table, but small, so its labels tighten too. */
+@media (orientation: landscape) and (max-height: 540px) {
+  .table,
+  .table.centred {
+    top: calc(50% - 6px);
+  }
+
+  .wordmark {
+    display: none;
+  }
+
+  /* The top seats fill the felt above the board on a table this short, so the pot moves to the
+     open felt left of your cards, side pots stacked under it. */
+  .center {
+    top: 79%;
+    bottom: auto;
+    left: 25%;
+    transform: translate(-50%, -50%);
+  }
+
+  .pots {
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  /* A result is only up for a moment, so it takes its usual place over the top seats. */
+  .center.showingResult {
+    top: auto;
+    bottom: calc(50% + var(--board-w) * 1.4 * 0.4 + 10px);
+    left: 50%;
+    z-index: 4; /* over the top seats and the dealer button */
+    transform: translateX(-50%);
+  }
+
+  .resting .center.showingResult {
+    top: 50%;
+    bottom: auto;
+    transform: translate(-50%, -50%);
+  }
+
+  .potLabel {
+    padding: 2px 10px;
+    font-size: 15px;
+  }
+
+  .result {
+    padding: 5px 14px 6px;
+  }
+
+  .result h2 {
+    font-size: 18px;
+  }
+
+  .result p {
+    font-size: 14px;
+  }
+
+  .waiting {
+    padding: 10px 14px;
+  }
+
+  .waiting h2 {
+    font-size: 19px;
+  }
+
+  .waiting p {
+    font-size: 14px;
+  }
+
+  .bet {
+    gap: 4px;
+    font-size: 14px;
+  }
+
+  .dealer {
+    width: 22px;
+    height: 22px;
+    font-size: 12px;
   }
 }

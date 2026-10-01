@@ -150,3 +150,61 @@
   border-radius: 999px;
   background: var(--plaque-edge);
 }
+
+/* Phones: the panel leaves its corner and joins the page's grid, with taller, thumb-sized controls. */
+@media (orientation: portrait) and (max-width: 900px), (orientation: landscape) and (max-height: 540px) {
+  .panel {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    padding: 10px;
+  }
+
+  .status {
+    margin-bottom: 6px;
+    font-size: 15px;
+  }
+
+  .row > * {
+    height: 52px;
+  }
+
+  .rebuy {
+    height: 52px;
+  }
+
+  .amount {
+    height: 38px;
+  }
+
+  .presets button,
+  .presets span {
+    height: 38px;
+  }
+}
+
+@media (orientation: portrait) and (max-width: 900px) {
+  /* Full width on a phone; on an upright tablet it stops at a comfortable reach, centred. */
+  .panel {
+    justify-self: center;
+    width: min(calc(100% - 20px), 560px);
+    margin: 0 0 max(10px, env(safe-area-inset-bottom));
+  }
+}
+
+@media (orientation: landscape) and (max-height: 540px) {
+  .panel {
+    grid-row: 2;
+    grid-column: 2;
+    align-self: end;
+    width: 280px;
+    margin: 0 10px max(10px, env(safe-area-inset-bottom)) 0;
+  }
+}
+
+/* Touch screens have no F / C / R keys to show. */
+@media (hover: none) {
+  .key {
+    display: none;
+  }
+}

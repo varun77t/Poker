@@ -6,7 +6,7 @@ related_targets: ["src/components/table"]
 ---
 
 ## Scope
-The finished-game screen (room status `finished`): Operate mode. Desktop only, fits 1280x680 without scrolling, scales up to large monitors. Shown to everyone seated after the host ends the game or one player is left with chips (rebuys off).
+The finished-game screen (room status `finished`): Operate mode. Fits a 1280x680 desktop window without scrolling and scales up to large monitors; on phones it becomes one scrolling column (client/DESIGN.md, Phones). Shown to everyone seated after the host ends the game or one player is left with chips (rebuys off).
 
 ## Audience, job and constraints
 The same friends on a voice call. Job: see who won and by how much, find your own line, and (host) start the next game in one click; others see who they are waiting for; anyone can leave. The owner said the group usually plays again right away, so Restart is the primary action and the standings are the context. Results come only from the server's `finalResults` (ranked by net); players who left the game still have a line. The host may change settings here before restarting (they apply on restart).
